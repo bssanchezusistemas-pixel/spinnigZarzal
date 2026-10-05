@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+@theme {
+  --color-panther-bg: #090b0e;
+  --color-panther-card: #131720;
+  --color-panther-card-light: #1c222f;
+  --color-panther-border: #222a38;
+  --color-panther-neon: #d4ff00;
+  --color-panther-neon-hover: #bde600;
+  --color-panther-neon-dim: rgba(212, 255, 0, 0.15);
+  --color-panther-red: #ef4444;
+  --color-panther-green: #22c55e;
+  --color-panther-amber: #f59e0b;
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.88; transform: scale(1.02); }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2.5s ease-in-out infinite;
+}
+
+.panther-glow {
+  box-shadow: 0 0 25px rgba(212, 255, 0, 0.35);
+}
+
+.panther-glow-sm {
+  box-shadow: 0 0 12px rgba(212, 255, 0, 0.25);
+}
+
+.panther-border-glow {
+  border-color: #d4ff00;
+  box-shadow: inset 0 0 10px rgba(212, 255, 0, 0.15), 0 0 10px rgba(212, 255, 0, 0.2);
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: #090b0e;
+}
+::-webkit-scrollbar-thumb {
+  background: #222a38;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #d4ff00;
+}
