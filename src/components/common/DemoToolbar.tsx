@@ -31,7 +31,8 @@ export const DemoToolbar: React.FC<DemoToolbarProps> = ({
     { id: 'calendar', label: 'Calendario', number: '7', role: 'both' },
     { id: 'admin-dashboard', label: 'Panel Admin', number: '8', role: 'admin' },
     { id: 'bike-management', label: 'Gestión Bicis', number: '10', role: 'admin' },
-    { id: 'clients-list', label: 'Clientes', number: '11', role: 'admin' },
+    { id: 'clients-list', label: 'Clientes CRM', number: '11', role: 'admin' },
+    { id: 'cierre-caja', label: 'Cierre de Caja', number: '12', role: 'admin' },
   ];
 
   return (
@@ -46,12 +47,12 @@ export const DemoToolbar: React.FC<DemoToolbarProps> = ({
           PANTHER <span className="text-[#D4FF00]">RIDE</span>
         </span>
         <span className="bg-[#1f2633] text-[#D4FF00] text-[10px] font-bold px-2 py-0.5 rounded-full border border-[#D4FF00]/30">
-          DEMO COMERCIAL
+          PRO v2.0
         </span>
       </div>
 
-      {/* Screen Quick Selector (Tabs 1 to 11) */}
-      <div className="hidden lg:flex items-center gap-1 overflow-x-auto max-w-xl py-1">
+      {/* Screen Quick Selector (Tabs 1 to 12) */}
+      <div className="hidden lg:flex items-center gap-1 overflow-x-auto max-w-2xl py-1">
         {screens.map((s) => {
           const isActive = currentScreen === s.id;
           return (

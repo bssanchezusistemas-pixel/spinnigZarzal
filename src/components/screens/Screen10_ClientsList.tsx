@@ -1,15 +1,20 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Search, MessageCircle } from 'lucide-react';
-import type { ClientUser } from '../../types';
+import { ArrowLeft, Search, MessageCircle, ShieldCheck, Ticket } from 'lucide-react';
+import type { ClientUser, ClientType } from '../../types';
 
 interface Screen10ClientsListProps {
   clients: ClientUser[];
   onBack: () => void;
+  onUpdateClientMembership?: (clientId: string, type: ClientType) => void;
 }
 
-export const Screen10_ClientsList: React.FC<Screen10ClientsListProps> = ({ clients, onBack }) => {
+export const Screen10_ClientsList: React.FC<Screen10ClientsListProps> = ({ 
+  clients, 
+  onBack,
+  onUpdateClientMembership
+}) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [filter, setFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [filter, setFilter] = useState<'all' | 'mensualidad' | 'particular'>('all');
 
   const filteredClients = clients.filter((c) => {
     const matchesSearch = 
@@ -18,7 +23,7 @@ export const Screen10_ClientsList: React.FC<Screen10ClientsListProps> = ({ clien
       c.phone.includes(searchTerm);
 
     if (filter === 'all') return matchesSearch;
-    return matchesSearch && c.status === filter;
+    return matchesSearch && c.clientType === filter;
   });
 
   return (
@@ -32,11 +37,14 @@ export const Screen10_ClientsList: React.FC<Screen10ClientsListProps> = ({ clien
           >
             <ArrowLeft className="w-4 h-4" />
           </button>
-          <h1 className="text-base font-black font-['Montserrat',sans-serif] text-white tracking-tight">
-            Clientes
-          </h1>
+          <div>
+            <h1 className="text-base font-black font-['Montserrat',sans-serif] text-white tracking-tight">
+              Clientes & Membresías
+            </h1>
+            <span className="text-[10px] text-slate-400">Directorio Oficial Panther Ride</span>
+          </div>
           <span className="text-[10px] text-slate-400 ml-auto bg-[#131720] px-2 py-1 rounded-md border border-[#222a38]">
-            {filteredClients.length} registrados
+            {filteredClients.length} riders
           </span>
         </div>
 
@@ -47,7 +55,7 @@ export const Screen10_ClientsList: React.FC<Screen10ClientsListProps> = ({ clien
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Buscar cliente..."
+            placeholder="Buscar por nombre, celular..."
             className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#131720] border border-[#222a38] focus:border-[#D4FF00] focus:outline-none text-xs text-white placeholder-slate-400 transition-colors"
           />
         </div>
@@ -62,77 +70,103 @@ export const Screen10_ClientsList: React.FC<Screen10ClientsListProps> = ({ clien
                 : 'bg-[#131720] text-slate-400 hover:text-white border border-[#222a38]'
             }`}
           >
-            Todos
+            Todos ({clients.length})
           </button>
           <button
-            onClick={() => setFilter('active')}
-            className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
-              filter === 'active'
-                ? 'bg-[#D4FF00] text-black shadow-md shadow-[#D4FF00]/20'
-                : 'bg-[#131720] text-slate-400 hover:text-white border border-[#222a38]'
+            onClick={() => setFilter('mensualidad')}
+            className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1 ${
+              filter === 'mensualidad'
+                ? 'bg-emerald-500 text-black shadow-md'
+                : 'bg-[#131720] text-emerald-400 hover:text-white border border-emerald-500/30'
             }`}
           >
-            Activos
+            <ShieldCheck className="w-3 h-3" />
+            <span>Mensualidades</span>
           </button>
           <button
-            onClick={() => setFilter('inactive')}
-            className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
-              filter === 'inactive'
-                ? 'bg-[#D4FF00] text-black shadow-md shadow-[#D4FF00]/20'
-                : 'bg-[#131720] text-slate-400 hover:text-white border border-[#222a38]'
+            onClick={() => setFilter('particular')}
+            className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1 ${
+              filter === 'particular'
+                ? 'bg-sky-500 text-black shadow-md'
+                : 'bg-[#131720] text-sky-400 hover:text-white border border-sky-500/30'
             }`}
           >
-            Inactivos
+            <Ticket className="w-3 h-3" />
+            <span>Particulares</span>
           </button>
         </div>
 
         {/* Client Directory List */}
         <div className="space-y-2.5">
-          {filteredClients.map((client) => (
-            <div
-              key={client.id}
-              className="p-3 rounded-2xl bg-[#131720] border border-[#222a38] flex items-center justify-between hover:border-[#D4FF00]/40 transition-all group shadow-sm"
-            >
-              <div className="flex items-center gap-3">
-                <img
-                  src={client.avatar}
-                  alt={client.name}
-                  className="w-10 h-10 rounded-full object-cover border border-[#222a38] group-hover:border-[#D4FF00]/50 transition-colors"
-                />
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-white">
-                      {client.name}
+          {filteredClients.map((client) => {
+            const hasMembership = client.clientType === 'mensualidad';
+
+            return (
+              <div
+                key={client.id}
+                className="p-3 rounded-2xl bg-[#131720] border border-[#222a38] flex items-center justify-between hover:border-[#D4FF00]/40 transition-all group shadow-sm"
+              >
+                <div className="flex items-center gap-3">
+                  <img
+                    src={client.avatar}
+                    alt={client.name}
+                    className="w-10 h-10 rounded-full object-cover border border-[#222a38] group-hover:border-[#D4FF00]/50 transition-colors"
+                  />
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs font-bold text-white">
+                        {client.name}
+                      </span>
+                      {hasMembership ? (
+                        <span className="text-[9px] font-bold text-emerald-400 bg-emerald-950/60 px-1.5 py-0.2 rounded border border-emerald-500/30">
+                          Mensualidad
+                        </span>
+                      ) : (
+                        <span className="text-[9px] font-bold text-sky-400 bg-sky-950/60 px-1.5 py-0.2 rounded border border-sky-500/30">
+                          Particular
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-[10px] text-slate-400 block font-mono">
+                      {client.phone}
+                    </span>
+                    <span className="text-[9px] text-slate-400 block">
+                      {hasMembership 
+                        ? `Vence: ${client.membershipExpiresAt || 'Activa'}` 
+                        : `${client.totalRides} clases tomadas`}
                     </span>
                   </div>
-                  <span className="text-[10px] text-slate-400 block">
-                    {client.email}
-                  </span>
-                  <span className="text-[10px] text-slate-400 block font-mono">
-                    {client.phone}
-                  </span>
+                </div>
+
+                {/* Actions: Toggle Membership & WhatsApp */}
+                <div className="flex flex-col items-end gap-1.5">
+                  <a
+                    href={`https://wa.me/${client.phone.replace(/[^0-9]/g, '')}?text=Hola%20${encodeURIComponent(client.name)},%20te%20escribimos%20de%20Panther%20Ride%20Zarzal!`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="p-1 rounded-lg bg-[#1C222F] hover:bg-emerald-600 hover:text-white text-slate-400 transition-colors text-[10px] flex items-center gap-1 px-2 cursor-pointer"
+                    title="Contactar por WhatsApp"
+                  >
+                    <MessageCircle className="w-3 h-3 text-emerald-400" />
+                    <span>WhatsApp</span>
+                  </a>
+
+                  {onUpdateClientMembership && (
+                    <button
+                      onClick={() => onUpdateClientMembership(client.id, hasMembership ? 'particular' : 'mensualidad')}
+                      className={`text-[9px] font-semibold px-2 py-0.5 rounded transition-all cursor-pointer ${
+                        hasMembership
+                          ? 'text-slate-400 bg-black/40 hover:text-rose-400'
+                          : 'text-[#D4FF00] bg-[#D4FF00]/10 hover:bg-[#D4FF00]/20'
+                      }`}
+                    >
+                      {hasMembership ? 'Cambiar a Particular' : '+ Asignar Mensualidad'}
+                    </button>
+                  )}
                 </div>
               </div>
-
-              {/* Status pill & WhatsApp action */}
-              <div className="flex flex-col items-end gap-1.5">
-                <span className="px-2 py-0.5 rounded-full bg-emerald-950/60 border border-emerald-500/40 text-emerald-400 text-[10px] font-bold">
-                  Activo
-                </span>
-
-                <a
-                  href={`https://wa.me/${client.phone.replace(/[^0-9]/g, '')}?text=Hola%20${encodeURIComponent(client.name)},%20te%20escribimos%20de%20Panther%20Ride%20Zarzal!`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="p-1 rounded-lg bg-[#1C222F] hover:bg-emerald-600 hover:text-white text-slate-400 transition-colors text-[10px] flex items-center gap-1 px-2"
-                  title="Contactar por WhatsApp"
-                >
-                  <MessageCircle className="w-3 h-3 text-emerald-400" />
-                  <span>Chat</span>
-                </a>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 

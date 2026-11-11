@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Calendar, Bike as BikeIconNav, Users, MoreHorizontal } from 'lucide-react';
+import { Home, Calendar, Bike as BikeIconNav, Users, DollarSign } from 'lucide-react';
 import type { ScreenId, UserRole } from '../../types';
 
 interface BottomNavProps {
@@ -56,18 +56,18 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentScreen, onNavigate,
     { id: 'calendar' as ScreenId, label: 'Clases', icon: Calendar },
     { id: 'bike-management' as ScreenId, label: 'Bicicletas', icon: BikeIconNav },
     { id: 'clients-list' as ScreenId, label: 'Clientes', icon: Users },
-    { id: 'admin-dashboard' as ScreenId, label: 'Más', icon: MoreHorizontal },
+    { id: 'cierre-caja' as ScreenId, label: 'Caja', icon: DollarSign },
   ];
 
   return (
     <nav className="h-16 border-t border-[#222938] bg-[#0E121A]/95 backdrop-blur-md px-2 flex items-center justify-around z-20 shrink-0 select-none">
-      {adminNavItems.map((item, idx) => {
-        const isActive = currentScreen === item.id && (idx !== 4);
+      {adminNavItems.map((item) => {
+        const isActive = currentScreen === item.id;
         const Icon = item.icon;
 
         return (
           <button
-            key={`${item.id}-${idx}`}
+            key={item.id}
             onClick={() => onNavigate(item.id)}
             className="flex flex-col items-center justify-center flex-1 py-1 transition-colors duration-200 cursor-pointer"
           >
