@@ -9,7 +9,8 @@ import {
   Settings,
   ChevronRight,
   TrendingUp,
-  DollarSign
+  DollarSign,
+  Activity
 } from 'lucide-react';
 import { PantherLogo } from '../common/PantherLogo';
 import { db } from '../../services/db';
@@ -25,143 +26,215 @@ export const Screen8_AdminDashboard: React.FC<Screen8AdminDashboardProps> = ({
   onOpenCreateClassModal,
 }) => {
   const summary = db.getCashSummary('2026-09-25');
+  const bikes = db.getBikes();
+  const availableBikes = bikes.filter(b => b.status === 'available').length;
 
   const adminActions = [
     {
-      title: 'Crear clase',
+      title: 'Crear nueva clase',
+      desc: 'Horarios, instructores y cupos de pedaleo',
       icon: CalendarPlus,
       action: () => (onOpenCreateClassModal ? onOpenCreateClassModal() : onNavigateScreen('calendar')),
       highlight: true,
-      badge: 'Nuevo',
+      badge: 'Nuevo Horario',
     },
     {
-      title: 'Ver bicicletas',
+      title: 'Gestión de Bicicletas',
+      desc: '14 bicis en sala: Disponibles, reservadas o taller',
       icon: Bike,
       action: () => onNavigateScreen('bike-management'),
       highlight: false,
-      badge: '14 Bicis',
+      badge: `${availableBikes} Libres`,
     },
     {
-      title: 'Reservas',
+      title: 'Reservas y Asistencia',
+      desc: 'Monitoreo de asistencia y tickets activos',
       icon: Ticket,
       action: () => onNavigateScreen('my-classes'),
       highlight: false,
-      badge: `${summary.totalRiders} hoy`,
+      badge: `${summary.totalRiders} Alumnos`,
     },
     {
-      title: 'Clientes CRM',
+      title: 'Directorio CRM de Clientes',
+      desc: 'Control de mensualidades y particulares',
       icon: Users,
       action: () => onNavigateScreen('clients-list'),
       highlight: false,
-      badge: 'Directorio',
+      badge: 'Clientes',
     },
     {
-      title: 'Cierre de Caja',
+      title: 'Cierre de Caja & Finanzas',
+      desc: 'Arqueo diario, Nequi, Efectivo y export WhatsApp',
       icon: CreditCard,
       action: () => onNavigateScreen('cierre-caja'),
       highlight: true,
-      badge: `$${(summary.totalIncome / 1000).toFixed(0)}k hoy`,
+      badge: `$${(summary.totalIncome / 1000).toFixed(0)}k Hoy`,
     },
     {
-      title: 'Finanzas & Arqueo',
+      title: 'Reportes de Ocupación',
+      desc: 'Estadísticas del studio de indoor cycling',
       icon: BarChart3,
       action: () => onNavigateScreen('cierre-caja'),
       highlight: false,
-      badge: 'Reporte',
+      badge: `${summary.occupancyPercent}% Ocupación`,
     },
   ];
 
   return (
-    <div className="flex-1 flex flex-col justify-between p-5 bg-[#090B0E] overflow-y-auto">
-      <div>
+    <div className="flex-1 flex flex-col justify-between p-4 sm:p-6 bg-[#090B0E] overflow-y-auto">
+      <div className="max-w-5xl mx-auto w-full">
         {/* Top Branding Header */}
-        <div className="flex flex-col items-center text-center pt-2 mb-4">
-          <PantherLogo size="md" showSubtitle={false} className="mb-2" />
-          <h1 className="text-lg font-black font-['Montserrat',sans-serif] text-white tracking-tight">
-            Panel de administrador
-          </h1>
-          <p className="text-[11px] text-slate-400">Control total del studio Zarzal</p>
-        </div>
-
-        {/* Quick Studio Stats Pill */}
-        <div className="mb-4 grid grid-cols-2 gap-2">
-          {/* Occupancy card */}
-          <div className="p-3 rounded-2xl bg-gradient-to-r from-[#131720] to-[#1C222F] border border-[#222a38] flex flex-col justify-between">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-[10px] text-slate-400 font-medium">Ocupación Hoy</span>
-              <TrendingUp className="w-3.5 h-3.5 text-[#D4FF00]" />
+        <div className="flex flex-col sm:flex-row items-center justify-between pb-4 sm:pb-6 border-b border-[#222a38] gap-3">
+          <div className="flex items-center gap-3">
+            <PantherLogo size="sm" showSubtitle={false} />
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-lg sm:text-xl font-black font-['Montserrat',sans-serif] text-white tracking-tight">
+                  Panel de Administración
+                </h1>
+                <span className="px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-[10px] font-bold text-amber-400">
+                  ADMIN ZARZAL
+                </span>
+              </div>
+              <p className="text-xs text-slate-400">
+                Control de operaciones, caja, sala y clientes
+              </p>
             </div>
-            <span className="text-sm font-extrabold text-white">{summary.occupancyPercent}% (Clase 6 PM)</span>
           </div>
 
-          {/* Cash revenue card */}
-          <button
-            onClick={() => onNavigateScreen('cierre-caja')}
-            className="p-3 rounded-2xl bg-gradient-to-r from-[#131720] to-[#1C222F] border border-emerald-500/30 hover:border-emerald-500/60 transition-all text-left flex flex-col justify-between cursor-pointer"
-          >
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-[10px] text-emerald-400 font-bold">Caja Hoy</span>
-              <DollarSign className="w-3.5 h-3.5 text-emerald-400" />
-            </div>
-            <span className="text-sm font-extrabold text-emerald-400 font-mono">
-              ${summary.totalIncome.toLocaleString('es-CO')}
+          <div className="flex items-center gap-2">
+            <span className="flex h-2.5 w-2.5 relative">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
             </span>
-          </button>
+            <span className="text-xs font-semibold text-emerald-400">Studio Operativo</span>
+          </div>
         </div>
 
-        {/* 2-Column Action Tiles Grid */}
-        <div className="grid grid-cols-2 gap-3">
+        {/* Studio Live KPIs Grid: 2 on mobile, 4 on desktop */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 my-5">
+          {/* Card 1: Occupancy */}
+          <div className="p-4 rounded-2xl bg-[#131720] border border-[#222a38] shadow-sm">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[11px] text-slate-400 font-medium">Ocupación Sala</span>
+              <TrendingUp className="w-4 h-4 text-[#D4FF00]" />
+            </div>
+            <span className="text-xl sm:text-2xl font-black text-white font-mono block">
+              {summary.occupancyPercent}%
+            </span>
+            <span className="text-[10px] text-slate-400 mt-1 block">
+              {summary.totalRiders} de 14 bicicletas
+            </span>
+          </div>
+
+          {/* Card 2: Cash Income */}
+          <button
+            type="button"
+            onClick={() => onNavigateScreen('cierre-caja')}
+            className="p-4 rounded-2xl bg-gradient-to-br from-[#131720] to-[#0E121A] border border-emerald-500/30 hover:border-emerald-500/70 text-left transition-all duration-150 active:scale-95 cursor-pointer shadow-sm group"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[11px] text-emerald-400 font-bold">Total Caja Hoy</span>
+              <DollarSign className="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform" />
+            </div>
+            <span className="text-xl sm:text-2xl font-black text-emerald-400 font-mono block">
+              ${summary.totalIncome.toLocaleString('es-CO')}
+            </span>
+            <span className="text-[10px] text-slate-400 mt-1 block">
+              Ver desglose de pagos →
+            </span>
+          </button>
+
+          {/* Card 3: Bikes Active */}
+          <div className="p-4 rounded-2xl bg-[#131720] border border-[#222a38] shadow-sm">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[11px] text-slate-400 font-medium">Bicicletas Libres</span>
+              <Bike className="w-4 h-4 text-sky-400" />
+            </div>
+            <span className="text-xl sm:text-2xl font-black text-white font-mono block">
+              {availableBikes} / 14
+            </span>
+            <span className="text-[10px] text-emerald-400 mt-1 block font-medium">
+              Listas para reservar
+            </span>
+          </div>
+
+          {/* Card 4: Riders Type */}
+          <div className="p-4 rounded-2xl bg-[#131720] border border-[#222a38] shadow-sm">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[11px] text-slate-400 font-medium">Asistencia</span>
+              <Activity className="w-4 h-4 text-amber-400" />
+            </div>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-xs font-bold text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/30">
+                {summary.ridersWithMembership} Mensual
+              </span>
+              <span className="text-xs font-bold text-sky-400 bg-sky-950/60 px-2 py-0.5 rounded border border-sky-500/30">
+                {summary.ridersParticular} Partic.
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Action Tiles Grid: 1 col on mobile, 2 on tablet, 3 on desktop */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {adminActions.map((item, idx) => {
             const Icon = item.icon;
             return (
               <button
                 key={idx}
+                type="button"
                 onClick={item.action}
-                className="p-4 rounded-2xl bg-[#131720] hover:bg-[#1a202c] border border-[#222a38] hover:border-[#D4FF00]/40 flex flex-col items-start justify-between min-h-[105px] transition-all text-left group cursor-pointer shadow-md"
+                className="p-5 rounded-2xl bg-[#131720] hover:bg-[#1a202c] border border-[#222a38] hover:border-[#D4FF00]/50 flex flex-col justify-between min-h-[125px] transition-all duration-150 active:scale-95 text-left group cursor-pointer shadow-md"
               >
                 <div className="w-full flex items-center justify-between">
-                  <div className="w-9 h-9 rounded-xl bg-[#1C222F] flex items-center justify-center text-slate-200 group-hover:text-[#D4FF00] group-hover:scale-105 transition-all">
-                    <Icon className="w-4 h-4" />
+                  <div className="w-10 h-10 rounded-xl bg-[#1C222F] flex items-center justify-center text-slate-200 group-hover:text-[#D4FF00] group-hover:scale-105 transition-all">
+                    <Icon className="w-5 h-5" />
                   </div>
-                  <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
+                  <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${
                     item.highlight 
                       ? 'bg-[#D4FF00]/10 text-[#D4FF00] border border-[#D4FF00]/30' 
-                      : 'text-slate-400 bg-black/50'
+                      : 'text-slate-400 bg-black/50 border border-[#222a38]'
                   }`}>
                     {item.badge}
                   </span>
                 </div>
 
-                <div className="w-full flex items-center justify-between mt-3">
-                  <span className="text-xs font-bold text-white group-hover:text-[#D4FF00] transition-colors">
-                    {item.title}
-                  </span>
-                  <ChevronRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-white transition-colors" />
+                <div className="w-full mt-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-extrabold text-white group-hover:text-[#D4FF00] transition-colors font-['Montserrat',sans-serif]">
+                      {item.title}
+                    </span>
+                    <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
+                  </div>
+                  <p className="text-[11px] text-slate-400 mt-0.5 truncate">
+                    {item.desc}
+                  </p>
                 </div>
               </button>
             );
           })}
         </div>
 
-        {/* Configuration tile full width */}
-        <button
-          onClick={() => alert('Configuración de Studio: Nombre, Horarios, Instructores, Tarifas ($15.000 Particular / $120.000 Mensual)')}
-          className="w-full mt-3 p-3.5 rounded-2xl bg-[#131720] hover:bg-[#1a202c] border border-[#222a38] flex items-center justify-between transition-all cursor-pointer group"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-[#1C222F] flex items-center justify-center text-slate-400 group-hover:text-[#D4FF00]">
-              <Settings className="w-4 h-4" />
+        {/* Studio Settings Bar */}
+        <div className="mt-4 sm:mt-6">
+          <button
+            type="button"
+            onClick={() => alert('Configuración General: Tarifas de Clases ($15.000 Particular / $120.000 Mensualidad), Datos de Estudio y Conexión WhatsApp Zarzal')}
+            className="w-full min-h-[48px] p-4 rounded-2xl bg-[#131720] hover:bg-[#1a202c] border border-[#222a38] hover:border-slate-500 flex items-center justify-between active:scale-98 transition-all duration-150 cursor-pointer group"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-[#1C222F] flex items-center justify-center text-slate-400 group-hover:text-[#D4FF00]">
+                <Settings className="w-4 h-4" />
+              </div>
+              <div className="text-left">
+                <span className="text-xs font-bold text-white block">Configuración de Studio & Tarifas</span>
+                <span className="text-[10px] text-slate-400">Zarzal, Valle del Cauca • Versión 2.0</span>
+              </div>
             </div>
-            <span className="text-xs font-bold text-white">Configuración del Studio</span>
-          </div>
-          <ChevronRight className="w-4 h-4 text-slate-500" />
-        </button>
-      </div>
-
-      <div className="pt-3">
-        <p className="text-[10px] text-center text-slate-400">
-          Zarzal, Valle • Sistema Panther Ride Pro v2.0
-        </p>
+            <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-white transition-colors" />
+          </button>
+        </div>
       </div>
     </div>
   );
