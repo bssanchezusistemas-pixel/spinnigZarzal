@@ -36,3 +36,4 @@ dist-ssr
 /HERO_BLACK_RIDE.md
 /logo.jpg
 *.mp4
+!public/*.mp4

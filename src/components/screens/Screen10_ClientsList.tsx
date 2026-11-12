@@ -201,10 +201,10 @@ export const Screen10_ClientsList: React.FC<Screen10ClientsListProps> = ({
                     href={`https://wa.me/${client.phone.replace(/[^0-9]/g, '')}?text=Hola%20${encodeURIComponent(client.name)},%20te%20escribimos%20de%20BLACK%20RIDE%20Zarzal!%20🐆`}
                     target="_blank"
                     rel="noreferrer"
-                    className="min-h-[36px] px-3 py-1.5 rounded-xl bg-[#1C222F] hover:bg-emerald-600 hover:text-white text-slate-300 active:scale-95 transition-all duration-150 text-xs flex items-center gap-1.5 cursor-pointer"
+                    className="min-h-[36px] px-3 py-1.5 rounded-xl bg-[#1C222F] hover:bg-[#252d3d] border border-[#222a38] hover:border-[#D4AF37]/50 text-slate-300 active:scale-95 transition-all duration-150 text-xs flex items-center gap-1.5 cursor-pointer"
                     title="Contactar por WhatsApp"
                   >
-                    <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
+                    <MessageCircle className="w-3.5 h-3.5 text-[#D4AF37]" />
                     <span>WhatsApp</span>
                   </a>
 

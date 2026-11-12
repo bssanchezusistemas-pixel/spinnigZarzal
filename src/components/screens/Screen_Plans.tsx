@@ -51,7 +51,7 @@ export const Screen_Plans: React.FC<ScreenPlansProps> = ({
             <button
               onClick={onBack}
               aria-label="Volver"
-              className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl bg-[#131720] border border-[#222a38] text-slate-300 hover:text-white hover:border-[#D4FF00]/40 active:scale-95 transition-all duration-150 cursor-pointer flex items-center justify-center"
+              className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl bg-[#131720] border border-[#222a38] text-slate-300 hover:text-white hover:border-[#D4AF37]/40 active:scale-95 transition-all duration-150 cursor-pointer flex items-center justify-center"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
@@ -60,7 +60,7 @@ export const Screen_Plans: React.FC<ScreenPlansProps> = ({
                 <h1 className="text-lg sm:text-xl font-black font-['Montserrat',sans-serif] text-white tracking-tight">
                   Membresías & Tarifas BLACK RIDE 🐆
                 </h1>
-                <span className="px-2 py-0.5 rounded-full bg-[#D4FF00]/10 border border-[#D4FF00]/30 text-[10px] font-bold text-[#D4FF00]">
+                <span className="px-2 py-0.5 rounded-full bg-[#D4AF37]/10 border border-[#D4AF37]/30 text-[10px] font-bold text-[#D4AF37]">
                   Zarzal
                 </span>
               </div>
@@ -75,11 +75,11 @@ export const Screen_Plans: React.FC<ScreenPlansProps> = ({
         {/* Motivational Banner */}
         <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-[#141B26] via-[#0E131C] to-[#141B26] border border-[#222a38] flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#D4FF00]/10 border border-[#D4FF00]/30 flex items-center justify-center text-[#D4FF00] shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 flex items-center justify-center text-[#D4AF37] shrink-0">
               <Flame className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-xs font-black uppercase tracking-wider text-[#D4FF00] block">
+              <span className="text-xs font-black uppercase tracking-wider text-[#D4AF37] block">
                 Entrenamiento de Alto Rendimiento
               </span>
               <p className="text-xs text-slate-300 mt-0.5">
@@ -89,7 +89,7 @@ export const Screen_Plans: React.FC<ScreenPlansProps> = ({
           </div>
 
           <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-black/60 border border-[#222a38] text-xs font-bold text-slate-300">
-            <Bike className="w-3.5 h-3.5 text-[#D4FF00]" />
+            <Bike className="w-3.5 h-3.5 text-[#D4AF37]" />
             <span>14 Bicicletas Pro en Sala</span>
           </div>
         </div>
@@ -104,15 +104,15 @@ export const Screen_Plans: React.FC<ScreenPlansProps> = ({
                 onClick={() => setSelectedPlanId(plan.id)}
                 className={`p-4 sm:p-5 rounded-2xl border transition-all duration-150 flex flex-col justify-between cursor-pointer relative group ${
                   isSelected
-                    ? 'bg-gradient-to-b from-[#18202E] to-[#0F141F] border-[#D4FF00] shadow-[0_0_25px_rgba(212,255,0,0.18)] scale-[1.02]'
+                    ? 'bg-gradient-to-b from-[#18202E] to-[#0F141F] border-[#D4AF37] shadow-[0_0_25px_rgba(212,175,55,0.25)] scale-[1.02]'
                     : plan.highlight
-                    ? 'bg-[#131720] border-[#D4FF00]/50 hover:border-[#D4FF00]'
+                    ? 'bg-[#131720] border-[#D4AF37]/50 hover:border-[#D4AF37]'
                     : 'bg-[#10141D] border-[#222a38] hover:border-slate-500 hover:bg-[#141924]'
                 }`}
               >
                 {/* Badge if highlight */}
                 {plan.badge && (
-                  <div className="absolute -top-2.5 right-4 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-[#D4FF00] text-black shadow-md">
+                  <div className="absolute -top-2.5 right-4 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-gold-gradient text-black shadow-md">
                     {plan.badge}
                   </div>
                 )}
@@ -122,7 +122,7 @@ export const Screen_Plans: React.FC<ScreenPlansProps> = ({
                     <span className="text-xs font-black uppercase tracking-wider text-slate-400">
                       Membresía
                     </span>
-                    <span className="text-[11px] font-bold text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-500/30">
+                    <span className="text-[11px] font-bold text-[#F3E5AB] bg-[#D4AF37]/15 px-2 py-0.5 rounded-md border border-[#D4AF37]/30">
                       {plan.validityText}
                     </span>
                   </div>
@@ -136,7 +136,7 @@ export const Screen_Plans: React.FC<ScreenPlansProps> = ({
 
                   {/* Price */}
                   <div className="my-3 pb-3 border-b border-[#222a38]">
-                    <span className="text-2xl sm:text-3xl font-black text-[#D4FF00] font-mono tracking-tight block">
+                    <span className="text-2xl sm:text-3xl font-black text-[#D4AF37] font-mono tracking-tight block">
                       {formatCOP(plan.price)}
                     </span>
                     <span className="text-[11px] font-bold text-slate-300 block mt-0.5">
@@ -148,7 +148,7 @@ export const Screen_Plans: React.FC<ScreenPlansProps> = ({
                   <ul className="space-y-2 text-xs text-slate-300">
                     {plan.benefits.map((b, idx) => (
                       <li key={idx} className="flex items-start gap-2">
-                        <Check className="w-3.5 h-3.5 text-[#D4FF00] shrink-0 mt-0.5 stroke-[3]" />
+                        <Check className="w-3.5 h-3.5 text-[#D4AF37] shrink-0 mt-0.5 stroke-[3]" />
                         <span className="text-[11px] leading-tight">{b}</span>
                       </li>
                     ))}
@@ -166,8 +166,8 @@ export const Screen_Plans: React.FC<ScreenPlansProps> = ({
                     }}
                     className={`w-full min-h-[42px] py-2.5 px-4 rounded-xl font-black text-xs tracking-wide flex items-center justify-center gap-1.5 transition-all duration-150 active:scale-95 cursor-pointer shadow-md ${
                       isSelected
-                        ? 'bg-[#D4FF00] hover:bg-[#c6f000] text-black shadow-[0_0_15px_rgba(212,255,0,0.3)]'
-                        : 'bg-[#1C222F] hover:bg-[#252d3d] text-white border border-[#222a38] hover:border-[#D4FF00]/50'
+                        ? 'bg-gold-gradient hover:brightness-110 text-black shadow-[0_0_15px_rgba(212,175,55,0.35)]'
+                        : 'bg-[#1C222F] hover:bg-[#252d3d] text-white border border-[#222a38] hover:border-[#D4AF37]/50'
                     }`}
                   >
                     <span>{isAdmin ? 'Ver Alumnos' : 'Elegir Plan'}</span>
@@ -230,7 +230,7 @@ export const Screen_Plans: React.FC<ScreenPlansProps> = ({
           {/* Card 1: Beneficio Mi Bicicleta Favorita */}
           <div className="md:col-span-6 p-5 rounded-2xl bg-gradient-to-br from-[#131720] to-[#0E121A] border border-[#222a38] space-y-3 shadow-xl">
             <div className="flex items-center gap-2.5 pb-2 border-b border-[#222a38]">
-              <div className="w-8 h-8 rounded-lg bg-[#D4FF00]/10 border border-[#D4FF00]/30 flex items-center justify-center text-[#D4FF00]">
+              <div className="w-8 h-8 rounded-lg bg-[#D4AF37]/10 border border-[#D4AF37]/30 flex items-center justify-center text-[#D4AF37]">
                 <Sparkles className="w-4 h-4" />
               </div>
               <h3 className="text-sm font-black text-white font-['Montserrat',sans-serif]">
@@ -245,7 +245,7 @@ export const Screen_Plans: React.FC<ScreenPlansProps> = ({
             <ul className="space-y-2 text-xs text-slate-300">
               {BLACK_RIDE_POLICIES.favoriteBike.points.map((point, idx) => (
                 <li key={idx} className="flex items-start gap-2.5">
-                  <span className="w-5 h-5 rounded-full bg-[#1C222F] border border-[#D4FF00]/40 text-[#D4FF00] font-black text-[10px] flex items-center justify-center shrink-0 mt-0.5">
+                  <span className="w-5 h-5 rounded-full bg-[#1C222F] border border-[#D4AF37]/40 text-[#D4AF37] font-black text-[10px] flex items-center justify-center shrink-0 mt-0.5">
                     {idx + 1}
                   </span>
                   <span>{point}</span>
@@ -293,7 +293,7 @@ export const Screen_Plans: React.FC<ScreenPlansProps> = ({
             </div>
 
             <div className="pt-2 text-center">
-              <span className="text-xs font-black uppercase tracking-wider text-[#D4FF00]">
+              <span className="text-xs font-black uppercase tracking-wider text-[#D4AF37]">
                 {BLACK_RIDE_POLICIES.membershipPolicy.slogan}
               </span>
             </div>
@@ -301,9 +301,9 @@ export const Screen_Plans: React.FC<ScreenPlansProps> = ({
         </div>
 
         {/* Direct WhatsApp Call to Action */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-950/60 via-[#101924] to-emerald-950/60 border border-emerald-500/40 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#17202C] via-[#101924] to-[#17202C] border border-[#D4AF37]/40 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3 text-center sm:text-left">
-            <div className="w-11 h-11 rounded-xl bg-emerald-500 flex items-center justify-center text-black font-black shrink-0 shadow-lg shadow-emerald-500/20">
+            <div className="w-11 h-11 rounded-xl bg-gold-gradient flex items-center justify-center text-black font-black shrink-0 shadow-lg shadow-[#D4AF37]/20">
               <MessageCircle className="w-6 h-6 stroke-[2.5]" />
             </div>
             <div>
@@ -319,7 +319,7 @@ export const Screen_Plans: React.FC<ScreenPlansProps> = ({
           <button
             type="button"
             onClick={() => handleWhatsAppContact(selectedPlan)}
-            className="w-full sm:w-auto min-h-[46px] px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs flex items-center justify-center gap-2 active:scale-95 transition-all duration-150 cursor-pointer shadow-lg"
+            className="w-full sm:w-auto min-h-[46px] px-6 py-2.5 rounded-xl bg-gold-gradient hover:brightness-110 text-black font-black text-xs flex items-center justify-center gap-2 active:scale-95 transition-all duration-150 cursor-pointer shadow-lg"
           >
             <MessageCircle className="w-4 h-4" />
             <span>Adquirir {selectedPlan.name} ({formatCOP(selectedPlan.price)})</span>

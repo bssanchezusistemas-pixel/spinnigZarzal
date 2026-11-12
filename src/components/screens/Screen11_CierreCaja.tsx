@@ -220,9 +220,9 @@ ${summary.reservations.map(r => `• Bici #${r.bikeNumber} - ${r.clientName} (${
             <button
               type="button"
               onClick={generateWhatsAppReport}
-              className="min-h-[36px] px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 active:scale-95 transition-all duration-150 cursor-pointer shadow-sm"
+              className="min-h-[36px] px-3 py-1.5 rounded-xl bg-gold-gradient hover:brightness-110 text-black font-bold text-xs flex items-center gap-1.5 active:scale-95 transition-all duration-150 cursor-pointer shadow-sm"
             >
-              <MessageCircle className="w-3.5 h-3.5" />
+              <MessageCircle className="w-3.5 h-3.5 stroke-[2.5]" />
               <span>Reporte WhatsApp</span>
             </button>
             <button

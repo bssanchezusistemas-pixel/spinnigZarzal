@@ -20,9 +20,9 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({ children, isSimulator 
 
   // Simulator Mode (iPhone on PC, Full Screen on Mobile)
   return (
-    <div className="flex-1 flex items-center justify-center p-0 md:p-6 overflow-y-auto bg-gradient-to-b from-[#06080B] via-[#0B0F15] to-[#06080B]">
-      {/* Smartphone Device Shell on Desktop; Natural Fullscreen on Mobile */}
-      <div className="w-full h-full md:w-[395px] md:h-[840px] md:max-h-[92vh] bg-[#07090C] md:rounded-[48px] md:border-[8px] md:border-[#1A222F] md:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9),0_0_50px_rgba(212,255,0,0.12)] relative flex flex-col overflow-hidden md:ring-1 md:ring-white/10 transition-all duration-300">
+    <div className="flex-1 min-h-0 w-full flex flex-col md:flex-row items-stretch md:items-center justify-center p-0 md:p-6 overflow-hidden md:overflow-y-auto bg-[#06080B] md:bg-gradient-to-b md:from-[#06080B] md:via-[#0B0F15] md:to-[#06080B]">
+      {/* Smartphone Device Shell on Desktop; Natural Fullscreen Edge-to-Edge on Mobile */}
+      <div className="w-full flex-1 md:flex-initial md:w-[395px] md:h-[840px] md:max-h-[92vh] bg-[#07090C] md:rounded-[48px] md:border-[8px] md:border-[#1A222F] md:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9),0_0_50px_rgba(212,255,0,0.12)] relative flex flex-col overflow-hidden md:ring-1 md:ring-white/10 transition-all duration-300">
         
         {/* Dynamic Island Pill (Desktop Simulator Only) */}
         <div className="hidden md:flex absolute top-2.5 left-1/2 -translate-x-1/2 w-24 h-5 bg-black rounded-full z-40 items-center justify-end pr-2 pointer-events-none">

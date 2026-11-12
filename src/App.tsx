@@ -193,7 +193,7 @@ export function App() {
   const selectedBikeObj = bikes.find((b) => b.id === selectedBikeId);
 
   return (
-    <div className="min-h-screen bg-[#06080B] text-slate-100 flex flex-col font-['Plus_Jakarta_Sans',sans-serif]">
+    <div className="h-[100dvh] max-h-[100dvh] w-full bg-[#06080B] text-slate-100 flex flex-col overflow-hidden font-['Plus_Jakarta_Sans',sans-serif]">
       {/* Top Demo Presentation Bar */}
       <DemoToolbar
         currentScreen={currentScreen}

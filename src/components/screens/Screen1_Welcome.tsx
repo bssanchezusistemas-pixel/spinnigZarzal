@@ -36,7 +36,7 @@ export const Screen1_Welcome: React.FC<Screen1WelcomeProps> = ({
   };
 
   return (
-    <div className="flex-1 min-h-0 flex flex-col justify-between relative overflow-y-auto overflow-x-hidden bg-[#06080B] text-slate-100 select-none">
+    <div className="w-full h-full flex flex-col justify-between relative overflow-y-auto overflow-x-hidden bg-[#06080B] text-slate-100 select-none">
       {/* 1. Cinematic Background Video Layer (Panther Silhouette & Gold Flywheel) */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         <video
@@ -121,20 +121,20 @@ export const Screen1_Welcome: React.FC<Screen1WelcomeProps> = ({
       </header>
 
       {/* 3. Center Hero Section (High Impact Headline, Pill Tag & CTAs) */}
-      <main className="relative z-10 flex-1 flex flex-col items-center justify-center text-center px-4 max-w-3xl mx-auto py-1 sm:py-8">
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-center text-center px-4 max-w-3xl mx-auto py-2 sm:py-6">
         {/* Animated Status Pill */}
-        <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-black/60 border border-[#D4AF37]/35 backdrop-blur-md shadow-lg shadow-black/40 mb-2 sm:mb-4 animate-pulse-subtle">
-          <span className="relative flex h-1.5 w-1.5 sm:h-2 sm:w-2">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/60 border border-[#D4AF37]/35 backdrop-blur-md shadow-lg shadow-black/40 mb-3 sm:mb-4 animate-pulse-subtle">
+          <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FFE600] opacity-75" />
-            <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-[#FFE600]" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FFE600]" />
           </span>
-          <span className="text-[8.5px] sm:text-xs uppercase tracking-[0.2em] font-extrabold text-slate-200">
+          <span className="text-[9px] sm:text-xs uppercase tracking-[0.2em] font-extrabold text-slate-200">
             SALA ACTIVA · 14 CUPOS EXCLUSIVOS
           </span>
         </div>
 
         {/* Main Headline (Estilo Têmpera / Dark Luxury) */}
-        <h1 className="text-2xl lg:text-5xl font-black uppercase tracking-tight leading-[1.08] mb-1.5 sm:mb-3">
+        <h1 className="text-[clamp(1.5rem,5.5vw,3.25rem)] font-black uppercase tracking-tight leading-[1.08] mb-2 sm:mb-3">
           <span className="text-white drop-shadow-[0_4px_16px_rgba(0,0,0,0.8)]">
             DOMINA EL RITMO.
           </span>
@@ -145,45 +145,47 @@ export const Screen1_Welcome: React.FC<Screen1WelcomeProps> = ({
         </h1>
 
         {/* Persuasive Subtitle */}
-        <p className="text-[10px] sm:text-xs md:text-base text-slate-300 max-w-xs sm:max-w-xl font-normal mb-3 sm:mb-6 leading-tight sm:leading-relaxed drop-shadow-sm px-1">
+        <p className="text-[11px] sm:text-xs md:text-sm text-slate-300 max-w-xs sm:max-w-md font-normal mb-4 sm:mb-6 leading-tight sm:leading-relaxed drop-shadow-sm px-1">
           45 minutos de adrenalina pura con luces de club, audio inmersivo y selección de puesto en tiempo real.
         </p>
 
-        {/* Dual Call to Action Buttons */}
-        <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 w-full max-w-xs sm:max-w-xl mx-auto">
+        {/* Action Buttons (2-Row Hierarchy: Primary Full Width, Secondary Grid) */}
+        <div className="flex flex-col gap-2.5 w-full max-w-xs sm:max-w-md mx-auto">
           {/* Primary CTA: Reservar Bicicleta */}
           <button
             onClick={onStartBooking}
-            className="w-full sm:flex-1 py-2.5 sm:py-3.5 px-4 sm:px-6 rounded-xl sm:rounded-2xl bg-gold-gradient hover:brightness-110 text-black font-black text-xs sm:text-sm tracking-wide flex items-center justify-center gap-2 shadow-[0_6px_25px_rgba(212,175,55,0.35)] hover:shadow-[0_8px_32px_rgba(212,175,55,0.5)] transition-all duration-200 active:scale-[0.97] cursor-pointer group"
+            className="w-full py-3 sm:py-3.5 px-5 rounded-2xl bg-gold-gradient hover:brightness-110 text-black font-black text-xs sm:text-sm tracking-wide flex items-center justify-center gap-2 shadow-[0_6px_25px_rgba(212,175,55,0.35)] hover:shadow-[0_8px_32px_rgba(212,175,55,0.5)] transition-all duration-200 active:scale-[0.97] cursor-pointer group min-h-[46px]"
           >
-            <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5] transition-transform group-hover:scale-110" />
+            <Calendar className="w-4 h-4 stroke-[2.5] transition-transform group-hover:scale-110" />
             <span className="uppercase tracking-wider">Elegir mi Bicicleta</span>
-            <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[3] ml-auto transition-transform group-hover:translate-x-1" />
+            <ChevronRight className="w-4 h-4 stroke-[3] ml-auto transition-transform group-hover:translate-x-1" />
           </button>
 
-          {/* Secondary CTA: Ver Planes y Membresías */}
-          {onViewPlans && (
+          {/* Secondary & Tertiary CTA row (Touch-Friendly 44px targets) */}
+          <div className="grid grid-cols-2 gap-2 w-full">
+            {onViewPlans && (
+              <button
+                onClick={onViewPlans}
+                className="w-full py-2.5 px-3 rounded-xl bg-[#131720]/90 hover:bg-[#1A222F] border border-[#D4FF00]/40 text-[#D4FF00] font-black text-[11px] sm:text-xs tracking-wider uppercase flex items-center justify-center gap-1.5 backdrop-blur-md transition-all duration-200 active:scale-[0.97] cursor-pointer shadow-md min-h-[44px]"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-[#D4FF00]" />
+                <span>Membresías</span>
+              </button>
+            )}
+
             <button
-              onClick={onViewPlans}
-              className="w-full sm:w-auto py-2.5 sm:py-3.5 px-4 sm:px-5 rounded-xl sm:rounded-2xl bg-[#131720]/90 hover:bg-[#1A222F] border border-[#D4AF37]/40 text-[#D4AF37] font-black text-xs tracking-wider uppercase flex items-center justify-center gap-1.5 backdrop-blur-md transition-all duration-200 active:scale-[0.97] cursor-pointer shadow-md"
+              onClick={onExploreSchedule || onStartBooking}
+              className="w-full py-2.5 px-3 rounded-xl bg-black/60 hover:bg-black/80 border border-white/15 hover:border-[#D4AF37]/50 text-slate-200 hover:text-white font-bold text-[11px] sm:text-xs tracking-wider uppercase flex items-center justify-center gap-1.5 backdrop-blur-md transition-all duration-200 active:scale-[0.97] cursor-pointer min-h-[44px]"
             >
-              <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
-              <span>Ver Membresías</span>
+              <Calendar className="w-3.5 h-3.5 text-[#D4AF37]" />
+              <span>Horarios</span>
             </button>
-          )}
-
-          {/* Tertiary CTA: Ver Horarios / Sala */}
-          <button
-            onClick={onExploreSchedule || onStartBooking}
-            className="w-full sm:w-auto py-2.5 sm:py-3.5 px-3 sm:px-4 rounded-xl sm:rounded-2xl bg-black/60 hover:bg-black/80 border border-white/15 hover:border-[#D4AF37]/50 text-slate-200 hover:text-white font-bold text-[10px] sm:text-xs tracking-wider uppercase flex items-center justify-center gap-1.5 backdrop-blur-md transition-all duration-200 active:scale-[0.97] cursor-pointer"
-          >
-            <span>Horarios</span>
-          </button>
+          </div>
         </div>
       </main>
 
       {/* 4. Bottom Feature Badges & Location (Directo de la estructura del video Têmpera) */}
-      <footer className="relative z-10 w-full max-w-5xl mx-auto px-3 sm:px-6 pb-2.5 sm:pb-6 shrink-0">
+      <footer className="relative z-10 w-full max-w-5xl mx-auto px-3 sm:px-6 pb-3 sm:pb-6 shrink-0">
         {/* 3 Pillars Cards */}
         <div className="grid grid-cols-3 gap-1.5 sm:gap-4 mb-2.5 sm:mb-4">
           {/* Card 1: 14 Bicicletas */}

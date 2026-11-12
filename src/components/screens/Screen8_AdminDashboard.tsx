@@ -114,10 +114,10 @@ export const Screen8_AdminDashboard: React.FC<Screen8AdminDashboardProps> = ({
 
           <div className="flex items-center gap-2">
             <span className="flex h-2.5 w-2.5 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#D4AF37] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#D4AF37]"></span>
             </span>
-            <span className="text-xs font-semibold text-emerald-400">Studio Zarzal Activo</span>
+            <span className="text-xs font-semibold text-[#D4AF37]">Studio Zarzal Activo</span>
           </div>
         </div>
 
@@ -127,7 +127,7 @@ export const Screen8_AdminDashboard: React.FC<Screen8AdminDashboardProps> = ({
           <div className="p-4 rounded-2xl bg-[#131720] border border-[#222a38] shadow-sm">
             <div className="flex items-center justify-between mb-2">
               <span className="text-[11px] text-slate-400 font-medium">Ocupación Sala</span>
-              <TrendingUp className="w-4 h-4 text-[#D4FF00]" />
+              <TrendingUp className="w-4 h-4 text-[#D4AF37]" />
             </div>
             <span className="text-xl sm:text-2xl font-black text-white font-mono block">
               {summary.occupancyPercent}%
@@ -141,13 +141,13 @@ export const Screen8_AdminDashboard: React.FC<Screen8AdminDashboardProps> = ({
           <button
             type="button"
             onClick={() => onNavigateScreen('cierre-caja')}
-            className="p-4 rounded-2xl bg-gradient-to-br from-[#131720] to-[#0E121A] border border-emerald-500/30 hover:border-emerald-500/70 text-left transition-all duration-150 active:scale-95 cursor-pointer shadow-sm group"
+            className="p-4 rounded-2xl bg-gradient-to-br from-[#131720] to-[#0E121A] border border-[#D4AF37]/30 hover:border-[#D4AF37]/70 text-left transition-all duration-150 active:scale-95 cursor-pointer shadow-sm group"
           >
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] text-emerald-400 font-bold">Total Caja Hoy</span>
-              <DollarSign className="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform" />
+              <span className="text-[11px] text-[#D4AF37] font-bold">Total Caja Hoy</span>
+              <DollarSign className="w-4 h-4 text-[#D4AF37] group-hover:scale-110 transition-transform" />
             </div>
-            <span className="text-xl sm:text-2xl font-black text-emerald-400 font-mono block">
+            <span className="text-xl sm:text-2xl font-black text-[#D4AF37] font-mono block">
               ${summary.totalIncome.toLocaleString('es-CO')}
             </span>
             <span className="text-[10px] text-slate-400 mt-1 block">
@@ -164,7 +164,7 @@ export const Screen8_AdminDashboard: React.FC<Screen8AdminDashboardProps> = ({
             <span className="text-xl sm:text-2xl font-black text-white font-mono block">
               {availableBikes} / 14
             </span>
-            <span className="text-[10px] text-emerald-400 mt-1 block font-medium">
+            <span className="text-[10px] text-[#D4AF37] mt-1 block font-medium">
               Listas para reservar
             </span>
           </div>
@@ -176,7 +176,7 @@ export const Screen8_AdminDashboard: React.FC<Screen8AdminDashboardProps> = ({
               <Activity className="w-4 h-4 text-amber-400" />
             </div>
             <div className="flex items-center gap-1.5 mt-1">
-              <span className="text-xs font-bold text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/30">
+              <span className="text-xs font-bold text-[#F3E5AB] bg-[#D4AF37]/15 px-2 py-0.5 rounded border border-[#D4AF37]/30">
                 {summary.ridersWithMembership} Membresía
               </span>
               <span className="text-xs font-bold text-sky-400 bg-sky-950/60 px-2 py-0.5 rounded border border-sky-500/30">
@@ -190,7 +190,7 @@ export const Screen8_AdminDashboard: React.FC<Screen8AdminDashboardProps> = ({
         <div className="mb-5 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#17202C] via-[#10151E] to-[#17202C] border border-[#222a38] shadow-xl">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-[#222a38]">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#D4FF00] flex items-center justify-center text-black font-black">
+              <div className="w-10 h-10 rounded-xl bg-gold-gradient flex items-center justify-center text-black font-black">
                 <Sparkles className="w-5 h-5" />
               </div>
               <div>
