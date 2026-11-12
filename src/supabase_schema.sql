@@ -1,5 +1,5 @@
 -- ==========================================================
--- PANTHER RIDE INDOOR CYCLING - ESQUEMA SUPABASE POSTGRESQL (PRODUCCIÓN)
+-- BLACK RIDE INDOOR CYCLING - ESQUEMA SUPABASE POSTGRESQL (PRODUCCIÓN)
 -- Studio Zarzal, Valle del Cauca, Colombia
 -- ==========================================================
 
@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS public.classes (
   instructor_avatar TEXT,
   total_spots INTEGER DEFAULT 14,
   available_spots INTEGER DEFAULT 14,
-  price_particular NUMERIC(10, 2) DEFAULT 15000, -- Tarifa drop-in por día
+  price_particular NUMERIC(10, 2) DEFAULT 10000, -- Tarifa clase individual $10.000 COP por sesión
   class_type TEXT DEFAULT 'Energía • Resistencia • Combinado',
   status class_status DEFAULT 'active',
   created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL

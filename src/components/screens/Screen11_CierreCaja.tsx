@@ -70,9 +70,17 @@ export const Screen11_CierreCaja: React.FC<Screen11CierreCajaProps> = ({ onBack,
     if (!newClientName.trim() || newAmount <= 0) return;
 
     let conceptLabel = 'Pago registrado en recepción';
-    if (newConcept === 'mensualidad') conceptLabel = 'Mensualidad Ilimitada Panther';
-    else if (newConcept === 'clase_particular') conceptLabel = 'Clase individual particular';
-    else if (newConcept === 'hidratacion') conceptLabel = 'Bebidas e Hidratación';
+    if (newConcept === 'mensualidad') {
+      if (newAmount === 28000) conceptLabel = 'Membresía STARTER (4 Clases • 8 Días)';
+      else if (newAmount === 56000) conceptLabel = 'Membresía PRO (8 Clases • 15 Días)';
+      else if (newAmount === 84000) conceptLabel = 'Membresía PREMIUM (12 Clases • 20 Días)';
+      else if (newAmount === 120000) conceptLabel = 'Membresía ÉLITE (18 Clases • 30 Días)';
+      else conceptLabel = `Membresía BLACK RIDE ($${newAmount.toLocaleString('es-CO')})`;
+    } else if (newConcept === 'clase_particular') {
+      conceptLabel = 'Clase Individual BLACK RIDE ($10.000)';
+    } else if (newConcept === 'hidratacion') {
+      conceptLabel = 'Bebidas e Hidratación';
+    }
 
     db.addDailyPayment({
       date: selectedDate,
@@ -116,7 +124,7 @@ export const Screen11_CierreCaja: React.FC<Screen11CierreCajaProps> = ({ onBack,
   };
 
   const generateWhatsAppReport = () => {
-    const text = `🚴 *PANTHER RIDE - CIERRE DE CAJA OFICIAL*
+    const text = `🐆 *BLACK RIDE - CIERRE DE CAJA OFICIAL*
 📍 *Studio Zarzal, Valle*
 📅 *Fecha:* ${selectedDate}
 ⏰ *Hora de Cierre:* ${new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}
@@ -131,14 +139,14 @@ export const Screen11_CierreCaja: React.FC<Screen11CierreCajaProps> = ({ onBack,
 
 👥 *ASISTENCIA Y SALA:*
 • Total Alumnos: ${summary.totalRiders} riders
-• Con Mensualidad: ${summary.ridersWithMembership} ($0 en entrada)
-• Particulares: ${summary.ridersParticular} ($15.000 c/u)
+• Con Membresía: ${summary.ridersWithMembership} ($0 en entrada - Beneficio Bici Favorita)
+• Clases Individuales: ${summary.ridersParticular} ($10.000 c/u)
 • Ocupación de Sala: ${summary.occupancyPercent}% (14 bicis)
 
 🚴 *LISTA DE ASISTENCIA:*
-${summary.reservations.map(r => `• Bici #${r.bikeNumber} - ${r.clientName} (${r.clientType.toUpperCase()} - ${r.paymentStatus === 'paid' ? 'PAGADO' : r.paymentStatus === 'included_in_membership' ? 'MENSUALIDAD' : 'PENDIENTE'})`).join('\n')}
+${summary.reservations.map(r => `• Bici #${r.bikeNumber} - ${r.clientName} (${r.clientType.toUpperCase()} - ${r.paymentStatus === 'paid' ? 'PAGADO' : r.paymentStatus === 'included_in_membership' ? 'MEMBRESÍA' : 'PENDIENTE'})`).join('\n')}
 
-🔒 *Estado:* Caja Cuadrada y Archivada.`;
+🔒 *Estado:* Caja Cuadrada y Archivada en BLACK RIDE Zarzal.`;
 
     const encoded = encodeURIComponent(text);
     window.open(`https://wa.me/?text=${encoded}`, '_blank');
@@ -153,7 +161,7 @@ ${summary.reservations.map(r => `• Bici #${r.bikeNumber} - ${r.clientName} (${
             <button
               onClick={onBack}
               aria-label="Volver"
-              className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl bg-[#131720] border border-[#222a38] text-slate-300 hover:text-white hover:border-[#D4FF00]/40 active:scale-95 transition-all duration-150 cursor-pointer flex items-center justify-center"
+              className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl bg-[#131720] border border-[#222a38] text-slate-300 hover:text-white hover:border-[#D4AF37]/40 active:scale-95 transition-all duration-150 cursor-pointer flex items-center justify-center"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
@@ -170,7 +178,7 @@ ${summary.reservations.map(r => `• Bici #${r.bikeNumber} - ${r.clientName} (${
           {/* Date Selector Badge & Register State */}
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1.5 bg-[#131720] border border-[#222a38] px-3 py-1.5 rounded-xl">
-              <Calendar className="w-3.5 h-3.5 text-[#D4FF00]" />
+              <Calendar className="w-3.5 h-3.5 text-[#D4AF37]" />
               <select
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
@@ -185,7 +193,7 @@ ${summary.reservations.map(r => `• Bici #${r.bikeNumber} - ${r.clientName} (${
             <button
               type="button"
               onClick={() => setShowAddPaymentModal(true)}
-              className="min-h-[38px] flex items-center gap-1.5 text-xs font-black text-black bg-[#D4FF00] hover:bg-[#c6f000] px-3 py-1.5 rounded-xl active:scale-95 transition-all duration-150 cursor-pointer shadow-md"
+              className="min-h-[38px] flex items-center gap-1.5 text-xs font-black text-black bg-gold-gradient hover:brightness-110 px-3 py-1.5 rounded-xl active:scale-95 transition-all duration-150 cursor-pointer shadow-md"
             >
               <PlusCircle className="w-4 h-4 stroke-[2.5]" />
               <span>+ Venta Extra</span>
@@ -201,8 +209,8 @@ ${summary.reservations.map(r => `• Bici #${r.bikeNumber} - ${r.clientName} (${
                 <Lock className="w-3.5 h-3.5" /> Caja Cerrada
               </span>
             ) : (
-              <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-400 bg-emerald-950/50 px-2.5 py-1 rounded-lg border border-emerald-500/30">
-                <Unlock className="w-3.5 h-3.5" /> Caja Abierta (Turno Activo)
+              <span className="flex items-center gap-1.5 text-xs font-bold text-[#F3E5AB] bg-[#D4AF37]/10 px-2.5 py-1 rounded-lg border border-[#D4AF37]/30">
+                <Unlock className="w-3.5 h-3.5 text-[#D4AF37]" /> Caja Abierta (Turno Activo)
               </span>
             )}
             <span className="text-xs text-slate-400 hidden sm:inline">Recepción Sede Zarzal</span>
@@ -234,24 +242,24 @@ ${summary.reservations.map(r => `• Bici #${r.bikeNumber} - ${r.clientName} (${
           <div className="lg:col-span-5 space-y-4">
             {/* Hero Revenue Card */}
             <div className="p-5 rounded-2xl bg-gradient-to-br from-[#151c27] via-[#10141d] to-[#0d1017] border border-[#222a38] shadow-xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-36 h-36 bg-[#D4FF00]/10 rounded-full blur-2xl pointer-events-none"></div>
+              <div className="absolute top-0 right-0 w-36 h-36 bg-[#D4AF37]/10 rounded-full blur-2xl pointer-events-none"></div>
               
               <div className="flex items-center justify-between text-slate-400 text-xs mb-1">
                 <span className="font-semibold uppercase tracking-wider text-[10px]">Total Recaudado Hoy</span>
-                <span className="text-[#D4FF00] font-mono text-[10px] bg-black/50 px-2 py-0.5 rounded-md border border-[#D4FF00]/30 font-bold">
+                <span className="text-[#D4AF37] font-mono text-[10px] bg-black/50 px-2 py-0.5 rounded-md border border-[#D4AF37]/30 font-bold">
                   EN VIVO
                 </span>
               </div>
 
-              <div className="text-3xl font-black text-white font-['Montserrat',sans-serif] tracking-tight text-[#D4FF00] drop-shadow-[0_0_12px_rgba(212,255,0,0.3)] my-1">
+              <div className="text-3xl font-black font-['Montserrat',sans-serif] tracking-tight text-gold-gradient drop-shadow-[0_0_12px_rgba(212,175,55,0.35)] my-1">
                 {formatCOP(summary.totalIncome)}
               </div>
 
               {/* Breakdown Mini Cards */}
               <div className="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-[#222a38]">
-                <div className="p-2.5 rounded-xl bg-black/50 border border-emerald-500/20 text-center">
+                <div className="p-2.5 rounded-xl bg-black/50 border border-[#D4AF37]/30 text-center">
                   <span className="text-[10px] text-slate-400 block font-medium">💵 Efectivo</span>
-                  <span className="text-xs font-bold text-emerald-400 block mt-0.5">
+                  <span className="text-xs font-bold text-[#D4AF37] block mt-0.5">
                     {formatCOP(summary.totalCash)}
                   </span>
                 </div>
@@ -289,11 +297,11 @@ ${summary.reservations.map(r => `• Bici #${r.bikeNumber} - ${r.clientName} (${
               <div className="p-4 rounded-2xl bg-[#131720] border border-[#222a38]">
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-[10px] text-slate-400 uppercase font-semibold">Mensualidades</span>
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#D4AF37]"></span>
                 </div>
                 <div className="flex items-baseline gap-1.5">
                   <span className="text-2xl font-black text-white">{summary.ridersWithMembership}</span>
-                  <span className="text-xs text-emerald-400 font-bold">Riders ($0 en sala)</span>
+                  <span className="text-xs text-[#D4AF37] font-bold">Riders ($0 en sala)</span>
                 </div>
                 <p className="text-[10px] text-slate-400 mt-1">Con membresía activa</p>
               </div>
@@ -319,7 +327,7 @@ ${summary.reservations.map(r => `• Bici #${r.bikeNumber} - ${r.clientName} (${
             <div className="p-4 sm:p-5 rounded-2xl bg-[#131720] border border-[#222a38] shadow-xl">
               <div className="flex items-center justify-between mb-3 pb-2 border-b border-[#222a38]">
                 <h2 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-                  <Users className="w-4 h-4 text-[#D4FF00]" />
+                  <Users className="w-4 h-4 text-[#D4AF37]" />
                   <span>¿Quién Reservó Hoy? ({summary.reservations.length} alumnos)</span>
                 </h2>
                 <span className="text-[10px] text-slate-400 font-medium">14 Cupos en Sala</span>
@@ -330,13 +338,13 @@ ${summary.reservations.map(r => `• Bici #${r.bikeNumber} - ${r.clientName} (${
                   summary.reservations.map((res) => (
                     <div
                       key={res.id}
-                      className="p-3 rounded-xl bg-[#0E121A] border border-[#222a38] flex items-center justify-between hover:border-[#D4FF00]/40 transition-all duration-150"
+                      className="p-3 rounded-xl bg-[#0E121A] border border-[#222a38] flex items-center justify-between hover:border-[#D4AF37]/40 transition-all duration-150"
                     >
                       <div className="flex items-center gap-3">
                         {/* Bike Number Badge */}
                         <div className="w-10 h-10 rounded-xl bg-black/60 border border-[#222a38] flex flex-col items-center justify-center shrink-0">
                           <span className="text-[8px] text-slate-400 uppercase leading-none">Bici</span>
-                          <span className="text-xs font-black text-[#D4FF00] font-mono leading-none mt-0.5">
+                          <span className="text-xs font-black text-[#D4AF37] font-mono leading-none mt-0.5">
                             #{res.bikeNumber}
                           </span>
                         </div>
@@ -348,7 +356,7 @@ ${summary.reservations.map(r => `• Bici #${r.bikeNumber} - ${r.clientName} (${
                             </span>
                             {/* Membership Type Pill */}
                             {res.clientType === 'mensualidad' ? (
-                              <span className="text-[9px] font-bold text-emerald-400 bg-emerald-950/60 px-1.5 py-0.2 rounded border border-emerald-500/30">
+                              <span className="text-[9px] font-bold text-[#F3E5AB] bg-[#D4AF37]/15 px-1.5 py-0.2 rounded border border-[#D4AF37]/30">
                                 Mensualidad
                               </span>
                             ) : (
@@ -371,14 +379,14 @@ ${summary.reservations.map(r => `• Bici #${r.bikeNumber} - ${r.clientName} (${
                       {/* Payment Status & Action */}
                       <div className="flex flex-col items-end gap-1">
                         {res.paymentStatus === 'included_in_membership' && (
-                          <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded-md border border-emerald-500/20">
+                          <span className="text-[10px] font-bold text-[#F3E5AB] bg-[#D4AF37]/10 px-2 py-0.5 rounded-md border border-[#D4AF37]/20">
                             Cubierto ($0)
                           </span>
                         )}
 
                         {res.paymentStatus === 'paid' && (
-                          <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded-md border border-emerald-500/20 flex items-center gap-1">
-                            <CheckCircle2 className="w-3 h-3" /> {formatCOP(res.amountPaid)}
+                          <span className="text-[10px] font-bold text-[#F3E5AB] bg-[#D4AF37]/10 px-2 py-0.5 rounded-md border border-[#D4AF37]/20 flex items-center gap-1">
+                            <CheckCircle2 className="w-3 h-3 text-[#D4AF37]" /> {formatCOP(res.amountPaid)}
                           </span>
                         )}
 
@@ -386,9 +394,9 @@ ${summary.reservations.map(r => `• Bici #${r.bikeNumber} - ${r.clientName} (${
                           <button
                             type="button"
                             onClick={() => handleOpenCollect(res)}
-                            className="min-h-[30px] text-[10px] font-black text-black bg-[#D4FF00] hover:bg-[#c6f000] px-2.5 py-1 rounded-lg active:scale-95 transition-all duration-150 cursor-pointer shadow-sm animate-pulse"
+                            className="min-h-[30px] text-[10px] font-black text-black bg-gold-gradient hover:brightness-110 px-2.5 py-1 rounded-lg active:scale-95 transition-all duration-150 cursor-pointer shadow-sm animate-pulse"
                           >
-                            Cobrar $15.000
+                            Cobrar $10.000
                           </button>
                         )}
                       </div>
@@ -405,7 +413,7 @@ ${summary.reservations.map(r => `• Bici #${r.bikeNumber} - ${r.clientName} (${
             {/* Section: Payments & Register Breakdown */}
             <div className="p-4 sm:p-5 rounded-2xl bg-[#131720] border border-[#222a38] shadow-xl">
               <h2 className="text-xs font-bold text-white uppercase tracking-wider mb-3 pb-2 border-b border-[#222a38] flex items-center gap-1.5">
-                <DollarSign className="w-4 h-4 text-emerald-400" />
+                <DollarSign className="w-4 h-4 text-[#D4AF37]" />
                 <span>Movimientos de Caja ({summary.payments.length})</span>
               </h2>
 
@@ -425,7 +433,7 @@ ${summary.reservations.map(r => `• Bici #${r.bikeNumber} - ${r.clientName} (${
                     </div>
 
                     <div className="text-right">
-                      <span className="font-black text-[#D4FF00] block">
+                      <span className="font-black text-[#D4AF37] block">
                         {formatCOP(p.amount)}
                       </span>
                       <span className="text-[9px] uppercase font-bold text-slate-300 bg-black/60 px-1.5 py-0.5 rounded border border-[#222a38]">
@@ -457,9 +465,9 @@ ${summary.reservations.map(r => `• Bici #${r.bikeNumber} - ${r.clientName} (${
 
             <div className="p-3.5 rounded-xl bg-[#0e121a] border border-[#222a38] text-xs space-y-1.5">
               <p className="text-slate-300">Cliente: <strong className="text-white">{selectedBookingToCollect.clientName}</strong></p>
-              <p className="text-slate-300">Bicicleta: <strong className="text-[#D4FF00]">#{selectedBookingToCollect.bikeNumber}</strong></p>
+              <p className="text-slate-300">Bicicleta: <strong className="text-[#D4AF37]">#{selectedBookingToCollect.bikeNumber}</strong></p>
               <p className="text-slate-300">Horario: <strong className="text-white">{selectedBookingToCollect.time}</strong></p>
-              <p className="text-slate-300">Monto: <strong className="text-emerald-400 text-sm">$15.000 COP</strong></p>
+              <p className="text-slate-300">Tarifa Clase Individual: <strong className="text-[#D4AF37] text-sm">$10.000 COP</strong></p>
             </div>
 
             <div>
@@ -472,7 +480,7 @@ ${summary.reservations.map(r => `• Bici #${r.bikeNumber} - ${r.clientName} (${
                     onClick={() => setCollectMethod(m)}
                     className={`py-2 px-2 rounded-xl text-xs font-bold capitalize transition-all duration-150 active:scale-95 cursor-pointer ${
                       collectMethod === m
-                        ? 'bg-[#D4FF00] text-black shadow-md'
+                        ? 'bg-gold-gradient text-black shadow-md'
                         : 'bg-[#1C222F] text-slate-300 border border-[#222a38]'
                     }`}
                   >
@@ -493,7 +501,7 @@ ${summary.reservations.map(r => `• Bici #${r.bikeNumber} - ${r.clientName} (${
               <button
                 type="button"
                 onClick={handleConfirmCollect}
-                className="flex-1 py-2.5 rounded-xl bg-[#D4FF00] hover:bg-[#c6f000] text-black text-xs font-black shadow-lg"
+                className="flex-1 py-2.5 rounded-xl bg-gold-gradient hover:brightness-110 text-black text-xs font-black shadow-lg"
               >
                 Confirmar Cobro
               </button>
@@ -528,7 +536,7 @@ ${summary.reservations.map(r => `• Bici #${r.bikeNumber} - ${r.clientName} (${
                 value={newClientName}
                 onChange={(e) => setNewClientName(e.target.value)}
                 placeholder="Ej. Mateo Valencia"
-                className="w-full px-3 py-2 rounded-xl bg-[#0e121a] border border-[#222a38] text-xs text-white focus:outline-none focus:border-[#D4FF00]"
+                className="w-full px-3 py-2 rounded-xl bg-[#0e121a] border border-[#222a38] text-xs text-white focus:outline-none focus:border-[#D4AF37]"
               />
             </div>
 
@@ -540,16 +548,19 @@ ${summary.reservations.map(r => `• Bici #${r.bikeNumber} - ${r.clientName} (${
                   onChange={(e: any) => {
                     const c = e.target.value;
                     setNewConcept(c);
-                    if (c === 'mensualidad') setNewAmount(120000);
-                    else if (c === 'clase_particular') setNewAmount(15000);
+                    if (c === 'mensualidad') setNewAmount(84000); // Default to Premium
+                    else if (c === 'clase_particular') setNewAmount(10000);
                     else if (c === 'hidratacion') setNewAmount(4000);
                   }}
-                  className="w-full px-2 py-2 rounded-xl bg-[#0e121a] border border-[#222a38] text-xs text-white focus:outline-none focus:border-[#D4FF00]"
+                  className="w-full px-2 py-2 rounded-xl bg-[#0e121a] border border-[#222a38] text-xs text-white focus:outline-none focus:border-[#D4AF37]"
                 >
-                  <option value="mensualidad">Mensualidad ($120k)</option>
-                  <option value="clase_particular">Clase Particular ($15k)</option>
-                  <option value="hidratacion">Hidratación ($4k)</option>
-                  <option value="otro">Otro</option>
+                  <option value="mensualidad">Membresía PREMIUM ($84k - 12 clases)</option>
+                  <option value="mensualidad_pro">Membresía PRO ($56k - 8 clases)</option>
+                  <option value="mensualidad_starter">Membresía STARTER ($28k - 4 clases)</option>
+                  <option value="mensualidad_elite">Membresía ÉLITE ($120k - 18 clases)</option>
+                  <option value="clase_particular">Clase Individual ($10.000)</option>
+                  <option value="hidratacion">Hidratación ($4.000)</option>
+                  <option value="otro">Otro concepto</option>
                 </select>
               </div>
 
@@ -560,7 +571,7 @@ ${summary.reservations.map(r => `• Bici #${r.bikeNumber} - ${r.clientName} (${
                   required
                   value={newAmount}
                   onChange={(e) => setNewAmount(Number(e.target.value))}
-                  className="w-full px-3 py-2 rounded-xl bg-[#0e121a] border border-[#222a38] text-xs text-white font-mono font-bold focus:outline-none focus:border-[#D4FF00]"
+                  className="w-full px-3 py-2 rounded-xl bg-[#0e121a] border border-[#222a38] text-xs text-white font-mono font-bold focus:outline-none focus:border-[#D4AF37]"
                 />
               </div>
             </div>
@@ -575,7 +586,7 @@ ${summary.reservations.map(r => `• Bici #${r.bikeNumber} - ${r.clientName} (${
                     onClick={() => setNewMethod(m)}
                     className={`py-1.5 px-1 rounded-xl text-[10px] font-bold capitalize transition-all duration-150 active:scale-95 cursor-pointer ${
                       newMethod === m
-                        ? 'bg-[#D4FF00] text-black'
+                        ? 'bg-gold-gradient text-black'
                         : 'bg-[#1C222F] text-slate-300 border border-[#222a38]'
                     }`}
                   >
@@ -592,7 +603,7 @@ ${summary.reservations.map(r => `• Bici #${r.bikeNumber} - ${r.clientName} (${
                 value={newNotes}
                 onChange={(e) => setNewNotes(e.target.value)}
                 placeholder="Ej. Pagó en Nequi a nombre de Laura"
-                className="w-full px-3 py-2 rounded-xl bg-[#0e121a] border border-[#222a38] text-xs text-white focus:outline-none focus:border-[#D4FF00]"
+                className="w-full px-3 py-2 rounded-xl bg-[#0e121a] border border-[#222a38] text-xs text-white focus:outline-none focus:border-[#D4AF37]"
               />
             </div>
 
@@ -606,7 +617,7 @@ ${summary.reservations.map(r => `• Bici #${r.bikeNumber} - ${r.clientName} (${
               </button>
               <button
                 type="submit"
-                className="flex-1 py-2.5 rounded-xl bg-[#D4FF00] hover:bg-[#c6f000] text-black text-xs font-black shadow-lg"
+                className="flex-1 py-2.5 rounded-xl bg-gold-gradient hover:brightness-110 text-black text-xs font-black shadow-lg"
               >
                 Guardar Ingreso
               </button>
@@ -636,11 +647,11 @@ ${summary.reservations.map(r => `• Bici #${r.bikeNumber} - ${r.clientName} (${
             <div className="p-3.5 rounded-xl bg-[#0e121a] border border-[#222a38] text-xs space-y-1.5">
               <div className="flex justify-between">
                 <span className="text-slate-400">Total Recaudado:</span>
-                <span className="font-black text-[#D4FF00] font-mono">{formatCOP(summary.totalIncome)}</span>
+                <span className="font-black text-[#D4AF37] font-mono">{formatCOP(summary.totalIncome)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-400">Efectivo Físico a Entregar:</span>
-                <span className="font-bold text-emerald-400 font-mono">{formatCOP(summary.totalCash)}</span>
+                <span className="font-bold text-[#D4AF37] font-mono">{formatCOP(summary.totalCash)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-400">Transferencias (Nequi/Bancolombia):</span>
@@ -659,7 +670,7 @@ ${summary.reservations.map(r => `• Bici #${r.bikeNumber} - ${r.clientName} (${
                 onChange={(e) => setClosureNotes(e.target.value)}
                 placeholder="Ej. Caja cuadrada 100%, se entregan $150.000 en sobre al administrador."
                 rows={2}
-                className="w-full px-3 py-2 rounded-xl bg-[#0e121a] border border-[#222a38] text-xs text-white focus:outline-none focus:border-[#D4FF00]"
+                className="w-full px-3 py-2 rounded-xl bg-[#0e121a] border border-[#222a38] text-xs text-white focus:outline-none focus:border-[#D4AF37]"
               ></textarea>
             </div>
 

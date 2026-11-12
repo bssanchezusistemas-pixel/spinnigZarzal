@@ -5,12 +5,35 @@
   --color-panther-card: #131720;
   --color-panther-card-light: #1c222f;
   --color-panther-border: #222a38;
-  --color-panther-neon: #d4ff00;
-  --color-panther-neon-hover: #bde600;
-  --color-panther-neon-dim: rgba(212, 255, 0, 0.15);
+  --color-panther-neon: #d4af37;
+  --color-panther-neon-hover: #e5c158;
+  --color-panther-neon-dim: rgba(212, 175, 55, 0.15);
   --color-panther-red: #ef4444;
-  --color-panther-green: #22c55e;
+  --color-panther-green: #d4af37;
   --color-panther-amber: #f59e0b;
+  --color-gold-light: #f3e5ab;
+  --color-gold-primary: #d4af37;
+  --color-gold-dark: #aa771c;
+  --color-gold-glow: rgba(212, 175, 55, 0.35);
+}
+
+.text-gold-gradient {
+  background: linear-gradient(135deg, #ffffff 0%, #f3e5ab 35%, #d4af37 70%, #aa771c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.bg-gold-gradient {
+  background: linear-gradient(135deg, #f3e5ab 0%, #d4af37 50%, #b38728 100%);
+}
+
+.gold-glow {
+  box-shadow: 0 0 25px rgba(212, 175, 55, 0.35);
+}
+
+.gold-border-glow {
+  border-color: rgba(212, 175, 55, 0.4);
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
 }
 
 @keyframes pulse-subtle {
@@ -23,16 +46,16 @@
 }
 
 .panther-glow {
-  box-shadow: 0 0 25px rgba(212, 255, 0, 0.35);
+  box-shadow: 0 0 25px rgba(212, 175, 55, 0.35);
 }
 
 .panther-glow-sm {
-  box-shadow: 0 0 12px rgba(212, 255, 0, 0.25);
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.25);
 }
 
 .panther-border-glow {
-  border-color: #d4ff00;
-  box-shadow: inset 0 0 10px rgba(212, 255, 0, 0.15), 0 0 10px rgba(212, 255, 0, 0.2);
+  border-color: #d4af37;
+  box-shadow: inset 0 0 10px rgba(212, 175, 55, 0.15), 0 0 10px rgba(212, 175, 55, 0.2);
 }
 
 /* Custom scrollbars */
@@ -48,5 +71,5 @@
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #d4ff00;
+  background: #d4af37;
 }

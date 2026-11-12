@@ -37,7 +37,7 @@ export const Screen4_Confirmation: React.FC<Screen4ConfirmationProps> = ({
             <button
               onClick={onBack}
               aria-label="Volver"
-              className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl bg-[#131720] border border-[#222a38] text-slate-300 hover:text-white hover:border-[#D4FF00]/40 active:scale-95 transition-all duration-150 cursor-pointer flex items-center justify-center"
+              className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl bg-[#131720] border border-[#222a38] text-slate-300 hover:text-white hover:border-[#D4AF37]/40 active:scale-95 transition-all duration-150 cursor-pointer flex items-center justify-center"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
@@ -75,7 +75,7 @@ export const Screen4_Confirmation: React.FC<Screen4ConfirmationProps> = ({
                 </div>
                 <div className="text-right">
                   <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Bici</span>
-                  <div className="px-3 py-1.5 rounded-xl bg-[#D4FF00] text-black font-black text-lg font-mono inline-block shadow-md">
+                  <div className="px-3 py-1.5 rounded-xl bg-gold-gradient text-black font-black text-lg font-mono inline-block shadow-md">
                     #{bikeNumber}
                   </div>
                 </div>
@@ -85,7 +85,7 @@ export const Screen4_Confirmation: React.FC<Screen4ConfirmationProps> = ({
               <div className="space-y-2.5 pt-1">
                 {/* Fecha */}
                 <div className="flex items-center gap-3 p-2.5 rounded-xl bg-[#0E121A] border border-[#222a38]">
-                  <div className="w-9 h-9 rounded-lg bg-[#1C222F] flex items-center justify-center text-[#D4FF00] shrink-0">
+                  <div className="w-9 h-9 rounded-lg bg-[#1C222F] flex items-center justify-center text-[#D4AF37] shrink-0">
                     <Calendar className="w-4 h-4" />
                   </div>
                   <div>
@@ -98,7 +98,7 @@ export const Screen4_Confirmation: React.FC<Screen4ConfirmationProps> = ({
 
                 {/* Hora */}
                 <div className="flex items-center gap-3 p-2.5 rounded-xl bg-[#0E121A] border border-[#222a38]">
-                  <div className="w-9 h-9 rounded-lg bg-[#1C222F] flex items-center justify-center text-[#D4FF00] shrink-0">
+                  <div className="w-9 h-9 rounded-lg bg-[#1C222F] flex items-center justify-center text-[#D4AF37] shrink-0">
                     <Clock className="w-4 h-4" />
                   </div>
                   <div>
@@ -114,7 +114,7 @@ export const Screen4_Confirmation: React.FC<Screen4ConfirmationProps> = ({
                   <img 
                     src={currentClass.instructor.avatar} 
                     alt={currentClass.instructor.name} 
-                    className="w-9 h-9 rounded-lg object-cover border border-[#D4FF00]/50 shrink-0"
+                    className="w-9 h-9 rounded-lg object-cover border border-[#D4AF37]/50 shrink-0"
                   />
                   <div>
                     <span className="text-[10px] text-slate-400 uppercase font-semibold block">Instructor</span>
@@ -141,20 +141,20 @@ export const Screen4_Confirmation: React.FC<Screen4ConfirmationProps> = ({
                   onClick={() => onSelectClientType('mensualidad')}
                   className={`min-h-[64px] p-3 rounded-xl border text-left transition-all duration-150 active:scale-95 cursor-pointer flex flex-col justify-between ${
                     clientType === 'mensualidad'
-                      ? 'bg-emerald-950/60 border-emerald-500 text-white shadow-lg shadow-emerald-950/50'
+                      ? 'bg-[#D4AF37]/15 border-[#D4AF37] text-white shadow-lg shadow-[#D4AF37]/20'
                       : 'bg-[#0E121A] border-[#222a38] text-slate-400 hover:border-slate-500'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                      <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                      <ShieldCheck className="w-4 h-4 text-[#D4AF37]" />
                       Mensualidad
                     </span>
                     {clientType === 'mensualidad' && (
-                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]"></span>
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#F3C766] shadow-[0_0_6px_#D4AF37]"></span>
                     )}
                   </div>
-                  <span className="text-xs text-emerald-400 font-extrabold block">$0 en sala</span>
+                  <span className="text-xs text-[#D4AF37] font-extrabold block">$0 en sala</span>
                   <span className="text-[9px] text-slate-400">Plan mensual activo</span>
                 </button>
 
@@ -170,14 +170,14 @@ export const Screen4_Confirmation: React.FC<Screen4ConfirmationProps> = ({
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-xs font-bold text-white flex items-center gap-1.5">
                       <Ticket className="w-4 h-4 text-sky-400" />
-                      Particular
+                      Clase Individual
                     </span>
                     {clientType === 'particular' && (
                       <span className="w-2.5 h-2.5 rounded-full bg-sky-400 shadow-[0_0_6px_#38bdf8]"></span>
                     )}
                   </div>
-                  <span className="text-xs text-sky-400 font-extrabold block">$15.000 COP</span>
-                  <span className="text-[9px] text-slate-400">Pago por sesión</span>
+                  <span className="text-xs text-sky-400 font-extrabold block">$10.000 COP</span>
+                  <span className="text-[9px] text-slate-400">Sin membresía (Día)</span>
                 </button>
               </div>
             </div>
@@ -191,7 +191,7 @@ export const Screen4_Confirmation: React.FC<Screen4ConfirmationProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsEditingInfo(!isEditingInfo)}
-                  className="min-h-[32px] px-2.5 py-1 rounded-lg bg-[#1C222F] border border-[#222a38] text-[11px] font-bold text-[#D4FF00] hover:border-[#D4FF00]/50 active:scale-95 transition-all duration-150 flex items-center gap-1 cursor-pointer"
+                  className="min-h-[32px] px-2.5 py-1 rounded-lg bg-[#1C222F] border border-[#222a38] text-[11px] font-bold text-[#D4AF37] hover:border-[#D4AF37]/50 active:scale-95 transition-all duration-150 flex items-center gap-1 cursor-pointer"
                 >
                   {isEditingInfo ? (
                     <>
@@ -216,7 +216,7 @@ export const Screen4_Confirmation: React.FC<Screen4ConfirmationProps> = ({
                       value={clientName}
                       onChange={(e) => onChangeClientInfo(e.target.value, clientPhone)}
                       placeholder="Nombre del alumno"
-                      className="w-full px-3 py-2 rounded-xl bg-[#0E121A] border border-[#222a38] text-xs text-white focus:outline-none focus:border-[#D4FF00]"
+                      className="w-full px-3 py-2 rounded-xl bg-[#0E121A] border border-[#222a38] text-xs text-white focus:outline-none focus:border-[#D4AF37]"
                     />
                   </div>
                   <div>
@@ -226,7 +226,7 @@ export const Screen4_Confirmation: React.FC<Screen4ConfirmationProps> = ({
                       value={clientPhone}
                       onChange={(e) => onChangeClientInfo(clientName, e.target.value)}
                       placeholder="+57 300 000 0000"
-                      className="w-full px-3 py-2 rounded-xl bg-[#0E121A] border border-[#222a38] text-xs text-white focus:outline-none focus:border-[#D4FF00]"
+                      className="w-full px-3 py-2 rounded-xl bg-[#0E121A] border border-[#222a38] text-xs text-white focus:outline-none focus:border-[#D4AF37]"
                     />
                   </div>
                 </div>
@@ -254,19 +254,34 @@ export const Screen4_Confirmation: React.FC<Screen4ConfirmationProps> = ({
                 <div>
                   <span className="text-xs font-medium text-slate-400 block">Total a liquidar:</span>
                   <span className="text-[11px] text-slate-400 italic">
-                    {clientType === 'mensualidad' ? 'Incluido en mensualidad' : 'Pago al llegar a la sala'}
+                    {clientType === 'mensualidad' 
+                      ? '✓ Cubierto por tu Membresía BLACK RIDE' 
+                      : 'Pago en recepción o en línea ($10.000)'}
                   </span>
                 </div>
                 <span className="text-2xl font-black text-white font-mono">
-                  {clientType === 'mensualidad' ? '$0 COP' : '$15.000 COP'}
+                  {clientType === 'mensualidad' ? '$0 COP' : '$10.000 COP'}
                 </span>
+              </div>
+
+              {/* Black Ride Policy Notice */}
+              <div className="p-2.5 rounded-xl bg-black/40 border border-[#222a38] text-[10px] text-slate-400">
+                {clientType === 'mensualidad' ? (
+                  <p className="text-[#D4AF37]">
+                    🚴 <strong>Beneficio BLACK RIDE:</strong> Has seleccionado tu bicicleta favorita (#{bikeNumber}).
+                  </p>
+                ) : (
+                  <p className="text-sky-300">
+                    ℹ️ <strong>Clase individual ($10.000):</strong> Sujeta a disponibilidad de bicicletas en sala.
+                  </p>
+                )}
               </div>
 
               {/* Confirm CTA Button */}
               <button
                 type="button"
                 onClick={onConfirmBooking}
-                className="w-full min-h-[52px] py-4 px-6 rounded-2xl bg-[#D4FF00] hover:bg-[#c6f000] text-black font-black text-sm tracking-wide flex items-center justify-center gap-2 shadow-[0_4px_25px_rgba(212,255,0,0.35)] hover:shadow-[0_4px_30px_rgba(212,255,0,0.5)] active:scale-95 transition-all duration-150 cursor-pointer"
+                className="w-full min-h-[52px] py-4 px-6 rounded-2xl bg-gold-gradient hover:brightness-110 text-black font-black text-sm tracking-wide flex items-center justify-center gap-2 shadow-[0_4px_25px_rgba(212,175,55,0.35)] hover:shadow-[0_4px_30px_rgba(212,175,55,0.5)] active:scale-95 transition-all duration-150 cursor-pointer"
               >
                 <CheckCircle2 className="w-5 h-5 stroke-[2.5]" />
                 <span>Confirmar Reserva Bici #{bikeNumber}</span>

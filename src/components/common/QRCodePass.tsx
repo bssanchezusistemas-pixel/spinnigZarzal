@@ -71,8 +71,8 @@ export const QRCodePass: React.FC<QRCodePassProps> = ({ code, size = 180 }) => {
       </svg>
 
       {/* Center branded mini badge */}
-      <div className="absolute inset-0 m-auto w-10 h-10 bg-black rounded-xl border-2 border-[#D4FF00] flex items-center justify-center shadow-lg">
-        <span className="text-[#D4FF00] font-black text-[10px] tracking-tighter italic">PR</span>
+      <div className="absolute inset-0 m-auto w-10 h-10 bg-black rounded-xl border-2 border-[#D4AF37] flex items-center justify-center shadow-lg">
+        <span className="text-[#D4AF37] font-black text-[10px] tracking-tighter italic">PR</span>
       </div>
     </div>
   );

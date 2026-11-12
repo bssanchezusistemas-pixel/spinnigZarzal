@@ -27,7 +27,7 @@ export const Screen7_Calendar: React.FC<Screen7CalendarProps> = ({
             <button
               onClick={onBack}
               aria-label="Volver"
-              className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl bg-[#131720] border border-[#222a38] text-slate-300 hover:text-white hover:border-[#D4FF00]/40 active:scale-95 transition-all duration-150 cursor-pointer flex items-center justify-center"
+              className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl bg-[#131720] border border-[#222a38] text-slate-300 hover:text-white hover:border-[#D4AF37]/40 active:scale-95 transition-all duration-150 cursor-pointer flex items-center justify-center"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
@@ -93,15 +93,15 @@ export const Screen7_Calendar: React.FC<Screen7CalendarProps> = ({
                       onClick={() => setSelectedDay(day)}
                       className={`h-9 w-9 sm:h-10 sm:w-10 mx-auto rounded-xl flex flex-col items-center justify-center font-bold transition-all duration-150 relative cursor-pointer active:scale-95 ${
                         isSelected
-                          ? 'bg-[#D4FF00] text-black shadow-md shadow-[#D4FF00]/40 font-black scale-105'
+                          ? 'bg-gold-gradient text-black shadow-md shadow-[#D4AF37]/40 font-black scale-105'
                           : hasClasses
-                          ? 'text-white hover:bg-[#1C222F] border border-transparent hover:border-[#D4FF00]/30'
+                          ? 'text-white hover:bg-[#1C222F] border border-transparent hover:border-[#D4AF37]/30'
                           : 'text-slate-400 hover:text-slate-200 hover:bg-[#1C222F]/50'
                       }`}
                     >
                       <span>{day}</span>
                       {!isSelected && hasClasses && (
-                        <span className="w-1 h-1 rounded-full bg-[#D4FF00] mt-0.5"></span>
+                        <span className="w-1 h-1 rounded-full bg-[#D4AF37] mt-0.5"></span>
                       )}
                     </button>
                   );
@@ -122,7 +122,7 @@ export const Screen7_Calendar: React.FC<Screen7CalendarProps> = ({
                     {selectedDay} de Septiembre de 2026
                   </span>
                 </div>
-                <span className="text-xs font-bold text-[#D4FF00] bg-[#D4FF00]/10 px-2.5 py-1 rounded-lg border border-[#D4FF00]/30">
+                <span className="text-xs font-bold text-[#D4AF37] bg-[#D4AF37]/10 px-2.5 py-1 rounded-lg border border-[#D4AF37]/30">
                   {scheduledClasses.length} sesiones
                 </span>
               </div>
@@ -132,10 +132,10 @@ export const Screen7_Calendar: React.FC<Screen7CalendarProps> = ({
                   <div
                     key={cls.id}
                     onClick={() => onSelectClass(cls)}
-                    className="p-3.5 rounded-xl bg-[#0E121A] border border-[#222a38] flex items-center justify-between hover:border-[#D4FF00]/60 active:scale-98 transition-all duration-150 cursor-pointer group shadow-sm"
+                    className="p-3.5 rounded-xl bg-[#0E121A] border border-[#222a38] flex items-center justify-between hover:border-[#D4AF37]/60 active:scale-98 transition-all duration-150 cursor-pointer group shadow-sm"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-[#1C222F] flex items-center justify-center text-[#D4FF00] group-hover:scale-105 transition-all">
+                      <div className="w-10 h-10 rounded-xl bg-[#1C222F] flex items-center justify-center text-[#D4AF37] group-hover:scale-105 transition-all">
                         <Clock className="w-4 h-4" />
                       </div>
                       <div>
@@ -148,14 +148,14 @@ export const Screen7_Calendar: React.FC<Screen7CalendarProps> = ({
                           </span>
                         </div>
                         <span className="text-[10px] text-slate-400 flex items-center gap-1 mt-0.5">
-                          <Bike className="w-3 h-3 text-[#D4FF00]" />
+                          <Bike className="w-3 h-3 text-[#D4AF37]" />
                           <span>Coach: {cls.instructor.name}</span>
                         </span>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <span className="text-[11px] font-bold text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded-lg border border-emerald-500/30">
+                      <span className="text-[11px] font-bold text-[#D4AF37] bg-[#D4AF37]/15 px-2 py-0.5 rounded-lg border border-[#D4AF37]/30">
                         {cls.availableSpots}/{cls.totalSpots} cupos
                       </span>
                       <RightIcon className="w-4 h-4 text-slate-400 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
@@ -165,7 +165,7 @@ export const Screen7_Calendar: React.FC<Screen7CalendarProps> = ({
               </div>
 
               <div className="pt-2 text-center text-[11px] text-slate-400 flex items-center justify-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-[#D4FF00]" />
+                <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
                 <span>Haz clic en un horario para seleccionar tu bicicleta</span>
               </div>
             </div>

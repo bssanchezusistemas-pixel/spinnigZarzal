@@ -35,7 +35,7 @@ export const Screen3_BikeSelection: React.FC<Screen3BikeSelectionProps> = ({
             <button
               onClick={onBack}
               aria-label="Volver"
-              className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl bg-[#131720] border border-[#222a38] text-slate-300 hover:text-white hover:border-[#D4FF00]/40 active:scale-95 transition-all duration-150 cursor-pointer flex items-center justify-center"
+              className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl bg-[#131720] border border-[#222a38] text-slate-300 hover:text-white hover:border-[#D4AF37]/40 active:scale-95 transition-all duration-150 cursor-pointer flex items-center justify-center"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
@@ -50,7 +50,7 @@ export const Screen3_BikeSelection: React.FC<Screen3BikeSelectionProps> = ({
           </div>
 
           <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#131720] border border-[#222a38] text-xs font-bold text-slate-300">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span className="w-2 h-2 rounded-full bg-[#D4AF37] animate-pulse"></span>
             14 Bicicletas en Sala
           </span>
         </div>
@@ -65,7 +65,7 @@ export const Screen3_BikeSelection: React.FC<Screen3BikeSelectionProps> = ({
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-14 bg-cyan-500/20 blur-xl pointer-events-none"></div>
               
               <div className="flex flex-col items-center justify-center gap-1 relative z-10 py-1">
-                <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[#D4FF00] drop-shadow-[0_0_8px_rgba(212,255,0,0.6)]">
+                <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[#D4AF37] drop-shadow-[0_0_8px_rgba(212,175,55,0.6)]">
                   PANTHER RIDE STAGE
                 </span>
                 <div className="px-4 py-1.5 rounded-lg bg-black/75 border border-cyan-500/40 text-[10px] font-bold text-cyan-300 tracking-widest uppercase flex items-center gap-2 shadow-sm">
@@ -148,11 +148,11 @@ export const Screen3_BikeSelection: React.FC<Screen3BikeSelectionProps> = ({
               {/* Status Legends */}
               <div className="pt-3 border-t border-[#222938] flex flex-wrap items-center justify-around gap-2 text-[11px] text-slate-400 select-none">
                 <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#D4AF37]/80"></span>
                   <span>Disponible</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#D4FF00] shadow-[0_0_8px_#D4FF00]"></span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#F3C766] shadow-[0_0_8px_#D4AF37]"></span>
                   <span className="text-white font-bold">Seleccionada</span>
                 </div>
                 <div className="flex items-center gap-1.5">
@@ -175,16 +175,16 @@ export const Screen3_BikeSelection: React.FC<Screen3BikeSelectionProps> = ({
               </span>
 
               {selectedBikeObj ? (
-                <div className="p-4 rounded-xl bg-gradient-to-br from-[#1C222F] to-[#0E121A] border border-[#D4FF00]/50 shadow-[0_0_20px_rgba(212,255,0,0.1)] flex items-center justify-between">
+                <div className="p-4 rounded-xl bg-gradient-to-br from-[#1C222F] to-[#0E121A] border border-[#D4AF37]/50 shadow-[0_0_20px_rgba(212,175,55,0.15)] flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-[#D4FF00] text-black font-black text-xl flex items-center justify-center font-['Montserrat',sans-serif] shadow-md">
+                    <div className="w-12 h-12 rounded-xl bg-gold-gradient text-black font-black text-xl flex items-center justify-center font-['Montserrat',sans-serif] shadow-md">
                       #{selectedBikeObj.number}
                     </div>
                     <div>
                       <span className="text-sm font-black text-white block">
                         Bicicleta #{selectedBikeObj.number}
                       </span>
-                      <span className="text-[11px] text-emerald-400 font-semibold flex items-center gap-1">
+                      <span className="text-[11px] text-[#D4AF37] font-semibold flex items-center gap-1">
                         <ShieldCheck className="w-3.5 h-3.5" />
                         Excelente visibilidad
                       </span>
@@ -209,7 +209,7 @@ export const Screen3_BikeSelection: React.FC<Screen3BikeSelectionProps> = ({
                 </div>
                 <div className="flex justify-between py-1">
                   <span className="text-slate-400">Modalidad</span>
-                  <span className="font-bold text-[#D4FF00]">Mensualidad o Particular</span>
+                  <span className="font-bold text-[#D4AF37]">Mensualidad o Particular</span>
                 </div>
               </div>
 
@@ -220,7 +220,7 @@ export const Screen3_BikeSelection: React.FC<Screen3BikeSelectionProps> = ({
                 disabled={!selectedBikeId}
                 className={`w-full min-h-[52px] py-3.5 px-6 rounded-2xl font-black text-sm tracking-wide flex items-center justify-center gap-2 transition-all duration-150 active:scale-95 ${
                   selectedBikeId
-                    ? 'bg-[#D4FF00] hover:bg-[#c6f000] text-black shadow-[0_4px_25px_rgba(212,255,0,0.35)] hover:shadow-[0_4px_30px_rgba(212,255,0,0.5)] cursor-pointer'
+                    ? 'bg-gold-gradient hover:brightness-110 text-black shadow-[0_4px_25px_rgba(212,175,55,0.35)] hover:shadow-[0_4px_30px_rgba(212,175,55,0.5)] cursor-pointer'
                     : 'bg-[#1C222F] text-slate-500 cursor-not-allowed border border-[#222938]'
                 }`}
               >

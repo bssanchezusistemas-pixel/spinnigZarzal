@@ -32,7 +32,7 @@ export const Screen9_BikeManagement: React.FC<Screen9BikeManagementProps> = ({
             <button
               onClick={onBack}
               aria-label="Volver"
-              className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl bg-[#131720] border border-[#222a38] text-slate-300 hover:text-white hover:border-[#D4FF00]/40 active:scale-95 transition-all duration-150 cursor-pointer flex items-center justify-center"
+              className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl bg-[#131720] border border-[#222a38] text-slate-300 hover:text-white hover:border-[#D4AF37]/40 active:scale-95 transition-all duration-150 cursor-pointer flex items-center justify-center"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
@@ -46,7 +46,7 @@ export const Screen9_BikeManagement: React.FC<Screen9BikeManagementProps> = ({
             </div>
           </div>
 
-          <span className="text-xs text-[#D4FF00] bg-[#D4FF00]/10 px-3 py-1 rounded-full border border-[#D4FF00]/30 font-bold hidden sm:inline-block">
+          <span className="text-xs text-[#D4AF37] bg-[#D4AF37]/10 px-3 py-1 rounded-full border border-[#D4AF37]/30 font-bold hidden sm:inline-block">
             Sala Indoor Zarzal
           </span>
         </div>
@@ -115,7 +115,7 @@ export const Screen9_BikeManagement: React.FC<Screen9BikeManagementProps> = ({
               {/* Status Indicators Legend */}
               <div className="pt-3 border-t border-[#222a38] flex flex-wrap items-center justify-around gap-2 text-[11px] text-slate-400 select-none">
                 <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#D4AF37]"></span>
                   <span>Disponible</span>
                 </div>
                 <div className="flex items-center gap-1.5">
@@ -139,7 +139,7 @@ export const Screen9_BikeManagement: React.FC<Screen9BikeManagementProps> = ({
             <div className="p-5 rounded-2xl bg-[#131720] border border-[#222a38] shadow-xl space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-[#222a38]">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-[#1C222F] flex items-center justify-center text-[#D4FF00] font-black text-xl font-['Montserrat',sans-serif]">
+                  <div className="w-12 h-12 rounded-xl bg-[#1C222F] flex items-center justify-center text-[#D4AF37] font-black text-xl font-['Montserrat',sans-serif]">
                     #{inspectedBike.number}
                   </div>
                   <div>
@@ -161,8 +161,8 @@ export const Screen9_BikeManagement: React.FC<Screen9BikeManagementProps> = ({
                     </span>
                   )}
                   {inspectedBike.status === 'available' && (
-                    <span className="px-3 py-1 rounded-full bg-emerald-950/60 border border-emerald-500/40 text-emerald-400 text-xs font-bold flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span className="px-3 py-1 rounded-full bg-[#D4AF37]/10 border border-[#D4AF37]/40 text-[#F3E5AB] text-xs font-bold flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-[#D4AF37]"></span>
                       Disponible
                     </span>
                   )}
@@ -195,7 +195,7 @@ export const Screen9_BikeManagement: React.FC<Screen9BikeManagementProps> = ({
 
               {inspectedBike.status === 'available' && (
                 <div className="p-4 rounded-xl bg-[#0E121A] border border-[#222a38] text-xs text-slate-400 text-center">
-                  <BikeIconType className="w-8 h-8 text-emerald-400 mx-auto mb-1.5" />
+                  <BikeIconType className="w-8 h-8 text-[#D4AF37] mx-auto mb-1.5" />
                   <span>Esta bicicleta está completamente libre y habilitada para reservas en línea.</span>
                 </div>
               )}
@@ -218,7 +218,7 @@ export const Screen9_BikeManagement: React.FC<Screen9BikeManagementProps> = ({
                     <button
                       type="button"
                       onClick={() => onUpdateBikeStatus(inspectedBike.id, 'available')}
-                      className="min-h-[44px] py-2.5 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-black flex items-center justify-center gap-1.5 active:scale-95 transition-all duration-150 cursor-pointer shadow-md"
+                      className="min-h-[44px] py-2.5 px-3 rounded-xl bg-gold-gradient hover:brightness-110 text-black text-xs font-black flex items-center justify-center gap-1.5 active:scale-95 transition-all duration-150 cursor-pointer shadow-md"
                     >
                       <CheckCircle className="w-4 h-4" />
                       <span>Habilitar Bici</span>
@@ -248,7 +248,7 @@ export const Screen9_BikeManagement: React.FC<Screen9BikeManagementProps> = ({
                       onClick={() => onUpdateBikeStatus(inspectedBike.id, 'reserved')}
                       className="min-h-[44px] py-2.5 px-3 rounded-xl bg-[#1C222F] hover:bg-[#252d3d] border border-[#222a38] text-slate-200 text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all duration-150 cursor-pointer"
                     >
-                      <UserPlus className="w-4 h-4 text-[#D4FF00]" />
+                      <UserPlus className="w-4 h-4 text-[#D4AF37]" />
                       <span>Asignar Manual</span>
                     </button>
                   )}

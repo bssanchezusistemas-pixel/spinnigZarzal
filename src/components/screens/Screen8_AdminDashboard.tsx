@@ -5,15 +5,17 @@ import {
   Ticket, 
   Users, 
   CreditCard, 
-  BarChart3, 
   Settings,
   ChevronRight,
   TrendingUp,
   DollarSign,
-  Activity
+  Activity,
+  Sparkles,
+  Award
 } from 'lucide-react';
 import { PantherLogo } from '../common/PantherLogo';
 import { db } from '../../services/db';
+import { BLACK_RIDE_PLANS } from '../../types';
 import type { ScreenId } from '../../types';
 
 interface Screen8AdminDashboardProps {
@@ -29,13 +31,29 @@ export const Screen8_AdminDashboard: React.FC<Screen8AdminDashboardProps> = ({
   const bikes = db.getBikes();
   const availableBikes = bikes.filter(b => b.status === 'available').length;
 
+  const formatCOP = (val: number) => {
+    return new Intl.NumberFormat('es-CO', {
+      style: 'currency',
+      currency: 'COP',
+      maximumFractionDigits: 0,
+    }).format(val);
+  };
+
   const adminActions = [
+    {
+      title: 'Planes y Tarifas',
+      desc: 'Starter ($28k), Pro ($56k), Premium ($84k), Élite ($120k)',
+      icon: Award,
+      action: () => onNavigateScreen('plans'),
+      highlight: true,
+      badge: 'Tarifas 2026',
+    },
     {
       title: 'Crear nueva clase',
       desc: 'Horarios, instructores y cupos de pedaleo',
       icon: CalendarPlus,
       action: () => (onOpenCreateClassModal ? onOpenCreateClassModal() : onNavigateScreen('calendar')),
-      highlight: true,
+      highlight: false,
       badge: 'Nuevo Horario',
     },
     {
@@ -56,7 +74,7 @@ export const Screen8_AdminDashboard: React.FC<Screen8AdminDashboardProps> = ({
     },
     {
       title: 'Directorio CRM de Clientes',
-      desc: 'Control de mensualidades y particulares',
+      desc: 'Control de membresías activas y particulares',
       icon: Users,
       action: () => onNavigateScreen('clients-list'),
       highlight: false,
@@ -70,14 +88,6 @@ export const Screen8_AdminDashboard: React.FC<Screen8AdminDashboardProps> = ({
       highlight: true,
       badge: `$${(summary.totalIncome / 1000).toFixed(0)}k Hoy`,
     },
-    {
-      title: 'Reportes de Ocupación',
-      desc: 'Estadísticas del studio de indoor cycling',
-      icon: BarChart3,
-      action: () => onNavigateScreen('cierre-caja'),
-      highlight: false,
-      badge: `${summary.occupancyPercent}% Ocupación`,
-    },
   ];
 
   return (
@@ -90,14 +100,14 @@ export const Screen8_AdminDashboard: React.FC<Screen8AdminDashboardProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-lg sm:text-xl font-black font-['Montserrat',sans-serif] text-white tracking-tight">
-                  Panel de Administración
+                  Panel de Administración BLACK RIDE 🐆
                 </h1>
                 <span className="px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-[10px] font-bold text-amber-400">
                   ADMIN ZARZAL
                 </span>
               </div>
               <p className="text-xs text-slate-400">
-                Control de operaciones, caja, sala y clientes
+                Control de operaciones, membresías, caja y 14 bicicletas
               </p>
             </div>
           </div>
@@ -107,7 +117,7 @@ export const Screen8_AdminDashboard: React.FC<Screen8AdminDashboardProps> = ({
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
             </span>
-            <span className="text-xs font-semibold text-emerald-400">Studio Operativo</span>
+            <span className="text-xs font-semibold text-emerald-400">Studio Zarzal Activo</span>
           </div>
         </div>
 
@@ -141,7 +151,7 @@ export const Screen8_AdminDashboard: React.FC<Screen8AdminDashboardProps> = ({
               ${summary.totalIncome.toLocaleString('es-CO')}
             </span>
             <span className="text-[10px] text-slate-400 mt-1 block">
-              Ver desglose de pagos →
+              Ver arqueo y pagos →
             </span>
           </button>
 
@@ -165,14 +175,72 @@ export const Screen8_AdminDashboard: React.FC<Screen8AdminDashboardProps> = ({
               <span className="text-[11px] text-slate-400 font-medium">Asistencia</span>
               <Activity className="w-4 h-4 text-amber-400" />
             </div>
-            <div className="flex items-center gap-2 mt-1">
+            <div className="flex items-center gap-1.5 mt-1">
               <span className="text-xs font-bold text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/30">
-                {summary.ridersWithMembership} Mensual
+                {summary.ridersWithMembership} Membresía
               </span>
               <span className="text-xs font-bold text-sky-400 bg-sky-950/60 px-2 py-0.5 rounded border border-sky-500/30">
                 {summary.ridersParticular} Partic.
               </span>
             </div>
+          </div>
+        </div>
+
+        {/* Dedicated Admin Plans & Pricing Banner (NEW!) */}
+        <div className="mb-5 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#17202C] via-[#10151E] to-[#17202C] border border-[#222a38] shadow-xl">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-[#222a38]">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#D4FF00] flex items-center justify-center text-black font-black">
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-black text-white font-['Montserrat',sans-serif]">
+                    Tarifas Vigentes BLACK RIDE
+                  </h3>
+                  <span className="text-[10px] font-bold text-[#D4AF37] bg-[#D4AF37]/10 px-2 py-0.5 rounded-full border border-[#D4AF37]/30">
+                    4 Planes + Individual
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-400 mt-0.5">
+                  Beneficio oficial: <strong>Mi bicicleta favorita</strong> (1 a 14) para miembros
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => onNavigateScreen('plans')}
+              className="min-h-[38px] px-3.5 py-1.5 rounded-xl bg-gold-gradient hover:brightness-110 text-black font-black text-xs active:scale-95 transition-all duration-150 cursor-pointer shadow-md flex items-center gap-1"
+            >
+              <span>Ver Portal de Planes</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          {/* Quick Pricing Chips Preview */}
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-3">
+            {BLACK_RIDE_PLANS.map((plan) => (
+              <div 
+                key={plan.id}
+                className="p-2.5 rounded-xl bg-black/50 border border-[#222a38] hover:border-[#D4AF37]/40 transition-colors"
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[10px] font-black uppercase text-slate-300 truncate">
+                    {plan.name}
+                  </span>
+                  <span className="text-[9px] text-[#D4AF37] font-bold">
+                    {plan.classesCount} cls
+                  </span>
+                </div>
+                <span className="text-sm font-black text-white font-mono block">
+                  {formatCOP(plan.price)}
+                </span>
+                <span className="text-[9px] text-slate-400 block mt-0.5">
+                  {plan.validityText}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -185,15 +253,15 @@ export const Screen8_AdminDashboard: React.FC<Screen8AdminDashboardProps> = ({
                 key={idx}
                 type="button"
                 onClick={item.action}
-                className="p-5 rounded-2xl bg-[#131720] hover:bg-[#1a202c] border border-[#222a38] hover:border-[#D4FF00]/50 flex flex-col justify-between min-h-[125px] transition-all duration-150 active:scale-95 text-left group cursor-pointer shadow-md"
+                className="p-5 rounded-2xl bg-[#131720] hover:bg-[#1a202c] border border-[#222a38] hover:border-[#D4AF37]/50 flex flex-col justify-between min-h-[125px] transition-all duration-150 active:scale-95 text-left group cursor-pointer shadow-md"
               >
                 <div className="w-full flex items-center justify-between">
-                  <div className="w-10 h-10 rounded-xl bg-[#1C222F] flex items-center justify-center text-slate-200 group-hover:text-[#D4FF00] group-hover:scale-105 transition-all">
+                  <div className="w-10 h-10 rounded-xl bg-[#1C222F] flex items-center justify-center text-slate-200 group-hover:text-[#D4AF37] group-hover:scale-105 transition-all">
                     <Icon className="w-5 h-5" />
                   </div>
                   <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${
                     item.highlight 
-                      ? 'bg-[#D4FF00]/10 text-[#D4FF00] border border-[#D4FF00]/30' 
+                      ? 'bg-[#D4AF37]/10 text-[#D4AF37] border border-[#D4AF37]/30' 
                       : 'text-slate-400 bg-black/50 border border-[#222a38]'
                   }`}>
                     {item.badge}
@@ -202,7 +270,7 @@ export const Screen8_AdminDashboard: React.FC<Screen8AdminDashboardProps> = ({
 
                 <div className="w-full mt-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-extrabold text-white group-hover:text-[#D4FF00] transition-colors font-['Montserrat',sans-serif]">
+                    <span className="text-sm font-extrabold text-white group-hover:text-[#D4AF37] transition-colors font-['Montserrat',sans-serif]">
                       {item.title}
                     </span>
                     <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
@@ -220,16 +288,16 @@ export const Screen8_AdminDashboard: React.FC<Screen8AdminDashboardProps> = ({
         <div className="mt-4 sm:mt-6">
           <button
             type="button"
-            onClick={() => alert('Configuración General: Tarifas de Clases ($15.000 Particular / $120.000 Mensualidad), Datos de Estudio y Conexión WhatsApp Zarzal')}
+            onClick={() => onNavigateScreen('plans')}
             className="w-full min-h-[48px] p-4 rounded-2xl bg-[#131720] hover:bg-[#1a202c] border border-[#222a38] hover:border-slate-500 flex items-center justify-between active:scale-98 transition-all duration-150 cursor-pointer group"
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-[#1C222F] flex items-center justify-center text-slate-400 group-hover:text-[#D4FF00]">
+              <div className="w-9 h-9 rounded-xl bg-[#1C222F] flex items-center justify-center text-slate-400 group-hover:text-[#D4AF37]">
                 <Settings className="w-4 h-4" />
               </div>
               <div className="text-left">
-                <span className="text-xs font-bold text-white block">Configuración de Studio & Tarifas</span>
-                <span className="text-[10px] text-slate-400">Zarzal, Valle del Cauca • Versión 2.0</span>
+                <span className="text-xs font-bold text-white block">Políticas & Tarifas de Membresía</span>
+                <span className="text-[10px] text-slate-400">BLACK RIDE • Zarzal, Valle del Cauca</span>
               </div>
             </div>
             <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-white transition-colors" />

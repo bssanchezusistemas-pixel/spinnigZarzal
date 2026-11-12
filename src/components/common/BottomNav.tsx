@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Calendar, Bike as BikeIconNav, Users, DollarSign } from 'lucide-react';
+import { Home, Calendar, Bike as BikeIconNav, Users, DollarSign, Award } from 'lucide-react';
 import type { ScreenId, UserRole } from '../../types';
 
 interface BottomNavProps {
@@ -12,13 +12,14 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentScreen, onNavigate,
   if (role === 'client') {
     const navItems = [
       { id: 'welcome' as ScreenId, label: 'Inicio', icon: Home },
+      { id: 'plans' as ScreenId, label: 'Planes', icon: Award },
       { id: 'class-selection' as ScreenId, label: 'Reservar', icon: BikeIconNav },
       { id: 'my-classes' as ScreenId, label: 'Mis clases', icon: Calendar },
       { id: 'calendar' as ScreenId, label: 'Calendario', icon: Calendar },
     ];
 
     return (
-      <nav className="h-16 border-t border-[#222938] bg-[#0E121A]/95 backdrop-blur-md px-4 flex items-center justify-around z-20 shrink-0 select-none">
+      <nav className="h-16 border-t border-[#222938] bg-[#0E121A]/95 backdrop-blur-md px-2 flex items-center justify-around z-20 shrink-0 select-none">
         {navItems.map((item) => {
           const isActive = 
             currentScreen === item.id || 
@@ -32,13 +33,13 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentScreen, onNavigate,
               className="flex flex-col items-center justify-center flex-1 py-1 transition-colors duration-200 cursor-pointer"
             >
               <Icon 
-                className={`w-5 h-5 transition-transform duration-200 ${
-                  isActive ? 'text-[#D4FF00] scale-110 drop-shadow-[0_0_8px_rgba(212,255,0,0.5)]' : 'text-slate-400 hover:text-slate-200'
+                className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-200 ${
+                  isActive ? 'text-[#D4AF37] scale-110 drop-shadow-[0_0_8px_rgba(212,175,55,0.5)]' : 'text-slate-400 hover:text-slate-200'
                 }`} 
               />
               <span 
-                className={`text-[11px] mt-1 font-medium transition-colors ${
-                  isActive ? 'text-[#D4FF00] font-bold' : 'text-slate-400'
+                className={`text-[10px] mt-1 font-medium transition-colors ${
+                  isActive ? 'text-[#D4AF37] font-bold' : 'text-slate-400'
                 }`}
               >
                 {item.label}
@@ -52,15 +53,16 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentScreen, onNavigate,
 
   // Admin Bottom Nav
   const adminNavItems = [
-    { id: 'admin-dashboard' as ScreenId, label: 'Inicio', icon: Home },
+    { id: 'admin-dashboard' as ScreenId, label: 'Admin', icon: Home },
+    { id: 'plans' as ScreenId, label: 'Tarifas', icon: Award },
     { id: 'calendar' as ScreenId, label: 'Clases', icon: Calendar },
-    { id: 'bike-management' as ScreenId, label: 'Bicicletas', icon: BikeIconNav },
+    { id: 'bike-management' as ScreenId, label: 'Bicis', icon: BikeIconNav },
     { id: 'clients-list' as ScreenId, label: 'Clientes', icon: Users },
     { id: 'cierre-caja' as ScreenId, label: 'Caja', icon: DollarSign },
   ];
 
   return (
-    <nav className="h-16 border-t border-[#222938] bg-[#0E121A]/95 backdrop-blur-md px-2 flex items-center justify-around z-20 shrink-0 select-none">
+    <nav className="h-16 border-t border-[#222938] bg-[#0E121A]/95 backdrop-blur-md px-1 flex items-center justify-around z-20 shrink-0 select-none">
       {adminNavItems.map((item) => {
         const isActive = currentScreen === item.id;
         const Icon = item.icon;
@@ -72,13 +74,13 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentScreen, onNavigate,
             className="flex flex-col items-center justify-center flex-1 py-1 transition-colors duration-200 cursor-pointer"
           >
             <Icon 
-              className={`w-5 h-5 transition-transform duration-200 ${
-                isActive ? 'text-[#D4FF00] scale-110 drop-shadow-[0_0_8px_rgba(212,255,0,0.5)]' : 'text-slate-400 hover:text-slate-200'
+              className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-200 ${
+                isActive ? 'text-[#D4AF37] scale-110 drop-shadow-[0_0_8px_rgba(212,175,55,0.5)]' : 'text-slate-400 hover:text-slate-200'
               }`} 
             />
             <span 
-              className={`text-[10px] mt-1 font-medium transition-colors ${
-                isActive ? 'text-[#D4FF00] font-bold' : 'text-slate-400'
+              className={`text-[9px] sm:text-[10px] mt-1 font-medium transition-colors ${
+                isActive ? 'text-[#D4AF37] font-bold' : 'text-slate-400'
               }`}
             >
               {item.label}

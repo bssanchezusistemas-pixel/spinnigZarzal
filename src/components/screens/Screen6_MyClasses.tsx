@@ -32,7 +32,7 @@ export const Screen6_MyClasses: React.FC<Screen6MyClassesProps> = ({
           <button
             type="button"
             onClick={onBookNewClass}
-            className="hidden sm:inline-flex items-center gap-2 min-h-[44px] px-4 py-2 rounded-xl bg-[#D4FF00] hover:bg-[#c6f000] text-black font-black text-xs transition-all duration-150 active:scale-95 shadow-md cursor-pointer"
+            className="hidden sm:inline-flex items-center gap-2 min-h-[44px] px-4 py-2 rounded-xl bg-gold-gradient hover:brightness-110 text-black font-black text-xs transition-all duration-150 active:scale-95 shadow-md cursor-pointer"
           >
             <Plus className="w-4 h-4 stroke-[3]" />
             <span>Nueva Reserva</span>
@@ -46,7 +46,7 @@ export const Screen6_MyClasses: React.FC<Screen6MyClassesProps> = ({
             onClick={() => setActiveTab('upcoming')}
             className={`flex-1 min-h-[40px] py-2 text-xs font-bold rounded-xl transition-all duration-150 active:scale-95 cursor-pointer ${
               activeTab === 'upcoming'
-                ? 'bg-[#D4FF00] text-black shadow-md shadow-[#D4FF00]/20'
+                ? 'bg-gold-gradient text-black shadow-md shadow-[#D4AF37]/25'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
@@ -57,7 +57,7 @@ export const Screen6_MyClasses: React.FC<Screen6MyClassesProps> = ({
             onClick={() => setActiveTab('history')}
             className={`flex-1 min-h-[40px] py-2 text-xs font-bold rounded-xl transition-all duration-150 active:scale-95 cursor-pointer ${
               activeTab === 'history'
-                ? 'bg-[#D4FF00] text-black shadow-md shadow-[#D4FF00]/20'
+                ? 'bg-gold-gradient text-black shadow-md shadow-[#D4AF37]/25'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
@@ -73,7 +73,7 @@ export const Screen6_MyClasses: React.FC<Screen6MyClassesProps> = ({
                 {reservations.map((res) => (
                   <div
                     key={res.id}
-                    className="rounded-3xl bg-[#131720] border border-[#222a38] overflow-hidden shadow-xl relative group transition-all duration-150 hover:border-[#D4FF00]/40 flex flex-col justify-between"
+                    className="rounded-3xl bg-[#131720] border border-[#222a38] overflow-hidden shadow-xl relative group transition-all duration-150 hover:border-[#D4AF37]/40 flex flex-col justify-between"
                   >
                     {/* Studio Image Header with Badge */}
                     <div className="h-32 w-full relative overflow-hidden bg-zinc-800">
@@ -85,7 +85,7 @@ export const Screen6_MyClasses: React.FC<Screen6MyClassesProps> = ({
                       <div className="absolute inset-0 bg-gradient-to-t from-[#131720] via-transparent to-black/40"></div>
 
                       {/* Badge Confirmada */}
-                      <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-[#D4FF00] text-black text-[10px] font-black tracking-wide flex items-center gap-1 shadow-md">
+                      <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-gold-gradient text-black text-[10px] font-black tracking-wide flex items-center gap-1 shadow-md">
                         <CheckCircle2 className="w-3 h-3 stroke-[3]" />
                         <span>Confirmada</span>
                       </div>
@@ -110,7 +110,7 @@ export const Screen6_MyClasses: React.FC<Screen6MyClassesProps> = ({
                           <span>{res.time}</span>
                         </div>
 
-                        <div className="flex items-center gap-2.5 text-xs font-bold text-[#D4FF00]">
+                        <div className="flex items-center gap-2.5 text-xs font-bold text-[#D4AF37]">
                           <Bike className="w-3.5 h-3.5 shrink-0" />
                           <span>Bicicleta #{res.bikeNumber}</span>
                         </div>
@@ -125,7 +125,7 @@ export const Screen6_MyClasses: React.FC<Screen6MyClassesProps> = ({
                       <button
                         type="button"
                         onClick={() => onViewDetail(res)}
-                        className="w-full min-h-[44px] mt-3 py-2.5 px-4 rounded-xl bg-[#1C222F] hover:bg-[#252d3d] border border-[#222a38] hover:border-[#D4FF00]/40 text-white text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all duration-150 cursor-pointer shadow-sm"
+                        className="w-full min-h-[44px] mt-3 py-2.5 px-4 rounded-xl bg-[#1C222F] hover:bg-[#252d3d] border border-[#222a38] hover:border-[#D4AF37]/40 text-white text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all duration-150 cursor-pointer shadow-sm"
                       >
                         <span>Ver detalle y código QR</span>
                         <ChevronRight className="w-4 h-4 text-slate-400" />
@@ -142,7 +142,7 @@ export const Screen6_MyClasses: React.FC<Screen6MyClassesProps> = ({
                 <button
                   type="button"
                   onClick={onBookNewClass}
-                  className="mt-4 min-h-[44px] px-6 py-2.5 rounded-xl bg-[#D4FF00] hover:bg-[#c6f000] text-black font-extrabold text-xs active:scale-95 transition-all duration-150 cursor-pointer shadow-lg"
+                  className="mt-4 min-h-[44px] px-6 py-2.5 rounded-xl bg-gold-gradient hover:brightness-110 text-black font-extrabold text-xs active:scale-95 transition-all duration-150 cursor-pointer shadow-lg"
                 >
                   Reservar ahora
                 </button>
@@ -163,7 +163,7 @@ export const Screen6_MyClasses: React.FC<Screen6MyClassesProps> = ({
         <button
           type="button"
           onClick={onBookNewClass}
-          className="w-full min-h-[50px] py-3.5 px-6 rounded-2xl bg-[#D4FF00] hover:bg-[#c6f000] text-black font-black text-sm tracking-wide flex items-center justify-center gap-2 shadow-[0_4px_25px_rgba(212,255,0,0.35)] active:scale-95 transition-all duration-150 cursor-pointer"
+          className="w-full min-h-[50px] py-3.5 px-6 rounded-2xl bg-gold-gradient hover:brightness-110 text-black font-black text-sm tracking-wide flex items-center justify-center gap-2 shadow-[0_4px_25px_rgba(212,175,55,0.35)] active:scale-95 transition-all duration-150 cursor-pointer"
         >
           <Plus className="w-4 h-4 stroke-[3]" />
           <span>Reservar otra clase</span>

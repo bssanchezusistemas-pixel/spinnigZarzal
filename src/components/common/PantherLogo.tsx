@@ -22,7 +22,7 @@ export const PantherLogo: React.FC<PantherLogoProps> = ({
 
   return (
     <div className={`flex flex-col items-center select-none ${className}`}>
-      {/* Panther Head with Glowing Eyes & Lightning Motif */}
+      {/* Black Panther Head with Glowing Eyes & Lightning Motif */}
       <div className="relative flex items-center justify-center">
         <svg 
           width={currentSize.icon * 1.2} 
@@ -30,29 +30,29 @@ export const PantherLogo: React.FC<PantherLogoProps> = ({
           viewBox="0 0 100 85" 
           fill="none" 
           xmlns="http://www.w3.org/2000/svg"
-          className="drop-shadow-[0_0_15px_rgba(212,255,0,0.35)]"
+          className="drop-shadow-[0_0_15px_rgba(212,175,55,0.4)]"
         >
           {/* Outer fierce panther silhouette */}
           <path 
             d="M8 58C12 40 28 26 44 20L62 10L68 18L80 14L86 24C92 34 94 48 88 62C82 72 70 78 58 78C42 78 30 72 20 66L8 58Z" 
             fill="#12161E" 
-            stroke="#D4FF00" 
+            stroke="#D4AF37" 
             strokeWidth="2.5"
             strokeLinejoin="round"
           />
           {/* Panther Ears */}
-          <path d="M44 20L40 4L54 14" fill="#1C2331" stroke="#D4FF00" strokeWidth="2" />
-          <path d="M78 14L88 2L88 18" fill="#1C2331" stroke="#D4FF00" strokeWidth="2" />
+          <path d="M44 20L40 4L54 14" fill="#1C2331" stroke="#D4AF37" strokeWidth="2" />
+          <path d="M78 14L88 2L88 18" fill="#1C2331" stroke="#D4AF37" strokeWidth="2" />
           
           {/* Lightning Bolt Slash */}
           <path 
             d="M62 6L40 38H56L44 74L76 34H58L68 14" 
-            fill="#D4FF00" 
+            fill="#D4AF37" 
             className="animate-pulse"
           />
 
           {/* Glowing Eyes */}
-          <ellipse cx="62" cy="38" rx="4" ry="2.5" fill="#FFE500" className="drop-shadow-[0_0_8px_#FFE500]" />
+          <ellipse cx="62" cy="38" rx="4" ry="2.5" fill="#F3E5AB" className="drop-shadow-[0_0_8px_#F3E5AB]" />
           <circle cx="63" cy="38" r="1.2" fill="#000000" />
           
           {/* Fangs & Jaw accent */}
@@ -60,21 +60,21 @@ export const PantherLogo: React.FC<PantherLogoProps> = ({
           <path d="M54 56L50 62L58 60" fill="#FFFFFF" />
           
           {/* Brow aggressive lines */}
-          <path d="M52 30L68 34" stroke="#D4FF00" strokeWidth="2" strokeLinecap="round" />
+          <path d="M52 30L68 34" stroke="#D4AF37" strokeWidth="2" strokeLinecap="round" />
         </svg>
       </div>
 
       {/* Typography */}
       <div className="text-center mt-2">
         <div className="flex items-center justify-center tracking-tighter font-extrabold italic uppercase font-['Montserrat',sans-serif]">
-          <span className={`text-white ${currentSize.text} drop-shadow-sm`}>PANTHER</span>
-          <span className={`text-[#D4FF00] ml-1.5 ${currentSize.text} drop-shadow-[0_0_12px_rgba(212,255,0,0.5)]`}>
+          <span className={`text-white ${currentSize.text} drop-shadow-sm`}>BLACK</span>
+          <span className={`text-[#D4AF37] ml-1.5 ${currentSize.text} drop-shadow-[0_0_12px_rgba(212,175,55,0.5)]`}>
             RIDE
           </span>
         </div>
         {showSubtitle && (
-          <div className={`text-zinc-400 font-semibold tracking-[0.25em] uppercase ${currentSize.sub} -mt-0.5`}>
-            INDOOR CYCLING
+          <div className={`text-zinc-400 font-semibold tracking-[0.22em] uppercase ${currentSize.sub} -mt-0.5`}>
+            INDOOR CYCLING • ZARZAL
           </div>
         )}
       </div>

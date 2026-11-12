@@ -9,12 +9,12 @@ import {
 } from '../data/mockData';
 
 const STORAGE_KEYS = {
-  BIKES: 'panther_ride_bikes_v2',
-  CLASSES: 'panther_ride_classes_v2',
-  CLIENTS: 'panther_ride_clients_v2',
-  RESERVATIONS: 'panther_ride_reservations_v2',
-  PAYMENTS: 'panther_ride_payments_v2',
-  CLOSURES: 'panther_ride_closures_v2',
+  BIKES: 'black_ride_bikes_v3',
+  CLASSES: 'black_ride_classes_v3',
+  CLIENTS: 'black_ride_clients_v3',
+  RESERVATIONS: 'black_ride_reservations_v3',
+  PAYMENTS: 'black_ride_payments_v3',
+  CLOSURES: 'black_ride_closures_v3',
 };
 
 // Safe JSON parser
@@ -113,7 +113,7 @@ export const db = {
         clientName: reservation.clientName,
         clientPhone: reservation.clientPhone,
         concept: 'clase_particular',
-        conceptLabel: `Clase Particular (Bici #${reservation.bikeNumber})`,
+        conceptLabel: `Clase Individual (Bici #${reservation.bikeNumber})`,
         amount: reservation.amountPaid,
         method: reservation.paymentMethod,
         notes: `Reserva ${reservation.bookingCode}`,
@@ -140,8 +140,8 @@ export const db = {
     return created;
   },
 
-  // Mark pending reservation as paid in reception
-  markBookingAsPaid(bookingId: string, method: PaymentMethod, amount: number = 15000): void {
+  // Mark pending reservation as paid in reception ($10.000 COP)
+  markBookingAsPaid(bookingId: string, method: PaymentMethod, amount: number = 10000): void {
     const reservations = this.getReservations();
     let updatedBooking: Reservation | undefined;
 
@@ -183,7 +183,7 @@ export const db = {
         clientName: updatedBooking.clientName,
         clientPhone: updatedBooking.clientPhone,
         concept: 'clase_particular',
-        conceptLabel: `Pago en recepción (Bici #${updatedBooking.bikeNumber})`,
+        conceptLabel: `Cobro en recepción (Bici #${updatedBooking.bikeNumber})`,
         amount: amount,
         method: method,
         notes: `Cobro en puerta de reserva ${updatedBooking.bookingCode}`,
@@ -236,7 +236,7 @@ export const db = {
       } else {
         ridersParticular++;
         if (r.paymentStatus === 'pending') {
-          totalPending += 15000;
+          totalPending += 10000; // Tarifa clase individual $10.000 COP
         }
       }
     });

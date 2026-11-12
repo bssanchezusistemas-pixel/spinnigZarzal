@@ -48,7 +48,7 @@ export const Screen2_ClassSelection: React.FC<Screen2ClassSelectionProps> = ({
           <button 
             onClick={onOpenMenu}
             aria-label="Menú principal"
-            className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl bg-[#131720] border border-[#222a38] text-slate-300 hover:text-white hover:border-[#D4FF00]/50 active:scale-95 transition-all duration-150 cursor-pointer flex items-center justify-center"
+            className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl bg-[#131720] border border-[#222a38] text-slate-300 hover:text-white hover:border-[#D4AF37]/50 active:scale-95 transition-all duration-150 cursor-pointer flex items-center justify-center"
           >
             <Menu className="w-5 h-5" />
           </button>
@@ -56,7 +56,7 @@ export const Screen2_ClassSelection: React.FC<Screen2ClassSelectionProps> = ({
 
         {/* Page Title & Context */}
         <div className="mb-5 sm:mb-6">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#D4FF00]/10 border border-[#D4FF00]/25 text-[11px] font-bold text-[#D4FF00] uppercase tracking-wider mb-2">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#D4AF37]/10 border border-[#D4AF37]/25 text-[11px] font-bold text-[#D4AF37] uppercase tracking-wider mb-2">
             <Zap className="w-3 h-3" />
             <span>Paso 1 de 3 • Zarzal, Valle</span>
           </div>
@@ -75,7 +75,7 @@ export const Screen2_ClassSelection: React.FC<Screen2ClassSelectionProps> = ({
             {/* 1. Fecha Card */}
             <div className="p-4 rounded-2xl bg-[#131720] border border-[#222a38] flex items-center justify-between transition-all hover:border-[#333f52]">
               <div className="flex items-center gap-3.5">
-                <div className="w-11 h-11 rounded-xl bg-[#1C222F] flex items-center justify-center text-[#D4FF00] shrink-0 border border-[#222a38]">
+                <div className="w-11 h-11 rounded-xl bg-[#1C222F] flex items-center justify-center text-[#D4AF37] shrink-0 border border-[#222a38]">
                   <CalendarIcon className="w-5 h-5" />
                 </div>
                 <div>
@@ -94,10 +94,10 @@ export const Screen2_ClassSelection: React.FC<Screen2ClassSelectionProps> = ({
             <div className="p-4 rounded-2xl bg-[#131720] border border-[#222a38]">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-[11px] text-slate-400 font-medium uppercase tracking-wider flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5 text-[#D4FF00]" />
+                  <Clock className="w-3.5 h-3.5 text-[#D4AF37]" />
                   Selecciona Horario
                 </span>
-                <span className="text-[11px] text-[#D4FF00] font-bold">1 clic para elegir</span>
+                <span className="text-[11px] text-[#D4AF37] font-bold">1 clic para elegir</span>
               </div>
 
               <div className="grid grid-cols-2 gap-2 sm:gap-2.5">
@@ -110,8 +110,8 @@ export const Screen2_ClassSelection: React.FC<Screen2ClassSelectionProps> = ({
                       onClick={() => setSelectedTime(t.time)}
                       className={`min-h-[52px] p-3 rounded-xl border text-left transition-all duration-150 cursor-pointer flex flex-col justify-between active:scale-95 ${
                         isSelected
-                          ? 'bg-[#D4FF00] border-[#D4FF00] text-black shadow-[0_0_15px_rgba(212,255,0,0.3)]'
-                          : 'bg-[#0E121A] border-[#222a38] text-slate-300 hover:border-[#D4FF00]/40 hover:bg-[#151c27]'
+                          ? 'bg-gold-gradient border-[#D4AF37] text-black shadow-[0_0_15px_rgba(212,175,55,0.35)]'
+                          : 'bg-[#0E121A] border-[#222a38] text-slate-300 hover:border-[#D4AF37]/40 hover:bg-[#151c27]'
                       }`}
                     >
                       <div className="flex items-center justify-between w-full">
@@ -132,7 +132,7 @@ export const Screen2_ClassSelection: React.FC<Screen2ClassSelectionProps> = ({
             {/* 3. Modalidad / Tipo de clase interactivo */}
             <div className="p-4 rounded-2xl bg-[#131720] border border-[#222a38]">
               <span className="text-[11px] text-slate-400 font-medium uppercase tracking-wider block mb-3 flex items-center gap-1.5">
-                <Bike className="w-3.5 h-3.5 text-[#D4FF00]" />
+                <Bike className="w-3.5 h-3.5 text-[#D4AF37]" />
                 Modalidad de pedaleo
               </span>
 
@@ -146,12 +146,12 @@ export const Screen2_ClassSelection: React.FC<Screen2ClassSelectionProps> = ({
                       onClick={() => setSelectedClassType(type.name)}
                       className={`w-full min-h-[48px] p-3 rounded-xl border text-left flex items-center justify-between transition-all duration-150 active:scale-95 cursor-pointer ${
                         isSelected
-                          ? 'bg-[#1C222F] border-[#D4FF00] shadow-sm'
+                          ? 'bg-[#1C222F] border-[#D4AF37] shadow-sm'
                           : 'bg-[#0E121A] border-[#222a38] hover:border-slate-600'
                       }`}
                     >
                       <div>
-                        <span className={`text-xs font-bold block ${isSelected ? 'text-[#D4FF00]' : 'text-white'}`}>
+                        <span className={`text-xs font-bold block ${isSelected ? 'text-[#D4AF37]' : 'text-white'}`}>
                           {type.name}
                         </span>
                         <span className="text-[10px] text-slate-400">
@@ -160,7 +160,7 @@ export const Screen2_ClassSelection: React.FC<Screen2ClassSelectionProps> = ({
                       </div>
                       <div className={`w-5 h-5 rounded-full flex items-center justify-center border transition-all ${
                         isSelected 
-                          ? 'bg-[#D4FF00] border-[#D4FF00] text-black' 
+                          ? 'bg-[#D4AF37] border-[#D4AF37] text-black' 
                           : 'border-slate-600 bg-transparent'
                       }`}>
                         {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
@@ -185,16 +185,16 @@ export const Screen2_ClassSelection: React.FC<Screen2ClassSelectionProps> = ({
                     <img 
                       src={currentClass.instructor.avatar} 
                       alt={currentClass.instructor.name} 
-                      className="w-14 h-14 rounded-2xl object-cover border-2 border-[#D4FF00]/80 shadow-md"
+                      className="w-14 h-14 rounded-2xl object-cover border-2 border-[#D4AF37]/80 shadow-md"
                     />
-                    <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-[#131720]"></span>
+                    <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-[#D4AF37] rounded-full border-2 border-[#131720]"></span>
                   </div>
                   <div>
                     <span className="text-xs text-slate-400 block">Instructor Principal</span>
                     <span className="text-sm font-extrabold text-white block">
                       {currentClass.instructor.name}
                     </span>
-                    <span className="text-[11px] text-emerald-400 font-semibold flex items-center gap-1 mt-0.5">
+                    <span className="text-[11px] text-[#D4AF37] font-semibold flex items-center gap-1 mt-0.5">
                       ★ Certificado Indoor Cycling Pro
                     </span>
                   </div>
@@ -205,20 +205,20 @@ export const Screen2_ClassSelection: React.FC<Screen2ClassSelectionProps> = ({
               <div className="p-4 rounded-2xl bg-[#131720] border border-[#222a38]">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-semibold text-slate-300">Cupos disponibles en sala</span>
-                  <span className="text-sm font-black text-[#D4FF00] font-mono">
+                  <span className="text-sm font-black text-[#D4AF37] font-mono">
                     {currentClass.availableSpots} / {currentClass.totalSpots} bicis
                   </span>
                 </div>
                 {/* Progress bar */}
                 <div className="w-full h-2.5 rounded-full bg-[#1C222F] overflow-hidden p-0.5 border border-[#222a38]">
                   <div 
-                    className="h-full bg-gradient-to-r from-emerald-500 via-lime-400 to-[#D4FF00] rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(212,255,0,0.5)]"
+                    className="h-full bg-gradient-to-r from-[#AA771C] via-[#D4AF37] to-[#F3E5AB] rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(212,175,55,0.4)]"
                     style={{ width: `${occupancyRatio}%` }}
                   ></div>
                 </div>
                 <div className="flex items-center justify-between text-[10px] text-slate-400 mt-2">
                   <span>Sala Zarzal (14 Bicis)</span>
-                  <span className="text-emerald-400 font-medium">Bicicletas libres</span>
+                  <span className="text-[#D4AF37] font-medium">Bicicletas libres</span>
                 </div>
               </div>
             </div>
@@ -228,7 +228,7 @@ export const Screen2_ClassSelection: React.FC<Screen2ClassSelectionProps> = ({
               <button
                 type="button"
                 onClick={handleContinue}
-                className="w-full min-h-[52px] py-3.5 px-6 rounded-2xl bg-[#D4FF00] hover:bg-[#c6f000] text-black font-black text-sm tracking-wide flex items-center justify-center gap-2 shadow-[0_4px_25px_rgba(212,255,0,0.35)] hover:shadow-[0_4px_30px_rgba(212,255,0,0.5)] active:scale-95 transition-all duration-150 cursor-pointer"
+                className="w-full min-h-[52px] py-3.5 px-6 rounded-2xl bg-gold-gradient hover:brightness-110 text-black font-black text-sm tracking-wide flex items-center justify-center gap-2 shadow-[0_4px_25px_rgba(212,175,55,0.35)] hover:shadow-[0_4px_30px_rgba(212,175,55,0.5)] active:scale-95 transition-all duration-150 cursor-pointer"
               >
                 <span>Continuar a Selección de Bici</span>
                 <ChevronRight className="w-4 h-4 stroke-[3]" />

@@ -25,7 +25,7 @@ export const Screen5_TicketQR: React.FC<Screen5TicketQRProps> = ({
         particleCount: 65,
         spread: 75,
         origin: { y: 0.6 },
-        colors: ['#D4FF00', '#FFFFFF', '#22C55E', '#38BDF8'],
+        colors: ['#D4AF37', '#F3E5AB', '#FFFFFF', '#AA771C'],
       });
     } catch {
       // safe fallback
@@ -65,7 +65,7 @@ export const Screen5_TicketQR: React.FC<Screen5TicketQRProps> = ({
           <button
             onClick={onBack}
             aria-label="Volver"
-            className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl bg-[#131720] border border-[#222a38] text-slate-300 hover:text-white hover:border-[#D4FF00]/40 active:scale-95 transition-all duration-150 cursor-pointer flex items-center justify-center"
+            className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl bg-[#131720] border border-[#222a38] text-slate-300 hover:text-white hover:border-[#D4AF37]/40 active:scale-95 transition-all duration-150 cursor-pointer flex items-center justify-center"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
@@ -73,7 +73,7 @@ export const Screen5_TicketQR: React.FC<Screen5TicketQRProps> = ({
           <button
             onClick={handleShare}
             aria-label="Compartir"
-            className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl bg-[#131720] border border-[#222a38] text-slate-300 hover:text-[#D4FF00] hover:border-[#D4FF00]/40 active:scale-95 transition-all duration-150 cursor-pointer flex items-center justify-center"
+            className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl bg-[#131720] border border-[#222a38] text-slate-300 hover:text-[#D4AF37] hover:border-[#D4AF37]/40 active:scale-95 transition-all duration-150 cursor-pointer flex items-center justify-center"
           >
             <Share2 className="w-5 h-5" />
           </button>
@@ -81,7 +81,7 @@ export const Screen5_TicketQR: React.FC<Screen5TicketQRProps> = ({
 
         {/* Brand & Greeting */}
         <div className="text-center mb-5">
-          <span className="inline-block px-3 py-1 rounded-full bg-emerald-950/60 border border-emerald-500/40 text-[11px] font-bold text-emerald-400 uppercase tracking-wider mb-2">
+          <span className="inline-block px-3 py-1 rounded-full bg-[#D4AF37]/15 border border-[#D4AF37]/40 text-[11px] font-bold text-[#D4AF37] uppercase tracking-wider mb-2">
             ✓ Reserva Confirmada en Sala
           </span>
           <h2 className="text-xl sm:text-2xl font-black text-white font-['Montserrat',sans-serif] tracking-tight">
@@ -94,8 +94,8 @@ export const Screen5_TicketQR: React.FC<Screen5TicketQRProps> = ({
 
         {/* Premium Digital Boarding Pass Ticket */}
         <div className="rounded-3xl bg-gradient-to-b from-[#131720] via-[#0E121A] to-[#131720] border border-[#222a38] p-5 sm:p-6 shadow-2xl relative overflow-hidden mb-6">
-          {/* Subtle neon glow edge */}
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#D4FF00] to-transparent"></div>
+          {/* Subtle gold glow edge */}
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent"></div>
 
           {/* QR Code Container */}
           <div className="flex flex-col items-center justify-center py-2">
@@ -109,10 +109,10 @@ export const Screen5_TicketQR: React.FC<Screen5TicketQRProps> = ({
               <button
                 type="button"
                 onClick={handleCopyCode}
-                className="min-h-[36px] px-3 py-1 rounded-xl bg-[#1C222F] border border-[#222a38] hover:border-[#D4FF00]/50 active:scale-95 text-xs font-mono font-black text-[#D4FF00] flex items-center gap-1.5 transition-all duration-150 cursor-pointer shadow-sm"
+                className="min-h-[36px] px-3 py-1 rounded-xl bg-[#1C222F] border border-[#222a38] hover:border-[#D4AF37]/50 active:scale-95 text-xs font-mono font-black text-[#D4AF37] flex items-center gap-1.5 transition-all duration-150 cursor-pointer shadow-sm"
               >
                 <span>{reservation.bookingCode}</span>
-                {copied ? <Check className="w-3.5 h-3.5 text-emerald-400 stroke-[3]" /> : <Copy className="w-3.5 h-3.5 text-slate-400" />}
+                {copied ? <Check className="w-3.5 h-3.5 text-[#D4AF37] stroke-[3]" /> : <Copy className="w-3.5 h-3.5 text-slate-400" />}
               </button>
             </div>
           </div>
@@ -127,17 +127,17 @@ export const Screen5_TicketQR: React.FC<Screen5TicketQRProps> = ({
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-left">
             <div className="p-2.5 rounded-xl bg-[#090B0E] border border-[#222a38]">
               <span className="text-[10px] text-slate-400 uppercase font-semibold block flex items-center gap-1">
-                <Bike className="w-3 h-3 text-[#D4FF00]" />
+                <Bike className="w-3 h-3 text-[#D4AF37]" />
                 Bicicleta
               </span>
-              <span className="text-base font-black text-[#D4FF00] font-mono mt-0.5 block">
+              <span className="text-base font-black text-[#D4AF37] font-mono mt-0.5 block">
                 #{reservation.bikeNumber}
               </span>
             </div>
 
             <div className="p-2.5 rounded-xl bg-[#090B0E] border border-[#222a38]">
               <span className="text-[10px] text-slate-400 uppercase font-semibold block flex items-center gap-1">
-                <Clock className="w-3 h-3 text-[#D4FF00]" />
+                <Clock className="w-3 h-3 text-[#D4AF37]" />
                 Horario
               </span>
               <span className="text-xs font-bold text-white mt-1 block">
@@ -147,7 +147,7 @@ export const Screen5_TicketQR: React.FC<Screen5TicketQRProps> = ({
 
             <div className="p-2.5 rounded-xl bg-[#090B0E] border border-[#222a38]">
               <span className="text-[10px] text-slate-400 uppercase font-semibold block flex items-center gap-1">
-                <Calendar className="w-3 h-3 text-[#D4FF00]" />
+                <Calendar className="w-3 h-3 text-[#D4AF37]" />
                 Fecha
               </span>
               <span className="text-xs font-bold text-white mt-1 block truncate">
@@ -157,7 +157,7 @@ export const Screen5_TicketQR: React.FC<Screen5TicketQRProps> = ({
 
             <div className="p-2.5 rounded-xl bg-[#090B0E] border border-[#222a38]">
               <span className="text-[10px] text-slate-400 uppercase font-semibold block flex items-center gap-1">
-                <User className="w-3 h-3 text-[#D4FF00]" />
+                <User className="w-3 h-3 text-[#D4AF37]" />
                 Coach
               </span>
               <span className="text-xs font-bold text-white mt-1 block truncate">
@@ -172,16 +172,16 @@ export const Screen5_TicketQR: React.FC<Screen5TicketQRProps> = ({
           <button
             type="button"
             onClick={handleAddToWallet}
-            className="w-full min-h-[48px] py-3.5 px-6 rounded-2xl bg-[#131720] hover:bg-[#1a202c] border border-[#222a38] hover:border-[#D4FF00]/40 text-slate-100 font-extrabold text-xs tracking-wide flex items-center justify-center gap-2.5 active:scale-95 transition-all duration-150 cursor-pointer shadow-md"
+            className="w-full min-h-[48px] py-3.5 px-6 rounded-2xl bg-[#131720] hover:bg-[#1a202c] border border-[#222a38] hover:border-[#D4AF37]/40 text-slate-100 font-extrabold text-xs tracking-wide flex items-center justify-center gap-2.5 active:scale-95 transition-all duration-150 cursor-pointer shadow-md"
           >
-            <Wallet className="w-4 h-4 text-[#D4FF00]" />
+            <Wallet className="w-4 h-4 text-[#D4AF37]" />
             <span>{walletAdded ? '✓ Guardado en tu Wallet Digital' : 'Agregar a Apple / Google Wallet'}</span>
           </button>
 
           <button
             type="button"
             onClick={onGoToMyClasses}
-            className="w-full min-h-[48px] py-3.5 px-6 rounded-2xl bg-[#D4FF00] hover:bg-[#c6f000] text-black font-black text-sm tracking-wide flex items-center justify-center gap-2 shadow-[0_4px_25px_rgba(212,255,0,0.35)] active:scale-95 transition-all duration-150 cursor-pointer"
+            className="w-full min-h-[48px] py-3.5 px-6 rounded-2xl bg-gold-gradient hover:brightness-110 text-black font-black text-sm tracking-wide flex items-center justify-center gap-2 shadow-[0_4px_25px_rgba(212,175,55,0.35)] active:scale-95 transition-all duration-150 cursor-pointer"
           >
             <span>Ver en "Mis Clases"</span>
             <ArrowRight className="w-4 h-4 stroke-[3]" />

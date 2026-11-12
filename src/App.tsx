@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { ScreenId, UserRole, Bike, ClassSession, Reservation, ClientUser, BikeStatus, ClientType } from './types';
+import type { ScreenId, UserRole, Bike, ClassSession, Reservation, ClientUser, BikeStatus, ClientType, MembershipPlan } from './types';
 import { db } from './services/db';
 import { DemoToolbar } from './components/common/DemoToolbar';
 import { MobileFrame } from './components/common/MobileFrame';
@@ -17,6 +17,7 @@ import { Screen8_AdminDashboard } from './components/screens/Screen8_AdminDashbo
 import { Screen9_BikeManagement } from './components/screens/Screen9_BikeManagement';
 import { Screen10_ClientsList } from './components/screens/Screen10_ClientsList';
 import { Screen11_CierreCaja } from './components/screens/Screen11_CierreCaja';
+import { Screen_Plans } from './components/screens/Screen_Plans';
 
 export function App() {
   // Navigation & Role states
@@ -41,7 +42,7 @@ export function App() {
   const [activeReservation, setActiveReservation] = useState<Reservation>(() => 
     db.getReservations()[0] || {
       id: 'res-default',
-      bookingCode: 'PR-20260925-007',
+      bookingCode: 'BR-20260925-007',
       classId: 'class-evening-1',
       className: 'Indoor Cycling',
       date: '2026-09-25',
@@ -56,7 +57,7 @@ export function App() {
       paymentMethod: 'mensualidad',
       amountPaid: 0,
       status: 'confirmed',
-      qrValue: 'PANTHER-RIDE:PR-20260925-007:BIKE-07',
+      qrValue: 'BLACK-RIDE:BR-20260925-007:BIKE-07',
       createdAt: new Date().toISOString(),
     }
   );
@@ -84,7 +85,7 @@ export function App() {
     db.resetDatabase();
     refreshAllData();
     setSelectedBikeId(7);
-    alert('Base de datos restaurada al estado original de Panther Ride.');
+    alert('Base de datos restaurada al estado oficial de BLACK RIDE Zarzal.');
   };
 
   const handleStartBooking = () => {
@@ -116,7 +117,7 @@ export function App() {
     const selectedBike = bikes.find((b) => b.id === selectedBikeId);
     const bikeNumber = selectedBike ? selectedBike.number : '07';
 
-    const newBookingCode = `PR-20260925-0${bikeNumber}`;
+    const newBookingCode = `BR-20260925-0${bikeNumber}`;
     const isMembership = bookingClientType === 'mensualidad';
 
     const newReservation: Reservation = {
@@ -134,9 +135,9 @@ export function App() {
       clientType: bookingClientType,
       paymentStatus: isMembership ? 'included_in_membership' : 'pending',
       paymentMethod: isMembership ? 'mensualidad' : 'efectivo',
-      amountPaid: isMembership ? 0 : 15000,
+      amountPaid: isMembership ? 0 : 10000, // Tarifa clase individual $10.000 COP
       status: 'confirmed',
-      qrValue: `PANTHER-RIDE:${newBookingCode}:BIKE-${bikeNumber}`,
+      qrValue: `BLACK-RIDE:${newBookingCode}:BIKE-${bikeNumber}`,
       createdAt: new Date().toISOString(),
     };
 
@@ -164,20 +165,29 @@ export function App() {
     setBikes(updated);
   };
 
-  const handleUpdateClientMembership = (clientId: string, type: ClientType) => {
+  const handleUpdateClientMembership = (clientId: string, type: ClientType, planName?: string, expiresAt?: string) => {
     const updated = clients.map((c) => 
       c.id === clientId
         ? {
             ...c,
             clientType: type,
             membershipStatus: type === 'mensualidad' ? ('active' as const) : ('none' as const),
-            membershipPlan: type === 'mensualidad' ? 'Mensualidad Ilimitada' : undefined,
-            membershipExpiresAt: type === 'mensualidad' ? '2026-10-25' : undefined,
+            membershipPlan: planName || (type === 'mensualidad' ? 'PREMIUM (12 clases • 20 días)' : 'CLASE INDIVIDUAL ($10.000)'),
+            membershipExpiresAt: expiresAt || (type === 'mensualidad' ? '2026-10-25' : undefined),
           }
         : c
     );
     db.saveClients(updated);
     setClients(updated);
+  };
+
+  const handleSelectPlanToBook = (plan: MembershipPlan) => {
+    if (plan.isMembership) {
+      setBookingClientType('mensualidad');
+    } else {
+      setBookingClientType('particular');
+    }
+    setCurrentScreen('class-selection');
   };
 
   const selectedBikeObj = bikes.find((b) => b.id === selectedBikeId);
@@ -203,6 +213,17 @@ export function App() {
             <Screen1_Welcome
               onStartBooking={handleStartBooking}
               onLogin={handleToggleRole}
+              onExploreSchedule={() => setCurrentScreen('calendar')}
+              onViewPlans={() => setCurrentScreen('plans')}
+            />
+          )}
+
+          {/* SCREEN: Planes y Membresías BLACK RIDE */}
+          {currentScreen === 'plans' && (
+            <Screen_Plans
+              onBack={() => setCurrentScreen(role === 'admin' ? 'admin-dashboard' : 'welcome')}
+              onSelectPlanToBook={handleSelectPlanToBook}
+              isAdmin={role === 'admin'}
             />
           )}
 
@@ -226,7 +247,7 @@ export function App() {
             />
           )}
 
-          {/* SCREEN 4: Confirmación de Reserva (Lógica Mensualidad vs Particular) */}
+          {/* SCREEN 4: Confirmación de Reserva (Lógica Membresía vs Individual) */}
           {currentScreen === 'confirmation' && (
             <Screen4_Confirmation
               currentClass={currentClass}
@@ -279,7 +300,7 @@ export function App() {
             />
           )}
 
-          {/* SCREEN 9 (10): Gestión de Bicicletas */}
+          {/* SCREEN 9: Gestión de Bicicletas */}
           {currentScreen === 'bike-management' && (
             <Screen9_BikeManagement
               bikes={bikes}
@@ -288,7 +309,7 @@ export function App() {
             />
           )}
 
-          {/* SCREEN 10 (11): Clientes y Membresías */}
+          {/* SCREEN 10: Clientes y Membresías */}
           {currentScreen === 'clients-list' && (
             <Screen10_ClientsList
               clients={clients}
@@ -297,7 +318,7 @@ export function App() {
             />
           )}
 
-          {/* SCREEN 11 (12): Cierre de Caja y Finanzas */}
+          {/* SCREEN 11: Cierre de Caja y Finanzas */}
           {currentScreen === 'cierre-caja' && (
             <Screen11_CierreCaja
               onBack={() => setCurrentScreen('admin-dashboard')}

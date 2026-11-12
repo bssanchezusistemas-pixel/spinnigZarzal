@@ -17,17 +17,17 @@ export const BikeIcon: React.FC<BikeIconProps> = ({
   onClick,
   size = 'md',
 }) => {
-  // Color configuration
-  let ringColor = 'border-emerald-500/80 text-emerald-400';
-  let bgColor = 'bg-emerald-950/20 hover:bg-emerald-900/30';
+  // Color configuration - Gold palette matching logo
+  let ringColor = 'border-[#D4AF37]/60 text-[#F3E5AB]';
+  let bgColor = 'bg-[#D4AF37]/10 hover:bg-[#D4AF37]/20';
   let glowClass = '';
-  let bikeStroke = '#34d399';
+  let bikeStroke = '#D4AF37';
 
   if (isSelected || status === 'selected') {
-    ringColor = 'border-[#D4FF00] text-[#D4FF00]';
-    bgColor = 'bg-[#D4FF00]/15';
-    glowClass = 'shadow-[0_0_20px_rgba(212,255,0,0.5)] scale-105 ring-2 ring-[#D4FF00]/40';
-    bikeStroke = '#D4FF00';
+    ringColor = 'border-[#F3C766] text-[#F3C766]';
+    bgColor = 'bg-[#D4AF37]/25';
+    glowClass = 'shadow-[0_0_22px_rgba(212,175,55,0.65)] scale-105 ring-2 ring-[#D4AF37]';
+    bikeStroke = '#F3C766';
   } else if (status === 'reserved') {
     ringColor = 'border-rose-500/70 text-rose-400';
     bgColor = 'bg-rose-950/20';
@@ -52,7 +52,7 @@ export const BikeIcon: React.FC<BikeIconProps> = ({
       type="button"
       onClick={onClick}
       disabled={!onClick}
-      className={`flex flex-col items-center justify-center p-1.5 rounded-2xl transition-all duration-150 select-none group cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D4FF00] ${
+      className={`flex flex-col items-center justify-center p-1.5 rounded-2xl transition-all duration-150 select-none group cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37] ${
         isInteractive 
           ? 'active:scale-90 hover:scale-105 active:transition-none' 
           : 'opacity-80 cursor-pointer active:scale-95'

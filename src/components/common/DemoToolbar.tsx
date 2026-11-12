@@ -23,6 +23,7 @@ export const DemoToolbar: React.FC<DemoToolbarProps> = ({
 }) => {
   const screens: { id: ScreenId; label: string; number: string; role: 'client' | 'admin' | 'both' }[] = [
     { id: 'welcome', label: 'Inicio', number: '1', role: 'client' },
+    { id: 'plans', label: 'Membresías', number: 'P', role: 'both' },
     { id: 'class-selection', label: 'Clase', number: '2', role: 'client' },
     { id: 'bike-selection', label: 'Elegir Bici', number: '3', role: 'client' },
     { id: 'confirmation', label: 'Confirmar', number: '4', role: 'client' },
@@ -40,14 +41,14 @@ export const DemoToolbar: React.FC<DemoToolbarProps> = ({
       {/* Brand & Demo Pill */}
       <div className="flex items-center gap-2">
         <span className="flex h-2 w-2 relative">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#D4FF00] opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-2 w-2 bg-[#D4FF00]"></span>
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#D4AF37] opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-[#D4AF37]"></span>
         </span>
         <span className="font-extrabold tracking-tight text-white font-['Montserrat',sans-serif]">
-          PANTHER <span className="text-[#D4FF00]">RIDE</span>
+          BLACK <span className="text-[#D4AF37]">RIDE</span>
         </span>
-        <span className="bg-[#1f2633] text-[#D4FF00] text-[10px] font-bold px-2 py-0.5 rounded-full border border-[#D4FF00]/30">
-          PRO v2.0
+        <span className="bg-[#1f2633] text-[#D4AF37] text-[10px] font-bold px-2 py-0.5 rounded-full border border-[#D4AF37]/30">
+          ZARZAL 🐆
         </span>
       </div>
 
@@ -61,7 +62,7 @@ export const DemoToolbar: React.FC<DemoToolbarProps> = ({
               onClick={() => onSelectScreen(s.id)}
               className={`px-2 py-1 rounded text-[11px] font-medium transition-all whitespace-nowrap flex items-center gap-1 cursor-pointer ${
                 isActive
-                  ? 'bg-[#D4FF00] text-black font-bold shadow-[0_0_10px_rgba(212,255,0,0.4)]'
+                  ? 'bg-[#D4AF37] text-black font-bold shadow-[0_0_10px_rgba(212,175,55,0.4)]'
                   : 'bg-[#141923] text-slate-400 hover:text-white hover:bg-[#1c2331]'
               }`}
             >
@@ -77,13 +78,13 @@ export const DemoToolbar: React.FC<DemoToolbarProps> = ({
         {/* Role Switcher */}
         <button
           onClick={onToggleRole}
-          className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#141923] border border-[#222a38] hover:border-[#D4FF00]/50 transition-colors text-slate-200 cursor-pointer text-[11px]"
+          className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#141923] border border-[#222a38] hover:border-[#D4AF37]/50 transition-colors text-slate-200 cursor-pointer text-[11px]"
           title="Cambiar perspectiva de vista"
         >
           {role === 'client' ? (
             <>
-              <UserCheck className="w-3.5 h-3.5 text-[#D4FF00]" />
-              <span>Rol: <strong className="text-[#D4FF00]">Cliente</strong></span>
+              <UserCheck className="w-3.5 h-3.5 text-[#D4AF37]" />
+              <span>Rol: <strong className="text-[#D4AF37]">Cliente</strong></span>
             </>
           ) : (
             <>
