@@ -319,7 +319,7 @@ export const Screen1_Welcome: React.FC<Screen1WelcomeProps> = ({
             DOMINA EL RITMO.
           </span>
           <span className="gsap-title-line-2 block text-gold-gradient drop-shadow-[0_4px_24px_rgba(212,175,55,0.4)]">
-            DESPIERTA LA BESTIA.
+            DESPIERTA TU PODER.
           </span>
         </h1>
 
