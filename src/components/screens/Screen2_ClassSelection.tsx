@@ -1,5 +1,16 @@
 import React, { useState } from 'react';
-import { Calendar as CalendarIcon, Clock, Bike, ChevronRight, Menu, Check, Zap } from 'lucide-react';
+import { 
+  Calendar as CalendarIcon, 
+  Clock, 
+  Bike, 
+  ChevronRight, 
+  ChevronLeft,
+  ChevronDown,
+  ChevronUp,
+  Menu, 
+  Check, 
+  Zap 
+} from 'lucide-react';
 import { PantherLogo } from '../common/PantherLogo';
 import type { ClassSession } from '../../types';
 
@@ -9,13 +20,95 @@ interface Screen2ClassSelectionProps {
   onOpenMenu?: () => void;
 }
 
+const MONTH_NAMES_ES = [
+  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+];
+
+const DAY_NAMES_ES = [
+  'Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'
+];
+
+const DAY_SHORT_ES = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'];
+const MONTH_SHORT_ES = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
+
+const formatFullDateES = (d: Date): string => {
+  return `${DAY_NAMES_ES[d.getDay()]}, ${d.getDate()} de ${MONTH_NAMES_ES[d.getMonth()].toLowerCase()} de ${d.getFullYear()}`;
+};
+
+const formatISODate = (d: Date): string => {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+};
+
+const parseDateSafe = (dateStr?: string): Date => {
+  if (!dateStr) return new Date(2026, 8, 25);
+  const parts = dateStr.split('-');
+  if (parts.length === 3) {
+    const y = parseInt(parts[0], 10);
+    const m = parseInt(parts[1], 10) - 1;
+    const d = parseInt(parts[2], 10);
+    return new Date(y, m, d);
+  }
+  const parsed = new Date(dateStr);
+  return isNaN(parsed.getTime()) ? new Date(2026, 8, 25) : parsed;
+};
+
+const isSameDay = (d1: Date, d2: Date) => {
+  return (
+    d1.getFullYear() === d2.getFullYear() &&
+    d1.getMonth() === d2.getMonth() &&
+    d1.getDate() === d2.getDate()
+  );
+};
+
 export const Screen2_ClassSelection: React.FC<Screen2ClassSelectionProps> = ({
   currentClass,
   onContinue,
   onOpenMenu,
 }) => {
+  const initialDate = parseDateSafe(currentClass.date);
+  const [selectedDate, setSelectedDate] = useState<Date>(initialDate);
+  const [showCalendar, setShowCalendar] = useState<boolean>(false);
+  const [viewMonth, setViewMonth] = useState<number>(initialDate.getMonth());
+  const [viewYear, setViewYear] = useState<number>(initialDate.getFullYear());
   const [selectedTime, setSelectedTime] = useState<string>(currentClass.time);
-  const [selectedClassType, setSelectedClassType] = useState<string>(currentClass.type);
+
+  // Generate 14 upcoming days for quick tap selection
+  const quickDays = Array.from({ length: 14 }, (_, i) => {
+    return new Date(initialDate.getFullYear(), initialDate.getMonth(), initialDate.getDate() + i);
+  });
+
+  // Monthly calendar calculation
+  const daysOfWeek = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+  const daysInViewMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+  const firstDayOfMonthIndex = (new Date(viewYear, viewMonth, 1).getDay() + 6) % 7; // Monday = 0
+  const monthDays = Array.from({ length: daysInViewMonth }, (_, i) => i + 1);
+
+  const handlePrevMonth = () => {
+    if (viewMonth === 0) {
+      setViewMonth(11);
+      setViewYear((y) => y - 1);
+    } else {
+      setViewMonth((m) => m - 1);
+    }
+  };
+
+  const handleNextMonth = () => {
+    if (viewMonth === 11) {
+      setViewMonth(0);
+      setViewYear((y) => y + 1);
+    } else {
+      setViewMonth((m) => m + 1);
+    }
+  };
+
+  const handleSelectDay = (dayNum: number) => {
+    const newDate = new Date(viewYear, viewMonth, dayNum);
+    setSelectedDate(newDate);
+  };
 
   const times = [
     { time: '6:00 a. m.', label: 'Apertura Mañana', intensity: 'Media-Alta' },
@@ -24,16 +117,12 @@ export const Screen2_ClassSelection: React.FC<Screen2ClassSelectionProps> = ({
     { time: '7:30 p. m.', label: 'Cierre Nocturno', intensity: 'Alta' },
   ];
 
-  const classTypes = [
-    { id: 'Indoor Cycling', name: 'Indoor Cycling', subtitle: 'Fuerza & Ritmo • 45 min' },
-    { id: 'Power Sprint', name: 'Power Sprint', subtitle: 'HIIT & Quema calórica • 45 min' },
-    { id: 'Endurance Ride', name: 'Endurance Ride', subtitle: 'Resistencia cardiovascular • 45 min' },
-  ];
-
   const handleContinue = () => {
     onContinue({ 
+      date: formatISODate(selectedDate),
+      dateFormatted: formatFullDateES(selectedDate),
       time: selectedTime,
-      type: selectedClassType,
+      type: 'Indoor Cycling',
     });
   };
 
@@ -64,30 +153,184 @@ export const Screen2_ClassSelection: React.FC<Screen2ClassSelectionProps> = ({
             Configura tu sesión de pedaleo
           </h1>
           <p className="text-xs sm:text-sm text-slate-400 mt-1">
-            Selecciona tu horario preferido y modalidad de entrenamiento.
+            Elige la fecha y el horario para tu sesión de pedaleo.
           </p>
         </div>
 
         {/* Responsive Content Grid: 1 col on mobile, 2 col on PC */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6">
-          {/* Left Column (Inputs & Time Pills) */}
+          {/* Left Column (Inputs, Calendar & Time Pills) */}
           <div className="md:col-span-7 space-y-4">
-            {/* 1. Fecha Card */}
-            <div className="p-4 rounded-2xl bg-[#131720] border border-[#222a38] flex items-center justify-between transition-all hover:border-[#333f52]">
-              <div className="flex items-center gap-3.5">
-                <div className="w-11 h-11 rounded-xl bg-[#1C222F] flex items-center justify-center text-[#D4AF37] shrink-0 border border-[#222a38]">
-                  <CalendarIcon className="w-5 h-5" />
+            {/* 1. Fecha Card & Calendario Selector */}
+            <div className="p-4 rounded-2xl bg-[#131720] border border-[#222a38] space-y-3.5 transition-all">
+              {/* Header card with selected date */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-11 h-11 rounded-xl bg-[#1C222F] flex items-center justify-center text-[#D4AF37] shrink-0 border border-[#222a38] shadow-sm">
+                    <CalendarIcon className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <span className="text-[11px] text-slate-400 font-medium uppercase tracking-wider block">
+                      Fecha de sesión
+                    </span>
+                    <span className="text-sm font-bold text-white block mt-0.5">
+                      {formatFullDateES(selectedDate)}
+                    </span>
+                  </div>
                 </div>
-                <div>
-                  <span className="text-[11px] text-slate-400 font-medium uppercase tracking-wider block">Fecha de sesión</span>
-                  <span className="text-sm font-bold text-white block mt-0.5">
-                    {currentClass.dateFormatted}
-                  </span>
+
+                <div className="flex items-center gap-2">
+                  {isSameDay(selectedDate, initialDate) && (
+                    <span className="text-[11px] font-bold text-[#D4AF37] bg-[#D4AF37]/15 px-2.5 py-1 rounded-lg border border-[#D4AF37]/30">
+                      Hoy
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setShowCalendar(!showCalendar)}
+                    aria-label={showCalendar ? "Ocultar calendario" : "Abrir calendario completo"}
+                    className="min-h-[38px] px-3 py-1.5 rounded-xl bg-[#1C222F] border border-[#222a38] hover:border-[#D4AF37]/50 text-slate-200 hover:text-white text-xs font-semibold flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer"
+                  >
+                    <span>{showCalendar ? 'Cerrar' : 'Calendario'}</span>
+                    {showCalendar ? (
+                      <ChevronUp className="w-3.5 h-3.5 text-[#D4AF37]" />
+                    ) : (
+                      <ChevronDown className="w-3.5 h-3.5 text-[#D4AF37]" />
+                    )}
+                  </button>
                 </div>
               </div>
-              <span className="text-[11px] font-bold text-slate-400 bg-black/40 px-2.5 py-1 rounded-lg border border-[#222a38]">
-                Hoy
-              </span>
+
+              {/* Quick Select Days (Horizontal Carousel) */}
+              <div>
+                <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider block mb-2">
+                  Días disponibles para reservar:
+                </span>
+                <div className="flex gap-2 overflow-x-auto pb-1">
+                  {quickDays.map((d, idx) => {
+                    const isSelected = isSameDay(d, selectedDate);
+                    const isInitial = isSameDay(d, initialDate);
+                    return (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => {
+                          setSelectedDate(d);
+                          setViewMonth(d.getMonth());
+                          setViewYear(d.getFullYear());
+                        }}
+                        className={`min-w-[62px] p-2 rounded-xl border text-center transition-all duration-150 flex flex-col items-center justify-center shrink-0 cursor-pointer active:scale-95 ${
+                          isSelected
+                            ? 'bg-gold-gradient border-[#D4AF37] text-black shadow-[0_0_12px_rgba(212,175,55,0.4)] font-bold scale-[1.02]'
+                            : 'bg-[#0E121A] border-[#222a38] text-slate-300 hover:border-[#D4AF37]/40 hover:bg-[#151c27]'
+                        }`}
+                      >
+                        <span className={`text-[10px] font-bold ${isSelected ? 'text-black' : 'text-slate-400'}`}>
+                          {isInitial ? 'HOY' : DAY_SHORT_ES[d.getDay()]}
+                        </span>
+                        <span className={`text-sm font-black font-['Montserrat',sans-serif] my-0.5 ${isSelected ? 'text-black' : 'text-white'}`}>
+                          {d.getDate()}
+                        </span>
+                        <span className={`text-[9px] uppercase font-semibold ${isSelected ? 'text-black/80' : 'text-slate-400'}`}>
+                          {MONTH_SHORT_ES[d.getMonth()]}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Expandable Monthly Calendar */}
+              {showCalendar && (
+                <div className="pt-3 border-t border-[#222a38] space-y-3">
+                  {/* Month Navigation */}
+                  <div className="flex items-center justify-between px-1">
+                    <button
+                      type="button"
+                      onClick={handlePrevMonth}
+                      aria-label="Mes anterior"
+                      className="min-h-[34px] min-w-[34px] p-1.5 rounded-lg bg-[#0E121A] border border-[#222a38] text-slate-300 hover:text-white hover:border-[#D4AF37]/40 active:scale-95 transition-all cursor-pointer flex items-center justify-center"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <div className="text-center">
+                      <span className="font-extrabold text-sm text-white tracking-wide font-['Montserrat',sans-serif] block">
+                        {MONTH_NAMES_ES[viewMonth]} {viewYear}
+                      </span>
+                      <span className="text-[10px] text-slate-400">Selecciona el día que prefieras</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleNextMonth}
+                      aria-label="Mes siguiente"
+                      className="min-h-[34px] min-w-[34px] p-1.5 rounded-lg bg-[#0E121A] border border-[#222a38] text-slate-300 hover:text-white hover:border-[#D4AF37]/40 active:scale-95 transition-all cursor-pointer flex items-center justify-center"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* Day of Week Headers */}
+                  <div className="grid grid-cols-7 gap-1 text-center mb-1">
+                    {daysOfWeek.map((day, idx) => (
+                      <span key={idx} className="text-[10px] font-bold text-slate-400 py-1">
+                        {day}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Days Grid */}
+                  <div className="grid grid-cols-7 gap-1 text-center text-xs">
+                    {Array.from({ length: firstDayOfMonthIndex }).map((_, i) => (
+                      <div key={`empty-${i}`} className="h-8 w-8 mx-auto" />
+                    ))}
+
+                    {monthDays.map((dayNum) => {
+                      const thisDay = new Date(viewYear, viewMonth, dayNum);
+                      const isSelected = isSameDay(thisDay, selectedDate);
+                      const isTodayDate = isSameDay(thisDay, initialDate);
+
+                      return (
+                        <button
+                          key={dayNum}
+                          type="button"
+                          onClick={() => handleSelectDay(dayNum)}
+                          className={`h-8 w-8 sm:h-9 sm:w-9 mx-auto rounded-xl flex items-center justify-center font-bold transition-all duration-150 cursor-pointer active:scale-95 ${
+                            isSelected
+                              ? 'bg-gold-gradient text-black font-black shadow-md shadow-[#D4AF37]/40 scale-105'
+                              : isTodayDate
+                              ? 'text-[#D4AF37] border border-[#D4AF37]/50 hover:bg-[#1C222F]'
+                              : 'text-slate-300 hover:text-white hover:bg-[#1C222F] border border-transparent'
+                          }`}
+                        >
+                          {dayNum}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Footer actions inside calendar */}
+                  <div className="flex items-center justify-between pt-2 border-t border-[#222a38]/60">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedDate(initialDate);
+                        setViewMonth(initialDate.getMonth());
+                        setViewYear(initialDate.getFullYear());
+                      }}
+                      className="text-[11px] text-[#D4AF37] hover:underline font-semibold cursor-pointer"
+                    >
+                      Volver a Hoy
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowCalendar(false)}
+                      className="px-3 py-1 rounded-lg bg-[#D4AF37] text-black text-xs font-bold active:scale-95 transition-all cursor-pointer"
+                    >
+                      Listo
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* 2. Horarios interactivos en 1 clic */}
@@ -129,45 +372,36 @@ export const Screen2_ClassSelection: React.FC<Screen2ClassSelectionProps> = ({
               </div>
             </div>
 
-            {/* 3. Modalidad / Tipo de clase interactivo */}
+            {/* 3. Modalidad Oficial (Indoor Cycling 45 min) & Recordatorio de Puntualidad */}
             <div className="p-4 rounded-2xl bg-[#131720] border border-[#222a38]">
-              <span className="text-[11px] text-slate-400 font-medium uppercase tracking-wider block mb-3 flex items-center gap-1.5">
-                <Bike className="w-3.5 h-3.5 text-[#D4AF37]" />
-                Modalidad de pedaleo
-              </span>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[11px] text-slate-400 font-medium uppercase tracking-wider flex items-center gap-1.5">
+                  <Bike className="w-3.5 h-3.5 text-[#D4AF37]" />
+                  Modalidad de Pedaleo
+                </span>
+                <span className="text-[11px] font-bold text-[#D4AF37] bg-[#D4AF37]/15 px-2.5 py-0.5 rounded-full border border-[#D4AF37]/30">
+                  45 Minutos
+                </span>
+              </div>
 
-              <div className="space-y-2">
-                {classTypes.map((type) => {
-                  const isSelected = selectedClassType === type.name;
-                  return (
-                    <button
-                      key={type.id}
-                      type="button"
-                      onClick={() => setSelectedClassType(type.name)}
-                      className={`w-full min-h-[48px] p-3 rounded-xl border text-left flex items-center justify-between transition-all duration-150 active:scale-95 cursor-pointer ${
-                        isSelected
-                          ? 'bg-[#1C222F] border-[#D4AF37] shadow-sm'
-                          : 'bg-[#0E121A] border-[#222a38] hover:border-slate-600'
-                      }`}
-                    >
-                      <div>
-                        <span className={`text-xs font-bold block ${isSelected ? 'text-[#D4AF37]' : 'text-white'}`}>
-                          {type.name}
-                        </span>
-                        <span className="text-[10px] text-slate-400">
-                          {type.subtitle}
-                        </span>
-                      </div>
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center border transition-all ${
-                        isSelected 
-                          ? 'bg-[#D4AF37] border-[#D4AF37] text-black' 
-                          : 'border-slate-600 bg-transparent'
-                      }`}>
-                        {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
-                      </div>
-                    </button>
-                  );
-                })}
+              {/* Tarjeta Informativa de Modalidad Única Oficial */}
+              <div className="p-3.5 rounded-xl bg-[#0E121A] border border-[#222a38] flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 flex items-center justify-center text-[#D4AF37] shrink-0">
+                    <Bike className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <span className="text-xs sm:text-sm font-bold text-white block">
+                      Indoor Cycling
+                    </span>
+                    <span className="text-[11px] text-slate-400 block mt-0.5">
+                      Fuerza, Ritmo & Resistencia • 45 min
+                    </span>
+                  </div>
+                </div>
+                <div className="w-6 h-6 rounded-full bg-[#D4AF37] flex items-center justify-center text-black shadow-[0_0_10px_rgba(212,175,55,0.4)]">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                </div>
               </div>
 
               {/* Recordatorio de Puntualidad: Estar 15 minutos antes */}

@@ -1,18 +1,24 @@
 import React, { useRef, useState } from 'react';
-import { Calendar, Lock, MapPin, ChevronRight, Volume2, VolumeX, Play, Pause, Sparkles } from 'lucide-react';
+import { Calendar, Lock, MapPin, ChevronRight, Volume2, VolumeX, Play, Pause, Sparkles, User, ShieldCheck, Ticket } from 'lucide-react';
+import type { ClientUser } from '../../types';
 
 interface Screen1WelcomeProps {
   onStartBooking: () => void;
   onLogin: () => void;
   onExploreSchedule?: () => void;
   onViewPlans?: () => void;
+  currentUser?: ClientUser | null;
+  onOpenLoginModal?: () => void;
+  onLogout?: () => void;
 }
 
 export const Screen1_Welcome: React.FC<Screen1WelcomeProps> = ({ 
   onStartBooking, 
   onLogin, 
   onExploreSchedule,
-  onViewPlans
+  onViewPlans,
+  currentUser = null,
+  onOpenLoginModal,
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(true);
@@ -34,6 +40,8 @@ export const Screen1_Welcome: React.FC<Screen1WelcomeProps> = ({
     videoRef.current.muted = !isMuted;
     setIsMuted(!isMuted);
   };
+
+  const hasActiveMembership = currentUser?.clientType === 'mensualidad' && currentUser?.membershipStatus === 'active';
 
   return (
     <div className="w-full h-full flex flex-col justify-between relative overflow-y-auto overflow-x-hidden bg-[#06080B] text-slate-100 select-none">
@@ -59,7 +67,7 @@ export const Screen1_Welcome: React.FC<Screen1WelcomeProps> = ({
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-[#D4AF37]/10 rounded-full blur-3xl pointer-events-none" />
       </div>
 
-      {/* 2. Top Header & Floating Navbar (Inspirado en Têmpera / Apple) */}
+      {/* 2. Top Header & Floating Navbar */}
       <header className="relative z-20 flex items-center justify-between px-3.5 sm:px-6 py-2.5 sm:py-4 w-full max-w-5xl mx-auto shrink-0">
         {/* Brand Logo & Name */}
         <div className="flex items-center gap-2.5 sm:gap-3">
@@ -91,8 +99,39 @@ export const Screen1_Welcome: React.FC<Screen1WelcomeProps> = ({
           </div>
         </div>
 
-        {/* Video Controls & Staff Access */}
-        <div className="flex items-center gap-1.5 sm:gap-2">
+        {/* User Status / Login & Video Controls */}
+        <div className="flex items-center gap-2">
+          {/* User Logged in Chip OR Login Button */}
+          {currentUser ? (
+            <button
+              onClick={onOpenLoginModal}
+              className="flex items-center gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-black/60 border border-white/20 hover:border-[#D4FF00] backdrop-blur-md transition-all active:scale-95 cursor-pointer shadow-sm text-left"
+              title="Ver mi estado de cuenta"
+            >
+              <img 
+                src={currentUser.avatar} 
+                alt={currentUser.name} 
+                className="w-6 h-6 rounded-full object-cover border border-[#D4FF00]" 
+              />
+              <div className="hidden sm:flex flex-col">
+                <span className="text-[11px] font-bold text-white leading-none truncate max-w-[110px]">
+                  {currentUser.name}
+                </span>
+                <span className={`text-[9px] font-black leading-none mt-0.5 ${hasActiveMembership ? 'text-emerald-400' : 'text-sky-300'}`}>
+                  {hasActiveMembership ? '✓ Membresía' : 'Particular ($10k)'}
+                </span>
+              </div>
+            </button>
+          ) : (
+            <button
+              onClick={onOpenLoginModal}
+              className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-[#D4FF00] hover:bg-[#c6f000] text-black font-black text-[10px] sm:text-xs tracking-wider uppercase flex items-center gap-1.5 backdrop-blur-md transition-all active:scale-95 cursor-pointer shadow-md"
+            >
+              <User className="w-3 h-3 stroke-[3]" />
+              <span>Iniciar Sesión</span>
+            </button>
+          )}
+
           {/* Video Play/Pause Micro-control */}
           <button
             onClick={togglePlay}
@@ -116,28 +155,63 @@ export const Screen1_Welcome: React.FC<Screen1WelcomeProps> = ({
           {/* Staff Login Button */}
           <button
             onClick={onLogin}
-            className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/15 hover:border-[#D4AF37]/40 text-slate-300 hover:text-white font-semibold text-[10px] sm:text-[11px] tracking-wider uppercase flex items-center gap-1.5 backdrop-blur-md transition-all active:scale-95 cursor-pointer ml-0.5"
+            className="px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/15 hover:border-[#D4AF37]/40 text-slate-300 hover:text-white font-semibold text-[10px] sm:text-[11px] tracking-wider uppercase flex items-center gap-1 backdrop-blur-md transition-all active:scale-95 cursor-pointer"
+            title="Panel de Administración"
           >
             <Lock className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#D4AF37]" />
-            <span className="hidden sm:inline">Staff</span>
+            <span className="hidden md:inline">Admin</span>
           </button>
         </div>
       </header>
 
-      {/* 3. Center Hero Section (High Impact Headline, Pill Tag & CTAs) */}
+      {/* 3. Center Hero Section */}
       <main className="relative z-10 flex-1 flex flex-col items-center justify-center text-center px-4 max-w-3xl mx-auto py-2 sm:py-6">
-        {/* Animated Status Pill */}
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/60 border border-[#D4AF37]/35 backdrop-blur-md shadow-lg shadow-black/40 mb-3 sm:mb-4 animate-pulse-subtle">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FFE600] opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FFE600]" />
-          </span>
-          <span className="text-[9px] sm:text-xs uppercase tracking-[0.2em] font-extrabold text-slate-200">
-            SALA ACTIVA · 14 CUPOS EXCLUSIVOS
-          </span>
-        </div>
+        {/* User Verified Status Chip if Logged In */}
+        {currentUser ? (
+          <div 
+            onClick={onOpenLoginModal}
+            className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full backdrop-blur-md shadow-lg mb-3 cursor-pointer transition-all active:scale-95 ${
+              hasActiveMembership
+                ? 'bg-emerald-950/70 border border-emerald-500/50 hover:border-emerald-400'
+                : 'bg-sky-950/70 border border-sky-500/50 hover:border-sky-400'
+            }`}
+          >
+            {hasActiveMembership ? (
+              <>
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="text-[11px] sm:text-xs text-white font-bold">
+                  Hola, <strong>{currentUser.name}</strong> • Membresía Activa ({currentUser.membershipPlan || 'Plan Vigente'})
+                </span>
+                <span className="text-[9px] font-black bg-[#D4FF00] text-black px-2 py-0.2 rounded-full">
+                  $0 COP
+                </span>
+              </>
+            ) : (
+              <>
+                <Ticket className="w-3.5 h-3.5 text-sky-400" />
+                <span className="text-[11px] sm:text-xs text-white font-bold">
+                  Hola, <strong>{currentUser.name}</strong> • Particular ($10.000 COP)
+                </span>
+                <span className="text-[9px] font-bold text-sky-300 bg-black/40 px-2 py-0.2 rounded-full border border-sky-500/30">
+                  Sin Membresía
+                </span>
+              </>
+            )}
+          </div>
+        ) : (
+          /* Animated Status Pill */
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/60 border border-[#D4AF37]/35 backdrop-blur-md shadow-lg shadow-black/40 mb-3 sm:mb-4 animate-pulse-subtle">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FFE600] opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FFE600]" />
+            </span>
+            <span className="text-[9px] sm:text-xs uppercase tracking-[0.2em] font-extrabold text-slate-200">
+              SALA ACTIVA · 14 CUPOS EXCLUSIVOS
+            </span>
+          </div>
+        )}
 
-        {/* Main Headline (Estilo Têmpera / Dark Luxury) */}
+        {/* Main Headline */}
         <h1 className="text-[clamp(1.5rem,5.5vw,3.25rem)] font-black uppercase tracking-tight leading-[1.08] mb-2 sm:mb-3">
           <span className="text-white drop-shadow-[0_4px_16px_rgba(0,0,0,0.8)]">
             DOMINA EL RITMO.
@@ -153,7 +227,7 @@ export const Screen1_Welcome: React.FC<Screen1WelcomeProps> = ({
           45 minutos de adrenalina pura con luces de club, audio inmersivo y selección de puesto en tiempo real.
         </p>
 
-        {/* Action Buttons (2-Row Hierarchy: Primary Full Width, Secondary Grid) */}
+        {/* Action Buttons */}
         <div className="flex flex-col gap-2.5 w-full max-w-xs sm:max-w-md mx-auto">
           {/* Primary CTA: Reservar Bicicleta */}
           <button
@@ -161,34 +235,61 @@ export const Screen1_Welcome: React.FC<Screen1WelcomeProps> = ({
             className="w-full py-3 sm:py-3.5 px-5 rounded-2xl bg-gold-gradient hover:brightness-110 text-black font-black text-xs sm:text-sm tracking-wide flex items-center justify-center gap-2 shadow-[0_6px_25px_rgba(212,175,55,0.35)] hover:shadow-[0_8px_32px_rgba(212,175,55,0.5)] transition-all duration-200 active:scale-[0.97] cursor-pointer group min-h-[46px]"
           >
             <Calendar className="w-4 h-4 stroke-[2.5] transition-transform group-hover:scale-110" />
-            <span className="uppercase tracking-wider">Elegir mi Bicicleta</span>
+            <span className="uppercase tracking-wider">
+              {currentUser 
+                ? (hasActiveMembership ? 'Reservar mi Bici ($0 COP)' : 'Reservar mi Bici ($10.000)')
+                : 'Elegir mi Bicicleta'}
+            </span>
             <ChevronRight className="w-4 h-4 stroke-[3] ml-auto transition-transform group-hover:translate-x-1" />
           </button>
 
-          {/* Secondary & Tertiary CTA row (Touch-Friendly 44px targets) */}
+          {/* Secondary & Tertiary CTA row */}
           <div className="grid grid-cols-2 gap-2 w-full">
-            {onViewPlans && (
+            {/* Login / Check Status Button if not logged in */}
+            {!currentUser ? (
               <button
-                onClick={onViewPlans}
-                className="w-full py-2.5 px-3 rounded-xl bg-[#131720]/90 hover:bg-[#1A222F] border border-[#D4FF00]/40 text-[#D4FF00] font-black text-[11px] sm:text-xs tracking-wider uppercase flex items-center justify-center gap-1.5 backdrop-blur-md transition-all duration-200 active:scale-[0.97] cursor-pointer shadow-md min-h-[44px]"
+                onClick={onOpenLoginModal}
+                className="w-full py-2.5 px-3 rounded-xl bg-[#131720]/95 hover:bg-[#1A222F] border border-[#D4FF00]/40 hover:border-[#D4FF00] text-[#D4FF00] font-black text-[11px] sm:text-xs tracking-wider uppercase flex items-center justify-center gap-1.5 backdrop-blur-md transition-all duration-200 active:scale-[0.97] cursor-pointer shadow-md min-h-[44px]"
               >
-                <Sparkles className="w-3.5 h-3.5 text-[#D4FF00]" />
-                <span>Membresías</span>
+                <User className="w-3.5 h-3.5 text-[#D4FF00]" />
+                <span>Iniciar Sesión</span>
+              </button>
+            ) : (
+              <button
+                onClick={onOpenLoginModal}
+                className="w-full py-2.5 px-3 rounded-xl bg-[#131720]/90 hover:bg-[#1A222F] border border-white/20 text-slate-200 font-bold text-[11px] sm:text-xs tracking-wider uppercase flex items-center justify-center gap-1.5 backdrop-blur-md transition-all duration-200 active:scale-[0.97] cursor-pointer min-h-[44px]"
+              >
+                <User className="w-3.5 h-3.5 text-[#D4FF00]" />
+                <span>Mi Cuenta</span>
               </button>
             )}
 
-            <button
-              onClick={onExploreSchedule || onStartBooking}
-              className="w-full py-2.5 px-3 rounded-xl bg-black/60 hover:bg-black/80 border border-white/15 hover:border-[#D4AF37]/50 text-slate-200 hover:text-white font-bold text-[11px] sm:text-xs tracking-wider uppercase flex items-center justify-center gap-1.5 backdrop-blur-md transition-all duration-200 active:scale-[0.97] cursor-pointer min-h-[44px]"
-            >
-              <Calendar className="w-3.5 h-3.5 text-[#D4AF37]" />
-              <span>Horarios</span>
-            </button>
+            {/* Plans button */}
+            {onViewPlans && (
+              <button
+                onClick={onViewPlans}
+                className="w-full py-2.5 px-3 rounded-xl bg-black/60 hover:bg-black/80 border border-white/15 hover:border-[#D4AF37]/50 text-slate-200 hover:text-white font-bold text-[11px] sm:text-xs tracking-wider uppercase flex items-center justify-center gap-1.5 backdrop-blur-md transition-all duration-200 active:scale-[0.97] cursor-pointer min-h-[44px]"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
+                <span>Membresías</span>
+              </button>
+            )}
           </div>
+
+          {/* Explore full calendar link */}
+          {onExploreSchedule && (
+            <button
+              onClick={onExploreSchedule}
+              className="text-[11px] text-slate-400 hover:text-[#D4AF37] font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer pt-0.5"
+            >
+              <Calendar className="w-3 h-3 text-[#D4AF37]" />
+              <span>Ver todos los horarios del mes</span>
+            </button>
+          )}
         </div>
       </main>
 
-      {/* 4. Bottom Feature Badges & Location (Directo de la estructura del video Têmpera) */}
+      {/* 4. Bottom Feature Badges & Location */}
       <footer className="relative z-10 w-full max-w-5xl mx-auto px-3 sm:px-6 pb-3 sm:pb-6 shrink-0">
         {/* 3 Pillars Cards */}
         <div className="grid grid-cols-3 gap-1.5 sm:gap-4 mb-2.5 sm:mb-4">
@@ -198,7 +299,7 @@ export const Screen1_Welcome: React.FC<Screen1WelcomeProps> = ({
               14 BICIS
             </span>
             <span className="text-[8px] sm:text-xs text-slate-400 font-medium tracking-wide">
-              Mapa en vivo
+              Bici favorita
             </span>
           </div>
 

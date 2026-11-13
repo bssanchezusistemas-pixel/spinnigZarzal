@@ -5,6 +5,7 @@ import { supabase } from './services/supabaseClient';
 import { DemoToolbar } from './components/common/DemoToolbar';
 import { MobileFrame } from './components/common/MobileFrame';
 import { BottomNav } from './components/common/BottomNav';
+import { LoginModal } from './components/common/LoginModal';
 
 // Eager load Screen 1 for instantaneous First Contentful Paint (FCP)
 import { Screen1_Welcome } from './components/screens/Screen1_Welcome';
@@ -37,6 +38,10 @@ export function App() {
   const [role, setRole] = useState<UserRole>('client');
   const [isSimulator, setIsSimulator] = useState<boolean>(true);
 
+  // Rider authentication / verification state
+  const [currentUser, setCurrentUser] = useState<ClientUser | null>(() => db.getCurrentUser());
+  const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
+
   // Persistent Application Data states (Loaded from DB)
   const [bikes, setBikes] = useState<Bike[]>(() => db.getBikes());
   const [classes, setClasses] = useState<ClassSession[]>(() => db.getClasses());
@@ -46,9 +51,18 @@ export function App() {
   const [selectedBikeId, setSelectedBikeId] = useState<number | null>(7);
 
   // Booking Flow User State
-  const [bookingClientType, setBookingClientType] = useState<ClientType>('mensualidad');
-  const [bookingClientName, setBookingClientName] = useState<string>('Laura Gómez');
-  const [bookingClientPhone, setBookingClientPhone] = useState<string>('+57 300 123 4567');
+  const [bookingClientType, setBookingClientType] = useState<ClientType>(() => {
+    const u = db.getCurrentUser();
+    return u ? u.clientType : 'mensualidad';
+  });
+  const [bookingClientName, setBookingClientName] = useState<string>(() => {
+    const u = db.getCurrentUser();
+    return u ? u.name : 'Laura Gómez';
+  });
+  const [bookingClientPhone, setBookingClientPhone] = useState<string>(() => {
+    const u = db.getCurrentUser();
+    return u ? u.phone : '+57 300 123 4567';
+  });
 
   // Active reservation being viewed on Ticket QR screen
   const [activeReservation, setActiveReservation] = useState<Reservation>(() => 
@@ -96,8 +110,27 @@ export function App() {
   const handleResetData = () => {
     db.resetDatabase();
     refreshAllData();
+    setCurrentUser(null);
     setSelectedBikeId(7);
     alert('Base de datos restaurada al estado oficial de BLACK RIDE Zarzal.');
+  };
+
+  const handleLoginSuccess = (user: ClientUser) => {
+    setCurrentUser(user);
+    setBookingClientName(user.name);
+    setBookingClientPhone(user.phone);
+    setBookingClientType(user.clientType);
+    setShowLoginModal(false);
+  };
+
+  const handleLogout = () => {
+    db.setCurrentUser(null);
+    setCurrentUser(null);
+  };
+
+  const handleLoginAndContinueBooking = (user: ClientUser) => {
+    handleLoginSuccess(user);
+    setCurrentScreen('class-selection');
   };
 
   const handleStartBooking = () => {
@@ -246,6 +279,9 @@ export function App() {
                 onLogin={handleToggleRole}
                 onExploreSchedule={() => setCurrentScreen('calendar')}
                 onViewPlans={() => setCurrentScreen('plans')}
+                currentUser={currentUser}
+                onOpenLoginModal={() => setShowLoginModal(true)}
+                onLogout={handleLogout}
               />
             )}
 
@@ -367,6 +403,20 @@ export function App() {
             role={role}
           />
         )}
+
+        {/* Modal de Inicio de Sesión y Verificación de Membresía */}
+        <LoginModal
+          isOpen={showLoginModal}
+          onClose={() => setShowLoginModal(false)}
+          currentUser={currentUser}
+          onLoginSuccess={handleLoginSuccess}
+          onLogout={handleLogout}
+          onViewPlans={() => {
+            setShowLoginModal(false);
+            setCurrentScreen('plans');
+          }}
+          onContinueBooking={handleLoginAndContinueBooking}
+        />
       </MobileFrame>
     </div>
   );

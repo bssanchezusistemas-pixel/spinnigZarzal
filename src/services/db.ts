@@ -15,6 +15,7 @@ const STORAGE_KEYS = {
   RESERVATIONS: 'black_ride_reservations_v3',
   PAYMENTS: 'black_ride_payments_v3',
   CLOSURES: 'black_ride_closures_v3',
+  CURRENT_USER: 'black_ride_current_user_v3',
 };
 
 // Safe JSON parser
@@ -59,6 +60,24 @@ export const db = {
   },
   saveClients(clients: ClientUser[]): void {
     setStoredItem(STORAGE_KEYS.CLIENTS, clients);
+  },
+  findClientByPhoneOrEmail(query: string): ClientUser | undefined {
+    const clean = query.trim().toLowerCase();
+    const digits = clean.replace(/[^0-9]/g, '');
+    const clients = this.getClients();
+    return clients.find((c) => {
+      const cDigits = c.phone.replace(/[^0-9]/g, '');
+      const phoneMatch = digits.length >= 7 && (cDigits.includes(digits) || digits.includes(cDigits));
+      const emailMatch = c.email.toLowerCase() === clean;
+      const nameMatch = clean.length >= 4 && c.name.toLowerCase().includes(clean);
+      return phoneMatch || emailMatch || nameMatch;
+    });
+  },
+  getCurrentUser(): ClientUser | null {
+    return getStoredItem<ClientUser | null>(STORAGE_KEYS.CURRENT_USER, null);
+  },
+  setCurrentUser(user: ClientUser | null): void {
+    setStoredItem(STORAGE_KEYS.CURRENT_USER, user);
   },
   addClient(newClient: Omit<ClientUser, 'id' | 'totalRides' | 'joinedDate'>): ClientUser {
     const clients = this.getClients();
@@ -269,5 +288,6 @@ export const db = {
     localStorage.removeItem(STORAGE_KEYS.RESERVATIONS);
     localStorage.removeItem(STORAGE_KEYS.PAYMENTS);
     localStorage.removeItem(STORAGE_KEYS.CLOSURES);
+    localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
   }
 };

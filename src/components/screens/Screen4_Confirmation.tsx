@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { PantherLogo } from '../common/PantherLogo';
 import type { ClassSession, ClientType } from '../../types';
+import { db } from '../../services/db';
 import { checkClientMembershipByPhone, type MembershipCheckResult } from '../../services/supabaseClient';
 
 interface Screen4ConfirmationProps {
@@ -45,7 +46,7 @@ export const Screen4_Confirmation: React.FC<Screen4ConfirmationProps> = ({
   // Generar código único unificado para WhatsApp y el QR (ej. BR-8392)
   const [unifiedCode] = useState(() => `BR-${Math.floor(1000 + Math.random() * 9000)}`);
 
-  // Verificar membresía en Supabase cuando cambie el número de teléfono
+  // Verificar membresía en BD local y Supabase cuando cambie el número de teléfono
   useEffect(() => {
     const clean = clientPhone.replace(/[^0-9]/g, '');
     if (clean.length < 7) {
@@ -58,6 +59,34 @@ export const Screen4_Confirmation: React.FC<Screen4ConfirmationProps> = ({
 
     const timer = setTimeout(async () => {
       try {
+        // 1. Revisar primero en la base de datos local (instantáneo)
+        const localClient = db.findClientByPhoneOrEmail(clientPhone);
+        if (localClient) {
+          const isMem = localClient.clientType === 'mensualidad' && localClient.membershipStatus === 'active';
+          onSelectClientType(isMem ? 'mensualidad' : 'particular');
+          if (localClient.name && !clientName) {
+            onChangeClientInfo(localClient.name, clientPhone);
+          }
+          setMembershipData({
+            found: true,
+            has_membership: isMem,
+            client_type: isMem ? 'mensualidad' : 'particular',
+            price_to_pay: isMem ? 0 : 10000,
+            message: isMem 
+              ? `Membresía activa verificada (${localClient.membershipPlan || 'PLAN ACTIVO'}). $0 COP.`
+              : 'Cliente particular. Tarifa de clase individual: $10.000 COP.',
+            client_id: localClient.id,
+            client_name: localClient.name,
+            phone: localClient.phone,
+            plan_name: localClient.membershipPlan,
+            expires_at: localClient.membershipExpiresAt,
+            benefit_favorite_bike: isMem,
+          });
+          setIsVerifying(false);
+          return;
+        }
+
+        // 2. Si no está en local, consultar en Supabase
         const result = await checkClientMembershipByPhone(clientPhone);
         if (isCancelled) return;
 
@@ -78,7 +107,7 @@ export const Screen4_Confirmation: React.FC<Screen4ConfirmationProps> = ({
       } finally {
         if (!isCancelled) setIsVerifying(false);
       }
-    }, 450);
+    }, 400);
 
     return () => {
       isCancelled = true;
