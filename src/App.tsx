@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import type { ScreenId, UserRole, Bike, ClassSession, Reservation, ClientUser, BikeStatus, ClientType, MembershipPlan } from './types';
 import { db } from './services/db';
 import { supabase } from './services/supabaseClient';
@@ -6,19 +6,30 @@ import { DemoToolbar } from './components/common/DemoToolbar';
 import { MobileFrame } from './components/common/MobileFrame';
 import { BottomNav } from './components/common/BottomNav';
 
-// Screens
+// Eager load Screen 1 for instantaneous First Contentful Paint (FCP)
 import { Screen1_Welcome } from './components/screens/Screen1_Welcome';
-import { Screen2_ClassSelection } from './components/screens/Screen2_ClassSelection';
-import { Screen3_BikeSelection } from './components/screens/Screen3_BikeSelection';
-import { Screen4_Confirmation } from './components/screens/Screen4_Confirmation';
-import { Screen5_TicketQR } from './components/screens/Screen5_TicketQR';
-import { Screen6_MyClasses } from './components/screens/Screen6_MyClasses';
-import { Screen7_Calendar } from './components/screens/Screen7_Calendar';
-import { Screen8_AdminDashboard } from './components/screens/Screen8_AdminDashboard';
-import { Screen9_BikeManagement } from './components/screens/Screen9_BikeManagement';
-import { Screen10_ClientsList } from './components/screens/Screen10_ClientsList';
-import { Screen11_CierreCaja } from './components/screens/Screen11_CierreCaja';
-import { Screen_Plans } from './components/screens/Screen_Plans';
+
+// Lazy load remaining screens to eliminate bundle bloat & defer heavy libs (qrcode, confetti, charts)
+const Screen_Plans = lazy(() => import('./components/screens/Screen_Plans').then(m => ({ default: m.Screen_Plans })));
+const Screen2_ClassSelection = lazy(() => import('./components/screens/Screen2_ClassSelection').then(m => ({ default: m.Screen2_ClassSelection })));
+const Screen3_BikeSelection = lazy(() => import('./components/screens/Screen3_BikeSelection').then(m => ({ default: m.Screen3_BikeSelection })));
+const Screen4_Confirmation = lazy(() => import('./components/screens/Screen4_Confirmation').then(m => ({ default: m.Screen4_Confirmation })));
+const Screen5_TicketQR = lazy(() => import('./components/screens/Screen5_TicketQR').then(m => ({ default: m.Screen5_TicketQR })));
+const Screen6_MyClasses = lazy(() => import('./components/screens/Screen6_MyClasses').then(m => ({ default: m.Screen6_MyClasses })));
+const Screen7_Calendar = lazy(() => import('./components/screens/Screen7_Calendar').then(m => ({ default: m.Screen7_Calendar })));
+const Screen8_AdminDashboard = lazy(() => import('./components/screens/Screen8_AdminDashboard').then(m => ({ default: m.Screen8_AdminDashboard })));
+const Screen9_BikeManagement = lazy(() => import('./components/screens/Screen9_BikeManagement').then(m => ({ default: m.Screen9_BikeManagement })));
+const Screen10_ClientsList = lazy(() => import('./components/screens/Screen10_ClientsList').then(m => ({ default: m.Screen10_ClientsList })));
+const Screen11_CierreCaja = lazy(() => import('./components/screens/Screen11_CierreCaja').then(m => ({ default: m.Screen11_CierreCaja })));
+
+function ScreenFallback() {
+  return (
+    <div className="flex-1 flex flex-col items-center justify-center p-6 bg-[#090B0E] text-slate-400">
+      <div className="w-9 h-9 rounded-full border-2 border-[#D4AF37]/30 border-t-[#D4AF37] animate-spin mb-3"></div>
+      <span className="text-xs font-mono tracking-wider text-slate-400">Cargando pantalla...</span>
+    </div>
+  );
+}
 
 export function App() {
   // Navigation & Role states
@@ -227,123 +238,125 @@ export function App() {
       {/* Main Content inside Phone Frame or Full Width */}
       <MobileFrame isSimulator={isSimulator}>
         <div className="flex-1 min-h-0 flex flex-col overflow-hidden relative">
-          {/* SCREEN 1: Inicio / Bienvenida */}
-          {currentScreen === 'welcome' && (
-            <Screen1_Welcome
-              onStartBooking={handleStartBooking}
-              onLogin={handleToggleRole}
-              onExploreSchedule={() => setCurrentScreen('calendar')}
-              onViewPlans={() => setCurrentScreen('plans')}
-            />
-          )}
+          <Suspense fallback={<ScreenFallback />}>
+            {/* SCREEN 1: Inicio / Bienvenida (Eager Loaded) */}
+            {currentScreen === 'welcome' && (
+              <Screen1_Welcome
+                onStartBooking={handleStartBooking}
+                onLogin={handleToggleRole}
+                onExploreSchedule={() => setCurrentScreen('calendar')}
+                onViewPlans={() => setCurrentScreen('plans')}
+              />
+            )}
 
-          {/* SCREEN: Planes y Membresías BLACK RIDE */}
-          {currentScreen === 'plans' && (
-            <Screen_Plans
-              onBack={() => setCurrentScreen(role === 'admin' ? 'admin-dashboard' : 'welcome')}
-              onSelectPlanToBook={handleSelectPlanToBook}
-              isAdmin={role === 'admin'}
-            />
-          )}
+            {/* SCREEN: Planes y Membresías BLACK RIDE */}
+            {currentScreen === 'plans' && (
+              <Screen_Plans
+                onBack={() => setCurrentScreen(role === 'admin' ? 'admin-dashboard' : 'welcome')}
+                onSelectPlanToBook={handleSelectPlanToBook}
+                isAdmin={role === 'admin'}
+              />
+            )}
 
-          {/* SCREEN 2: Selección de Clase */}
-          {currentScreen === 'class-selection' && (
-            <Screen2_ClassSelection
-              currentClass={currentClass}
-              onContinue={handleContinueClassSelection}
-              onOpenMenu={handleToggleRole}
-            />
-          )}
+            {/* SCREEN 2: Selección de Clase */}
+            {currentScreen === 'class-selection' && (
+              <Screen2_ClassSelection
+                currentClass={currentClass}
+                onContinue={handleContinueClassSelection}
+                onOpenMenu={handleToggleRole}
+              />
+            )}
 
-          {/* SCREEN 3: Elección de Bicicleta */}
-          {currentScreen === 'bike-selection' && (
-            <Screen3_BikeSelection
-              bikes={bikes}
-              selectedBikeId={selectedBikeId}
-              onSelectBike={handleSelectBike}
-              onConfirm={handleConfirmBikeSelection}
-              onBack={() => setCurrentScreen('class-selection')}
-            />
-          )}
+            {/* SCREEN 3: Elección de Bicicleta */}
+            {currentScreen === 'bike-selection' && (
+              <Screen3_BikeSelection
+                bikes={bikes}
+                selectedBikeId={selectedBikeId}
+                onSelectBike={handleSelectBike}
+                onConfirm={handleConfirmBikeSelection}
+                onBack={() => setCurrentScreen('class-selection')}
+              />
+            )}
 
-          {/* SCREEN 4: Confirmación de Reserva (Lógica Membresía vs Individual) */}
-          {currentScreen === 'confirmation' && (
-            <Screen4_Confirmation
-              currentClass={currentClass}
-              bikeNumber={selectedBikeObj ? selectedBikeObj.number : '07'}
-              clientType={bookingClientType}
-              onSelectClientType={setBookingClientType}
-              clientName={bookingClientName}
-              clientPhone={bookingClientPhone}
-              onChangeClientInfo={(name, phone) => {
-                setBookingClientName(name);
-                setBookingClientPhone(phone);
-              }}
-              onConfirmBooking={handleConfirmBooking}
-              onBack={() => setCurrentScreen('bike-selection')}
-            />
-          )}
+            {/* SCREEN 4: Confirmación de Reserva (Lógica Membresía vs Individual) */}
+            {currentScreen === 'confirmation' && (
+              <Screen4_Confirmation
+                currentClass={currentClass}
+                bikeNumber={selectedBikeObj ? selectedBikeObj.number : '07'}
+                clientType={bookingClientType}
+                onSelectClientType={setBookingClientType}
+                clientName={bookingClientName}
+                clientPhone={bookingClientPhone}
+                onChangeClientInfo={(name, phone) => {
+                  setBookingClientName(name);
+                  setBookingClientPhone(phone);
+                }}
+                onConfirmBooking={handleConfirmBooking}
+                onBack={() => setCurrentScreen('bike-selection')}
+              />
+            )}
 
-          {/* SCREEN 5: Ticket / QR de Ingreso */}
-          {currentScreen === 'ticket-qr' && (
-            <Screen5_TicketQR
-              reservation={activeReservation}
-              onBack={() => setCurrentScreen('confirmation')}
-              onGoToMyClasses={() => setCurrentScreen('my-classes')}
-            />
-          )}
+            {/* SCREEN 5: Ticket / QR de Ingreso */}
+            {currentScreen === 'ticket-qr' && (
+              <Screen5_TicketQR
+                reservation={activeReservation}
+                onBack={() => setCurrentScreen('confirmation')}
+                onGoToMyClasses={() => setCurrentScreen('my-classes')}
+              />
+            )}
 
-          {/* SCREEN 6: Mis Clases */}
-          {currentScreen === 'my-classes' && (
-            <Screen6_MyClasses
-              reservations={reservations}
-              onViewDetail={handleViewTicketDetail}
-              onBookNewClass={() => setCurrentScreen('class-selection')}
-            />
-          )}
+            {/* SCREEN 6: Mis Clases */}
+            {currentScreen === 'my-classes' && (
+              <Screen6_MyClasses
+                reservations={reservations}
+                onViewDetail={handleViewTicketDetail}
+                onBookNewClass={() => setCurrentScreen('class-selection')}
+              />
+            )}
 
-          {/* SCREEN 7: Calendario de Clases */}
-          {currentScreen === 'calendar' && (
-            <Screen7_Calendar
-              scheduledClasses={classes}
-              onSelectClass={handleSelectClassFromCalendar}
-              onBack={() => setCurrentScreen(role === 'admin' ? 'admin-dashboard' : 'welcome')}
-            />
-          )}
+            {/* SCREEN 7: Calendario de Clases */}
+            {currentScreen === 'calendar' && (
+              <Screen7_Calendar
+                scheduledClasses={classes}
+                onSelectClass={handleSelectClassFromCalendar}
+                onBack={() => setCurrentScreen(role === 'admin' ? 'admin-dashboard' : 'welcome')}
+              />
+            )}
 
-          {/* SCREEN 8: Panel de Administrador */}
-          {currentScreen === 'admin-dashboard' && (
-            <Screen8_AdminDashboard
-              onNavigateScreen={setCurrentScreen}
-              onOpenCreateClassModal={() => setCurrentScreen('calendar')}
-            />
-          )}
+            {/* SCREEN 8: Panel de Administrador */}
+            {currentScreen === 'admin-dashboard' && (
+              <Screen8_AdminDashboard
+                onNavigateScreen={setCurrentScreen}
+                onOpenCreateClassModal={() => setCurrentScreen('calendar')}
+              />
+            )}
 
-          {/* SCREEN 9: Gestión de Bicicletas */}
-          {currentScreen === 'bike-management' && (
-            <Screen9_BikeManagement
-              bikes={bikes}
-              onUpdateBikeStatus={handleUpdateBikeStatus}
-              onBack={() => setCurrentScreen('admin-dashboard')}
-            />
-          )}
+            {/* SCREEN 9: Gestión de Bicicletas */}
+            {currentScreen === 'bike-management' && (
+              <Screen9_BikeManagement
+                bikes={bikes}
+                onUpdateBikeStatus={handleUpdateBikeStatus}
+                onBack={() => setCurrentScreen('admin-dashboard')}
+              />
+            )}
 
-          {/* SCREEN 10: Clientes y Membresías */}
-          {currentScreen === 'clients-list' && (
-            <Screen10_ClientsList
-              clients={clients}
-              onBack={() => setCurrentScreen('admin-dashboard')}
-              onUpdateClientMembership={handleUpdateClientMembership}
-            />
-          )}
+            {/* SCREEN 10: Clientes y Membresías */}
+            {currentScreen === 'clients-list' && (
+              <Screen10_ClientsList
+                clients={clients}
+                onBack={() => setCurrentScreen('admin-dashboard')}
+                onUpdateClientMembership={handleUpdateClientMembership}
+              />
+            )}
 
-          {/* SCREEN 11: Cierre de Caja y Finanzas */}
-          {currentScreen === 'cierre-caja' && (
-            <Screen11_CierreCaja
-              onBack={() => setCurrentScreen('admin-dashboard')}
-              onRefreshData={refreshAllData}
-            />
-          )}
+            {/* SCREEN 11: Cierre de Caja y Finanzas */}
+            {currentScreen === 'cierre-caja' && (
+              <Screen11_CierreCaja
+                onBack={() => setCurrentScreen('admin-dashboard')}
+                onRefreshData={refreshAllData}
+              />
+            )}
+          </Suspense>
         </div>
 
         {/* Bottom Navigation Bar */}

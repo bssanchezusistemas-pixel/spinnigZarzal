@@ -68,6 +68,10 @@ export const Screen1_Welcome: React.FC<Screen1WelcomeProps> = ({
             <img 
               src="/logo.jpg" 
               alt="Black Ride Indoor Cycling" 
+              width="44"
+              height="44"
+              fetchPriority="high"
+              decoding="async"
               className="relative w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover border border-[#D4AF37]/40 shadow-lg shadow-black"
             />
           </div>
