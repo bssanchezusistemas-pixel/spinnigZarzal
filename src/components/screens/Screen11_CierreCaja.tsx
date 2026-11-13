@@ -316,7 +316,7 @@ ${summary.reservations.map(r => `• Bici #${r.bikeNumber} - ${r.clientName} (${
                   <span className="text-2xl font-black text-white">{summary.ridersParticular}</span>
                   <span className="text-xs text-sky-400 font-bold">Por el día</span>
                 </div>
-                <p className="text-[10px] text-slate-400 mt-1">Tarifa: $15.000 / clase</p>
+                <p className="text-[10px] text-slate-400 mt-1">Tarifa: $10.000 / clase</p>
               </div>
             </div>
           </div>
