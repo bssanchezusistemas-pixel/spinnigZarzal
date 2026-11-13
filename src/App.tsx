@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { ScreenId, UserRole, Bike, ClassSession, Reservation, ClientUser, BikeStatus, ClientType, MembershipPlan } from './types';
 import { db } from './services/db';
+import { supabase } from './services/supabaseClient';
 import { DemoToolbar } from './components/common/DemoToolbar';
 import { MobileFrame } from './components/common/MobileFrame';
 import { BottomNav } from './components/common/BottomNav';
@@ -113,11 +114,12 @@ export function App() {
     }
   };
 
-  const handleConfirmBooking = () => {
+  const handleConfirmBooking = (customCode?: string) => {
     const selectedBike = bikes.find((b) => b.id === selectedBikeId);
     const bikeNumber = selectedBike ? selectedBike.number : '07';
 
-    const newBookingCode = `BR-20260925-0${bikeNumber}`;
+    // Código unificado que viaja en el texto, WhatsApp y exactamente dentro del QR
+    const newBookingCode = customCode || `BR-${Math.floor(1000 + Math.random() * 9000)}`;
     const isMembership = bookingClientType === 'mensualidad';
 
     const newReservation: Reservation = {
@@ -137,13 +139,30 @@ export function App() {
       paymentMethod: isMembership ? 'mensualidad' : 'efectivo',
       amountPaid: isMembership ? 0 : 10000, // Tarifa clase individual $10.000 COP
       status: 'confirmed',
-      qrValue: `BLACK-RIDE:${newBookingCode}:BIKE-${bikeNumber}`,
+      qrValue: newBookingCode, // ¡Exactamente el mismo código que lee el QR!
       createdAt: new Date().toISOString(),
     };
 
-    // Save in persistent DB
+    // Guardar en base de datos local
     db.createReservation(newReservation);
     refreshAllData();
+
+    // Sincronizar en Supabase en segundo plano
+    Promise.resolve(
+      supabase.rpc('confirm_booking_fast', {
+        p_booking_code: newBookingCode,
+        p_class_date: currentClass.date,
+        p_class_time: currentClass.time.includes('p') ? '18:00:00' : '06:30:00',
+        p_bike_number: bikeNumber,
+        p_client_name: bookingClientName,
+        p_client_phone: bookingClientPhone,
+        p_client_type: bookingClientType,
+        p_payment_method: isMembership ? 'mensualidad' : 'efectivo',
+      })
+    ).then(({ data, error }) => {
+      if (error) console.warn('Supabase booking sync warning:', error);
+      else console.log('Supabase booking confirmed:', data);
+    }).catch(console.error);
 
     setActiveReservation(newReservation);
     setCurrentScreen('ticket-qr');

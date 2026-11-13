@@ -1,7 +1,19 @@
-import React, { useState } from 'react';
-import { ArrowLeft, Calendar, Clock, User, CheckCircle2, ShieldCheck, Ticket, Edit3, Check } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { 
+  ArrowLeft, 
+  Calendar, 
+  Clock, 
+  User, 
+  Ticket, 
+  Edit3, 
+  Check, 
+  Sparkles, 
+  MessageCircle, 
+  Loader2
+} from 'lucide-react';
 import { PantherLogo } from '../common/PantherLogo';
 import type { ClassSession, ClientType } from '../../types';
+import { checkClientMembershipByPhone, type MembershipCheckResult } from '../../services/supabaseClient';
 
 interface Screen4ConfirmationProps {
   currentClass: ClassSession;
@@ -11,7 +23,7 @@ interface Screen4ConfirmationProps {
   clientName: string;
   clientPhone: string;
   onChangeClientInfo: (name: string, phone: string) => void;
-  onConfirmBooking: () => void;
+  onConfirmBooking: (bookingCode?: string) => void;
   onBack: () => void;
 }
 
@@ -27,6 +39,80 @@ export const Screen4_Confirmation: React.FC<Screen4ConfirmationProps> = ({
   onBack,
 }) => {
   const [isEditingInfo, setIsEditingInfo] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [membershipData, setMembershipData] = useState<MembershipCheckResult | null>(null);
+
+  // Generar código único unificado para WhatsApp y el QR (ej. BR-8392)
+  const [unifiedCode] = useState(() => `BR-${Math.floor(1000 + Math.random() * 9000)}`);
+
+  // Verificar membresía en Supabase cuando cambie el número de teléfono
+  useEffect(() => {
+    const clean = clientPhone.replace(/[^0-9]/g, '');
+    if (clean.length < 7) {
+      setMembershipData(null);
+      return;
+    }
+
+    let isCancelled = false;
+    setIsVerifying(true);
+
+    const timer = setTimeout(async () => {
+      try {
+        const result = await checkClientMembershipByPhone(clientPhone);
+        if (isCancelled) return;
+
+        setMembershipData(result);
+        if (result.has_membership) {
+          onSelectClientType('mensualidad');
+          if (result.client_name && !clientName) {
+            onChangeClientInfo(result.client_name, clientPhone);
+          }
+        } else {
+          onSelectClientType('particular');
+          if (result.client_name && !clientName) {
+            onChangeClientInfo(result.client_name, clientPhone);
+          }
+        }
+      } catch (err) {
+        console.error('Error verificando membresía:', err);
+      } finally {
+        if (!isCancelled) setIsVerifying(false);
+      }
+    }, 450);
+
+    return () => {
+      isCancelled = true;
+      clearTimeout(timer);
+    };
+  }, [clientPhone]);
+
+  // Manejar confirmación directa por WhatsApp
+  const handleConfirmAndOpenWhatsApp = () => {
+    const isMembership = clientType === 'mensualidad';
+    const cleanStudioPhone = '573154829102'; // Número oficial de recepción BLACK RIDE Zarzal
+
+    const text = `🐆 *BLACK RIDE ZARZAL - CONFIRMACIÓN DE RESERVA*
+📍 *Studio Zarzal, Valle*
+
+• *Alumno:* ${clientName || 'Rider'}
+• *Celular:* ${clientPhone}
+• *Bicicleta Asignada:* #${bikeNumber}
+• *Modalidad:* ${isMembership ? 'MEMBRESÍA ACTIVA ($0 COP)' : 'CLASE INDIVIDUAL ($10.000 COP)'}
+• *Clase:* ${currentClass.type}
+• *Fecha:* ${currentClass.dateFormatted} a las ${currentClass.time}
+• *Código QR Oficial:* *${unifiedCode}*
+
+¡Nos vemos en la sala para darlo todo! 🚴⚡`;
+
+    const encoded = encodeURIComponent(text);
+    const waUrl = `https://wa.me/${cleanStudioPhone}?text=${encoded}`;
+
+    // Abrir WhatsApp en pestaña nueva
+    window.open(waUrl, '_blank');
+
+    // Continuar a la pantalla de emisión del Ticket QR
+    onConfirmBooking(unifiedCode);
+  };
 
   return (
     <div className="flex-1 flex flex-col justify-between p-4 sm:p-6 bg-[#090B0E] overflow-y-auto">
@@ -46,7 +132,7 @@ export const Screen4_Confirmation: React.FC<Screen4ConfirmationProps> = ({
                 Confirmar reserva
               </h1>
               <p className="text-[11px] sm:text-xs text-slate-400">
-                Paso 3 de 3 • Revisa tus datos antes de emitir tu ticket
+                Paso 3 de 3 • Verificación automática de membresía y pase QR
               </p>
             </div>
           </div>
@@ -125,64 +211,22 @@ export const Screen4_Confirmation: React.FC<Screen4ConfirmationProps> = ({
                 </div>
               </div>
             </div>
+
+            {/* Unified Code Preview Pill */}
+            <div className="p-3.5 rounded-2xl bg-[#0E121A] border border-[#222a38] flex items-center justify-between">
+              <div>
+                <span className="text-[10px] text-slate-400 uppercase font-bold block">Código Único de Reserva</span>
+                <span className="text-[11px] text-slate-400">Se enviará a WhatsApp e irá impreso en tu QR</span>
+              </div>
+              <span className="text-xs font-mono font-black text-[#D4AF37] bg-black/60 px-2.5 py-1 rounded-lg border border-[#D4AF37]/30">
+                {unifiedCode}
+              </span>
+            </div>
           </div>
 
-          {/* Right Column: Rider Info & Pricing Modalidad & Action Button */}
+          {/* Right Column: Rider Info & Real-Time Membership Detection */}
           <div className="md:col-span-6 space-y-4">
-            {/* Modalidad de Cliente Selector (Mensualidad vs Particular) */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-[#131720] border border-[#222a38] space-y-3 shadow-xl">
-              <span className="text-[11px] text-slate-400 uppercase tracking-wider font-bold block">
-                Modalidad de Asistencia
-              </span>
-
-              <div className="grid grid-cols-2 gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => onSelectClientType('mensualidad')}
-                  className={`min-h-[64px] p-3 rounded-xl border text-left transition-all duration-150 active:scale-95 cursor-pointer flex flex-col justify-between ${
-                    clientType === 'mensualidad'
-                      ? 'bg-[#D4AF37]/15 border-[#D4AF37] text-white shadow-lg shadow-[#D4AF37]/20'
-                      : 'bg-[#0E121A] border-[#222a38] text-slate-400 hover:border-slate-500'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                      <ShieldCheck className="w-4 h-4 text-[#D4AF37]" />
-                      Mensualidad
-                    </span>
-                    {clientType === 'mensualidad' && (
-                      <span className="w-2.5 h-2.5 rounded-full bg-[#F3C766] shadow-[0_0_6px_#D4AF37]"></span>
-                    )}
-                  </div>
-                  <span className="text-xs text-[#D4AF37] font-extrabold block">$0 en sala</span>
-                  <span className="text-[9px] text-slate-400">Plan mensual activo</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => onSelectClientType('particular')}
-                  className={`min-h-[64px] p-3 rounded-xl border text-left transition-all duration-150 active:scale-95 cursor-pointer flex flex-col justify-between ${
-                    clientType === 'particular'
-                      ? 'bg-sky-950/60 border-sky-500 text-white shadow-lg shadow-sky-950/50'
-                      : 'bg-[#0E121A] border-[#222a38] text-slate-400 hover:border-slate-500'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                      <Ticket className="w-4 h-4 text-sky-400" />
-                      Clase Individual
-                    </span>
-                    {clientType === 'particular' && (
-                      <span className="w-2.5 h-2.5 rounded-full bg-sky-400 shadow-[0_0_6px_#38bdf8]"></span>
-                    )}
-                  </div>
-                  <span className="text-xs text-sky-400 font-extrabold block">$10.000 COP</span>
-                  <span className="text-[9px] text-slate-400">Sin membresía (Día)</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Rider Info Card */}
+            {/* Rider Info Card with Phone Input */}
             <div className="p-4 sm:p-5 rounded-2xl bg-[#131720] border border-[#222a38] shadow-xl">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[11px] text-slate-400 uppercase tracking-wider font-bold">
@@ -220,13 +264,13 @@ export const Screen4_Confirmation: React.FC<Screen4ConfirmationProps> = ({
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] text-slate-400 block mb-1">WhatsApp / Celular:</label>
+                    <label className="text-[10px] text-slate-400 block mb-1">WhatsApp / Celular (10 dígitos):</label>
                     <input
-                      type="text"
+                      type="tel"
                       value={clientPhone}
                       onChange={(e) => onChangeClientInfo(clientName, e.target.value)}
-                      placeholder="+57 300 000 0000"
-                      className="w-full px-3 py-2 rounded-xl bg-[#0E121A] border border-[#222a38] text-xs text-white focus:outline-none focus:border-[#D4AF37]"
+                      placeholder="Ej. 3154829102"
+                      className="w-full px-3 py-2 rounded-xl bg-[#0E121A] border border-[#222a38] text-xs text-white font-mono focus:outline-none focus:border-[#D4AF37]"
                     />
                   </div>
                 </div>
@@ -237,13 +281,74 @@ export const Screen4_Confirmation: React.FC<Screen4ConfirmationProps> = ({
                       <User className="w-4 h-4" />
                     </div>
                     <div>
-                      <span className="text-xs font-bold text-white block">{clientName}</span>
+                      <span className="text-xs font-bold text-white block">{clientName || 'Rider'}</span>
                       <span className="text-[11px] text-slate-400 font-mono">{clientPhone}</span>
                     </div>
                   </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-black/50 text-slate-300 border border-[#222a38]">
-                    {clientType === 'mensualidad' ? 'VIP Mensual' : 'Particular'}
-                  </span>
+                  <div className="flex items-center gap-1">
+                    {isVerifying ? (
+                      <span className="text-[10px] text-slate-400 flex items-center gap-1">
+                        <Loader2 className="w-3 h-3 animate-spin text-[#D4AF37]" />
+                        <span>Verificando...</span>
+                      </span>
+                    ) : (
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
+                        clientType === 'mensualidad' 
+                          ? 'bg-[#D4AF37]/15 text-[#D4AF37] border-[#D4AF37]/40' 
+                          : 'bg-black/50 text-slate-300 border-[#222a38]'
+                      }`}>
+                        {clientType === 'mensualidad' ? '✓ Membresía Activa' : 'Particular'}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Live Membership Verification Feedback Card */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#131720] border border-[#222a38] space-y-3 shadow-xl">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] text-slate-400 uppercase tracking-wider font-bold">
+                  Estado de Membresía (Supabase)
+                </span>
+                {isVerifying && <Loader2 className="w-3.5 h-3.5 animate-spin text-[#D4AF37]" />}
+              </div>
+
+              {membershipData?.has_membership ? (
+                /* Card: Membresía Válida Detectada */
+                <div className="p-3.5 rounded-xl bg-gradient-to-r from-[#1E190E] via-[#15130A] to-[#1E190E] border border-[#D4AF37]/50 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black text-[#D4AF37] flex items-center gap-1.5">
+                      <Sparkles className="w-4 h-4 text-[#F3C766]" />
+                      <span>{membershipData.plan_name || 'Membresía Activa'}</span>
+                    </span>
+                    <span className="text-[10px] font-bold text-black bg-[#D4AF37] px-2 py-0.5 rounded-full">
+                      $0 COP
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-[11px] text-slate-300 pt-1 border-t border-[#D4AF37]/20">
+                    <span>Cupos disponibles: <strong className="text-white">{membershipData.remaining_classes} clases</strong></span>
+                    <span>Vence: <strong className="text-white">{membershipData.expires_at}</strong></span>
+                  </div>
+                  <p className="text-[10px] text-[#F3E5AB]/90 italic">
+                    ✓ Beneficio exclusivo: Tu bicicleta favorita (#{bikeNumber}) queda asignada sin costo en sala.
+                  </p>
+                </div>
+              ) : (
+                /* Card: Particular / Sin membresía */
+                <div className="p-3.5 rounded-xl bg-[#0E121A] border border-[#222a38] space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                      <Ticket className="w-4 h-4 text-sky-400" />
+                      <span>Clase Individual (Por el día)</span>
+                    </span>
+                    <span className="text-xs font-mono font-black text-sky-400">
+                      $10.000 COP
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-400">
+                    {membershipData?.message || 'Tarifa oficial para riders sin membresía activa. Pago en recepción o Nequi.'}
+                  </p>
                 </div>
               )}
             </div>
@@ -256,7 +361,7 @@ export const Screen4_Confirmation: React.FC<Screen4ConfirmationProps> = ({
                   <span className="text-[11px] text-slate-400 italic">
                     {clientType === 'mensualidad' 
                       ? '✓ Cubierto por tu Membresía BLACK RIDE' 
-                      : 'Pago en recepción o en línea ($10.000)'}
+                      : 'Pago en recepción de Zarzal o en línea ($10.000 COP)'}
                   </span>
                 </div>
                 <span className="text-2xl font-black text-white font-mono">
@@ -264,28 +369,19 @@ export const Screen4_Confirmation: React.FC<Screen4ConfirmationProps> = ({
                 </span>
               </div>
 
-              {/* Black Ride Policy Notice */}
-              <div className="p-2.5 rounded-xl bg-black/40 border border-[#222a38] text-[10px] text-slate-400">
-                {clientType === 'mensualidad' ? (
-                  <p className="text-[#D4AF37]">
-                    🚴 <strong>Beneficio BLACK RIDE:</strong> Has seleccionado tu bicicleta favorita (#{bikeNumber}).
-                  </p>
-                ) : (
-                  <p className="text-sky-300">
-                    ℹ️ <strong>Clase individual ($10.000):</strong> Sujeta a disponibilidad de bicicletas en sala.
-                  </p>
-                )}
-              </div>
-
-              {/* Confirm CTA Button */}
+              {/* Direct WhatsApp + QR Generation Button */}
               <button
                 type="button"
-                onClick={onConfirmBooking}
-                className="w-full min-h-[52px] py-4 px-6 rounded-2xl bg-gold-gradient hover:brightness-110 text-black font-black text-sm tracking-wide flex items-center justify-center gap-2 shadow-[0_4px_25px_rgba(212,175,55,0.35)] hover:shadow-[0_4px_30px_rgba(212,175,55,0.5)] active:scale-95 transition-all duration-150 cursor-pointer"
+                onClick={handleConfirmAndOpenWhatsApp}
+                className="w-full min-h-[52px] py-4 px-6 rounded-2xl bg-gold-gradient hover:brightness-110 text-black font-black text-sm tracking-wide flex items-center justify-center gap-2.5 shadow-[0_4px_25px_rgba(212,175,55,0.35)] hover:shadow-[0_4px_30px_rgba(212,175,55,0.5)] active:scale-95 transition-all duration-150 cursor-pointer"
               >
-                <CheckCircle2 className="w-5 h-5 stroke-[2.5]" />
-                <span>Confirmar Reserva Bici #{bikeNumber}</span>
+                <MessageCircle className="w-5 h-5 fill-black stroke-none" />
+                <span>Confirmar por WhatsApp & Obtener QR</span>
               </button>
+
+              <p className="text-center text-[10px] text-slate-400">
+                Al confirmar, se abrirá WhatsApp con el código <strong>{unifiedCode}</strong> y se generará tu pase digital de acceso.
+              </p>
             </div>
           </div>
         </div>
