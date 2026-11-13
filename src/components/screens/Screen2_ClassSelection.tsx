@@ -25,9 +25,9 @@ export const Screen2_ClassSelection: React.FC<Screen2ClassSelectionProps> = ({
   ];
 
   const classTypes = [
-    { id: 'Indoor Cycling', name: 'Indoor Cycling', subtitle: 'Fuerza & Ritmo • 50 min' },
+    { id: 'Indoor Cycling', name: 'Indoor Cycling', subtitle: 'Fuerza & Ritmo • 45 min' },
     { id: 'Power Sprint', name: 'Power Sprint', subtitle: 'HIIT & Quema calórica • 45 min' },
-    { id: 'Endurance Ride', name: 'Endurance Ride', subtitle: 'Resistencia cardiovascular • 60 min' },
+    { id: 'Endurance Ride', name: 'Endurance Ride', subtitle: 'Resistencia cardiovascular • 45 min' },
   ];
 
   const handleContinue = () => {
@@ -168,6 +168,21 @@ export const Screen2_ClassSelection: React.FC<Screen2ClassSelectionProps> = ({
                     </button>
                   );
                 })}
+              </div>
+
+              {/* Recordatorio de Puntualidad: Estar 15 minutos antes */}
+              <div className="mt-3 p-3 rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 flex items-start gap-2.5">
+                <div className="w-7 h-7 rounded-lg bg-[#D4AF37]/20 border border-[#D4AF37]/40 flex items-center justify-center text-[#D4AF37] shrink-0 mt-0.5">
+                  <Clock className="w-3.5 h-3.5" />
+                </div>
+                <div className="text-left">
+                  <span className="text-xs font-bold text-[#D4AF37] block">
+                    Estar 15 minutos antes
+                  </span>
+                  <span className="text-[11px] text-slate-300 leading-relaxed block mt-0.5">
+                    Todas las sesiones tienen una duración de <strong>45 minutos</strong>. Por favor preséntate <strong>15 minutos antes</strong> para acomodar tu bicicleta e iniciar puntual al ritmo de la música.
+                  </span>
+                </div>
               </div>
             </div>
           </div>

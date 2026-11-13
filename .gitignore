@@ -37,3 +37,4 @@ dist-ssr
 /logo.jpg
 *.mp4
 !public/*.mp4
+.vercel

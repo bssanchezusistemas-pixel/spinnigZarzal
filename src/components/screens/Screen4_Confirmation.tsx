@@ -70,7 +70,7 @@ export const Screen4_Confirmation: React.FC<Screen4ConfirmationProps> = ({
                     {currentClass.type}
                   </span>
                   <span className="text-[11px] text-slate-400 block mt-0.5">
-                    Studio Zarzal • 50 minutos
+                    Studio Zarzal • 45 minutos
                   </span>
                 </div>
                 <div className="text-right">
