@@ -1,11 +1,11 @@
-import { useState, lazy, Suspense } from 'react';
+import { useState, lazy, Suspense, useEffect } from 'react';
 import type { ScreenId, UserRole, Bike, ClassSession, Reservation, ClientUser, BikeStatus, ClientType, MembershipPlan } from './types';
 import { db } from './services/db';
 import { supabase } from './services/supabaseClient';
-import { DemoToolbar } from './components/common/DemoToolbar';
 import { MobileFrame } from './components/common/MobileFrame';
 import { BottomNav } from './components/common/BottomNav';
 import { LoginModal } from './components/common/LoginModal';
+import { AdminLoginModal } from './components/common/AdminLoginModal';
 
 // Eager load Screen 1 for instantaneous First Contentful Paint (FCP)
 import { Screen1_Welcome } from './components/screens/Screen1_Welcome';
@@ -35,8 +35,16 @@ function ScreenFallback() {
 export function App() {
   // Navigation & Role states
   const [currentScreen, setCurrentScreen] = useState<ScreenId>('welcome');
-  const [role, setRole] = useState<UserRole>('client');
-  const [isSimulator, setIsSimulator] = useState<boolean>(true);
+  const [role, setRole] = useState<UserRole>(() => {
+    return sessionStorage.getItem('black_ride_admin_auth') === 'true' ? 'admin' : 'client';
+  });
+  const [isSimulator] = useState<boolean>(false);
+
+  // Admin exclusive authentication state (separate from clients)
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(() => {
+    return sessionStorage.getItem('black_ride_admin_auth') === 'true';
+  });
+  const [showAdminLoginModal, setShowAdminLoginModal] = useState<boolean>(false);
 
   // Rider authentication / verification state
   const [currentUser, setCurrentUser] = useState<ClientUser | null>(() => db.getCurrentUser());
@@ -96,15 +104,43 @@ export function App() {
     setClients(db.getClients());
   };
 
-  // Handlers
-  const handleToggleRole = () => {
-    if (role === 'client') {
-      setRole('admin');
-      setCurrentScreen('admin-dashboard');
-    } else {
-      setRole('client');
-      setCurrentScreen('welcome');
+  // URL / Route Guard: Check for ?admin, ?staff, or #admin
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const hash = window.location.hash;
+    if (params.has('admin') || params.has('staff') || hash === '#admin') {
+      if (isAdminAuthenticated) {
+        setRole('admin');
+        setCurrentScreen('admin-dashboard');
+      } else {
+        setShowAdminLoginModal(true);
+      }
     }
+  }, [isAdminAuthenticated]);
+
+  // Route Guard: Protect Admin Screens from regular clients
+  useEffect(() => {
+    const adminScreens: ScreenId[] = ['admin-dashboard', 'bike-management', 'clients-list', 'cierre-caja'];
+    if (adminScreens.includes(currentScreen) && !isAdminAuthenticated) {
+      setCurrentScreen('welcome');
+      setRole('client');
+      setShowAdminLoginModal(true);
+    }
+  }, [currentScreen, isAdminAuthenticated]);
+
+  // Admin Login & Logout handlers
+  const handleAdminLoginSuccess = () => {
+    setIsAdminAuthenticated(true);
+    setRole('admin');
+    setCurrentScreen('admin-dashboard');
+    setShowAdminLoginModal(false);
+  };
+
+  const handleAdminLogout = () => {
+    sessionStorage.removeItem('black_ride_admin_auth');
+    setIsAdminAuthenticated(false);
+    setRole('client');
+    setCurrentScreen('welcome');
   };
 
   const handleResetData = () => {
@@ -257,17 +293,6 @@ export function App() {
 
   return (
     <div className="h-[100dvh] max-h-[100dvh] w-full bg-[#06080B] text-slate-100 flex flex-col overflow-hidden font-['Plus_Jakarta_Sans',sans-serif]">
-      {/* Top Demo Presentation Bar */}
-      <DemoToolbar
-        currentScreen={currentScreen}
-        onSelectScreen={setCurrentScreen}
-        role={role}
-        onToggleRole={handleToggleRole}
-        isSimulator={isSimulator}
-        onToggleSimulator={() => setIsSimulator(!isSimulator)}
-        onResetData={handleResetData}
-      />
-
       {/* Main Content inside Phone Frame or Full Width */}
       <MobileFrame isSimulator={isSimulator}>
         <div className="flex-1 min-h-0 flex flex-col overflow-hidden relative">
@@ -276,12 +301,12 @@ export function App() {
             {currentScreen === 'welcome' && (
               <Screen1_Welcome
                 onStartBooking={handleStartBooking}
-                onLogin={handleToggleRole}
                 onExploreSchedule={() => setCurrentScreen('calendar')}
                 onViewPlans={() => setCurrentScreen('plans')}
                 currentUser={currentUser}
                 onOpenLoginModal={() => setShowLoginModal(true)}
                 onLogout={handleLogout}
+                onOpenAdminLogin={() => setShowAdminLoginModal(true)}
               />
             )}
 
@@ -299,7 +324,7 @@ export function App() {
               <Screen2_ClassSelection
                 currentClass={currentClass}
                 onContinue={handleContinueClassSelection}
-                onOpenMenu={handleToggleRole}
+                onOpenMenu={() => setCurrentScreen('welcome')}
               />
             )}
 
@@ -359,15 +384,17 @@ export function App() {
               />
             )}
 
-            {/* SCREEN 8: Panel de Administrador */}
+            {/* SCREEN 8: Panel de Administrador (Protegido) */}
             {currentScreen === 'admin-dashboard' && (
               <Screen8_AdminDashboard
                 onNavigateScreen={setCurrentScreen}
                 onOpenCreateClassModal={() => setCurrentScreen('calendar')}
+                onLogoutAdmin={handleAdminLogout}
+                onResetData={handleResetData}
               />
             )}
 
-            {/* SCREEN 9: Gestión de Bicicletas */}
+            {/* SCREEN 9: Gestión de Bicicletas (Protegido) */}
             {currentScreen === 'bike-management' && (
               <Screen9_BikeManagement
                 bikes={bikes}
@@ -376,7 +403,7 @@ export function App() {
               />
             )}
 
-            {/* SCREEN 10: Clientes y Membresías */}
+            {/* SCREEN 10: Clientes y Membresías (Protegido) */}
             {currentScreen === 'clients-list' && (
               <Screen10_ClientsList
                 clients={clients}
@@ -385,7 +412,7 @@ export function App() {
               />
             )}
 
-            {/* SCREEN 11: Cierre de Caja y Finanzas */}
+            {/* SCREEN 11: Cierre de Caja y Finanzas (Protegido) */}
             {currentScreen === 'cierre-caja' && (
               <Screen11_CierreCaja
                 onBack={() => setCurrentScreen('admin-dashboard')}
@@ -404,7 +431,7 @@ export function App() {
           />
         )}
 
-        {/* Modal de Inicio de Sesión y Verificación de Membresía */}
+        {/* Modal de Inicio de Sesión y Verificación de Membresía para Clientes */}
         <LoginModal
           isOpen={showLoginModal}
           onClose={() => setShowLoginModal(false)}
@@ -416,6 +443,13 @@ export function App() {
             setCurrentScreen('plans');
           }}
           onContinueBooking={handleLoginAndContinueBooking}
+        />
+
+        {/* Modal de Acceso Administrativo Separado para el Dueño/Staff */}
+        <AdminLoginModal
+          isOpen={showAdminLoginModal}
+          onClose={() => setShowAdminLoginModal(false)}
+          onLoginSuccess={handleAdminLoginSuccess}
         />
       </MobileFrame>
     </div>

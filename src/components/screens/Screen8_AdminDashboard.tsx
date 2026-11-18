@@ -11,7 +11,9 @@ import {
   DollarSign,
   Activity,
   Sparkles,
-  Award
+  Award,
+  LogOut,
+  RotateCcw
 } from 'lucide-react';
 import { PantherLogo } from '../common/PantherLogo';
 import { db } from '../../services/db';
@@ -21,11 +23,15 @@ import type { ScreenId } from '../../types';
 interface Screen8AdminDashboardProps {
   onNavigateScreen: (screen: ScreenId) => void;
   onOpenCreateClassModal?: () => void;
+  onLogoutAdmin?: () => void;
+  onResetData?: () => void;
 }
 
 export const Screen8_AdminDashboard: React.FC<Screen8AdminDashboardProps> = ({
   onNavigateScreen,
   onOpenCreateClassModal,
+  onLogoutAdmin,
+  onResetData,
 }) => {
   const summary = db.getCashSummary('2026-09-25');
   const bikes = db.getBikes();
@@ -112,12 +118,38 @@ export const Screen8_AdminDashboard: React.FC<Screen8AdminDashboardProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="flex h-2.5 w-2.5 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#D4AF37] opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#D4AF37]"></span>
-            </span>
-            <span className="text-xs font-semibold text-[#D4AF37]">Studio Zarzal Activo</span>
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:flex items-center gap-1.5">
+              <span className="flex h-2 w-2 relative">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#D4AF37] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#D4AF37]"></span>
+              </span>
+              <span className="text-xs font-semibold text-[#D4AF37]">Studio Activo</span>
+            </div>
+
+            {onResetData && (
+              <button
+                type="button"
+                onClick={onResetData}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[#131720] border border-[#222a38] hover:border-[#D4AF37]/50 text-slate-300 text-xs font-medium transition-all active:scale-95 cursor-pointer shadow-sm"
+                title="Restaurar base de datos oficial"
+              >
+                <RotateCcw className="w-3.5 h-3.5 text-slate-400" />
+                <span className="hidden md:inline">Restaurar BD</span>
+              </button>
+            )}
+
+            {onLogoutAdmin && (
+              <button
+                type="button"
+                onClick={onLogoutAdmin}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-950/40 border border-red-500/40 hover:bg-red-900/50 text-red-200 text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-sm"
+                title="Cerrar sesión de administrador y salir al Studio"
+              >
+                <LogOut className="w-3.5 h-3.5 text-red-400" />
+                <span>Salir del Admin</span>
+              </button>
+            )}
           </div>
         </div>
 

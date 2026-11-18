@@ -1,30 +1,28 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { Calendar, Lock, MapPin, ChevronRight, Volume2, VolumeX, Play, Pause, Sparkles, User, ShieldCheck, Ticket } from 'lucide-react';
+import React, { useRef, useEffect } from 'react';
+import { Calendar, MapPin, ChevronRight, Sparkles, User, ShieldCheck, Ticket } from 'lucide-react';
 import gsap from 'gsap';
 import type { ClientUser } from '../../types';
 
 interface Screen1WelcomeProps {
   onStartBooking: () => void;
-  onLogin: () => void;
   onExploreSchedule?: () => void;
   onViewPlans?: () => void;
   currentUser?: ClientUser | null;
   onOpenLoginModal?: () => void;
   onLogout?: () => void;
+  onOpenAdminLogin?: () => void;
 }
 
 export const Screen1_Welcome: React.FC<Screen1WelcomeProps> = ({ 
   onStartBooking, 
-  onLogin, 
   onExploreSchedule,
   onViewPlans,
   currentUser = null,
   onOpenLoginModal,
+  onOpenAdminLogin,
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const heroContainerRef = useRef<HTMLDivElement>(null);
-  const [isPlaying, setIsPlaying] = useState<boolean>(true);
-  const [isMuted, setIsMuted] = useState<boolean>(true);
 
   // GSAP Cinematic Slow Entrance Animation
   useEffect(() => {
@@ -123,23 +121,6 @@ export const Screen1_Welcome: React.FC<Screen1WelcomeProps> = ({
     return () => ctx.revert();
   }, []);
 
-  const togglePlay = () => {
-    if (!videoRef.current) return;
-    if (isPlaying) {
-      videoRef.current.pause();
-      setIsPlaying(false);
-    } else {
-      videoRef.current.play();
-      setIsPlaying(true);
-    }
-  };
-
-  const toggleMute = () => {
-    if (!videoRef.current) return;
-    videoRef.current.muted = !isMuted;
-    setIsMuted(!isMuted);
-  };
-
   const hasActiveMembership = currentUser?.clientType === 'mensualidad' && currentUser?.membershipStatus === 'active';
 
   return (
@@ -153,7 +134,7 @@ export const Screen1_Welcome: React.FC<Screen1WelcomeProps> = ({
           ref={videoRef}
           autoPlay
           loop
-          muted={isMuted}
+          muted
           playsInline
           poster="/panther_poster.jpg"
           className="w-full h-full object-cover object-center scale-105 filter brightness-[0.78] contrast-[1.08] transition-transform duration-1000 ease-out"
@@ -169,7 +150,7 @@ export const Screen1_Welcome: React.FC<Screen1WelcomeProps> = ({
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-[#D4AF37]/10 rounded-full blur-3xl pointer-events-none" />
       </div>
 
-      {/* 2. Top Header & Floating Navbar */}
+      {/* 2. Top Header - Logo Exclusivo (Sin botones) */}
       <header className="gsap-header relative z-20 flex items-center justify-between px-3.5 sm:px-6 py-2.5 sm:py-4 w-full max-w-5xl mx-auto shrink-0">
         {/* Brand Logo & Name */}
         <div className="flex items-center gap-2.5 sm:gap-3">
@@ -199,70 +180,6 @@ export const Screen1_Welcome: React.FC<Screen1WelcomeProps> = ({
               INDOOR CYCLING
             </span>
           </div>
-        </div>
-
-        {/* User Status / Login & Video Controls */}
-        <div className="flex items-center gap-2">
-          {/* User Logged in Chip OR Gold Login Button */}
-          {currentUser ? (
-            <button
-              onClick={onOpenLoginModal}
-              className="flex items-center gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-black/60 border border-[#D4AF37]/50 hover:border-[#D4AF37] backdrop-blur-md transition-all active:scale-95 cursor-pointer shadow-sm text-left"
-              title="Ver mi estado de cuenta"
-            >
-              <img 
-                src={currentUser.avatar} 
-                alt={currentUser.name} 
-                className="w-6 h-6 rounded-full object-cover border border-[#D4AF37]" 
-              />
-              <div className="hidden sm:flex flex-col">
-                <span className="text-[11px] font-bold text-white leading-none truncate max-w-[110px]">
-                  {currentUser.name}
-                </span>
-                <span className={`text-[9px] font-black leading-none mt-0.5 ${hasActiveMembership ? 'text-emerald-400' : 'text-[#D4AF37]'}`}>
-                  {hasActiveMembership ? '✓ Membresía' : 'Particular ($10k)'}
-                </span>
-              </div>
-            </button>
-          ) : (
-            <button
-              onClick={onOpenLoginModal}
-              className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-gold-gradient hover:brightness-110 text-black font-black text-[10px] sm:text-xs tracking-wider uppercase flex items-center gap-1.5 backdrop-blur-md transition-all active:scale-95 cursor-pointer shadow-[0_0_15px_rgba(212,175,55,0.4)] border border-[#D4AF37]"
-            >
-              <User className="w-3 h-3 stroke-[3] text-black" />
-              <span>Iniciar Sesión</span>
-            </button>
-          )}
-
-          {/* Video Play/Pause Micro-control */}
-          <button
-            onClick={togglePlay}
-            aria-label={isPlaying ? "Pausar video de fondo" : "Reproducir video"}
-            className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-black/50 border border-white/10 hover:border-[#D4AF37]/40 flex items-center justify-center text-slate-300 hover:text-white backdrop-blur-md transition-all active:scale-95 cursor-pointer"
-            title={isPlaying ? "Pausar video" : "Reproducir video"}
-          >
-            {isPlaying ? <Pause className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> : <Play className="w-3 h-3 sm:w-3.5 sm:h-3.5 ml-0.5" />}
-          </button>
-
-          {/* Video Mute/Unmute */}
-          <button
-            onClick={toggleMute}
-            aria-label={isMuted ? "Activar audio" : "Silenciar audio"}
-            className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-black/50 border border-white/10 hover:border-[#D4AF37]/40 flex items-center justify-center text-slate-300 hover:text-white backdrop-blur-md transition-all active:scale-95 cursor-pointer"
-            title={isMuted ? "Activar sonido" : "Silenciar"}
-          >
-            {isMuted ? <VolumeX className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> : <Volume2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#D4AF37]" />}
-          </button>
-
-          {/* Staff Login Button */}
-          <button
-            onClick={onLogin}
-            className="px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/15 hover:border-[#D4AF37]/40 text-slate-300 hover:text-white font-semibold text-[10px] sm:text-[11px] tracking-wider uppercase flex items-center gap-1 backdrop-blur-md transition-all active:scale-95 cursor-pointer"
-            title="Panel de Administración"
-          >
-            <Lock className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#D4AF37]" />
-            <span className="hidden md:inline">Admin</span>
-          </button>
         </div>
       </header>
 
@@ -430,7 +347,18 @@ export const Screen1_Welcome: React.FC<Screen1WelcomeProps> = ({
           <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#D4AF37]" />
           <span>Zarzal, Valle del Cauca</span>
           <span className="text-slate-600">•</span>
-          <span className="text-slate-500 font-normal">Black Ride Studio</span>
+          {onOpenAdminLogin ? (
+            <button
+              type="button"
+              onClick={onOpenAdminLogin}
+              className="text-slate-500 hover:text-[#D4AF37] font-normal transition-colors cursor-pointer"
+              title="Acceso Administrativo"
+            >
+              Black Ride Studio
+            </button>
+          ) : (
+            <span className="text-slate-500 font-normal">Black Ride Studio</span>
+          )}
         </div>
       </footer>
     </div>
