@@ -56,7 +56,9 @@ export function App() {
   const [currentClass, setCurrentClass] = useState<ClassSession>(() => db.getClasses()[2] || db.getClasses()[0]);
   const [reservations, setReservations] = useState<Reservation[]>(() => db.getReservations());
   const [clients, setClients] = useState<ClientUser[]>(() => db.getClients());
+  const [plans, setPlans] = useState<MembershipPlan[]>(() => db.getPlans());
   const [selectedBikeId, setSelectedBikeId] = useState<number | null>(7);
+  const [openCreateClassModal, setOpenCreateClassModal] = useState<boolean>(false);
 
   // Booking Flow User State
   const [bookingClientType, setBookingClientType] = useState<ClientType>(() => {
@@ -102,6 +104,7 @@ export function App() {
     setClasses(db.getClasses());
     setReservations(db.getReservations());
     setClients(db.getClients());
+    setPlans(db.getPlans());
   };
 
   // URL / Route Guard: Check for ?admin, ?staff, or #admin
@@ -280,6 +283,48 @@ export function App() {
     setClients(updated);
   };
 
+  const handleAddClient = (newClientData: {
+    name: string;
+    phone: string;
+    email: string;
+    clientType: ClientType;
+    membershipPlan?: string;
+    membershipExpiresAt?: string;
+  }) => {
+    db.addClient(newClientData);
+    setClients(db.getClients());
+  };
+
+  const handleUpdatePlan = (updatedPlan: MembershipPlan) => {
+    db.updatePlan(updatedPlan);
+    setPlans(db.getPlans());
+  };
+
+  const handleCreateClass = (newClassData: Omit<ClassSession, 'id'>) => {
+    const created = db.addClass(newClassData);
+    const updated = db.getClasses();
+    setClasses(updated);
+    return created;
+  };
+
+  const handleUpdateClass = (updatedClass: ClassSession) => {
+    db.updateClass(updatedClass);
+    const updated = db.getClasses();
+    setClasses(updated);
+    if (currentClass.id === updatedClass.id) {
+      setCurrentClass(updatedClass);
+    }
+  };
+
+  const handleDeleteClass = (classId: string) => {
+    db.deleteClass(classId);
+    const updated = db.getClasses();
+    setClasses(updated);
+    if (currentClass.id === classId && updated.length > 0) {
+      setCurrentClass(updated[0]);
+    }
+  };
+
   const handleSelectPlanToBook = (plan: MembershipPlan) => {
     if (plan.isMembership) {
       setBookingClientType('mensualidad');
@@ -316,6 +361,9 @@ export function App() {
                 onBack={() => setCurrentScreen(role === 'admin' ? 'admin-dashboard' : 'welcome')}
                 onSelectPlanToBook={handleSelectPlanToBook}
                 isAdmin={role === 'admin'}
+                plans={plans}
+                clients={clients}
+                onUpdatePlan={handleUpdatePlan}
               />
             )}
 
@@ -380,7 +428,15 @@ export function App() {
               <Screen7_Calendar
                 scheduledClasses={classes}
                 onSelectClass={handleSelectClassFromCalendar}
-                onBack={() => setCurrentScreen(role === 'admin' ? 'admin-dashboard' : 'welcome')}
+                onBack={() => {
+                  setOpenCreateClassModal(false);
+                  setCurrentScreen(role === 'admin' ? 'admin-dashboard' : 'welcome');
+                }}
+                isAdmin={role === 'admin'}
+                onCreateClass={handleCreateClass}
+                onUpdateClass={handleUpdateClass}
+                onDeleteClass={handleDeleteClass}
+                initialOpenCreateModal={openCreateClassModal}
               />
             )}
 
@@ -388,7 +444,10 @@ export function App() {
             {currentScreen === 'admin-dashboard' && (
               <Screen8_AdminDashboard
                 onNavigateScreen={setCurrentScreen}
-                onOpenCreateClassModal={() => setCurrentScreen('calendar')}
+                onOpenCreateClassModal={() => {
+                  setOpenCreateClassModal(true);
+                  setCurrentScreen('calendar');
+                }}
                 onLogoutAdmin={handleAdminLogout}
                 onResetData={handleResetData}
               />
@@ -409,6 +468,7 @@ export function App() {
                 clients={clients}
                 onBack={() => setCurrentScreen('admin-dashboard')}
                 onUpdateClientMembership={handleUpdateClientMembership}
+                onAddClient={handleAddClient}
               />
             )}
 

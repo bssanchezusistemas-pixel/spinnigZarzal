@@ -1,4 +1,4 @@
-import type { Bike, ClassSession, ClientUser, Reservation, DailyPayment, CashClosure, PaymentMethod } from '../types';
+import type { Bike, ClassSession, ClientUser, Reservation, DailyPayment, CashClosure, PaymentMethod, MembershipPlan, ClientType } from '../types';
 import { 
   initialBikes, 
   scheduledClassesList, 
@@ -7,6 +7,7 @@ import {
   initialDailyPayments, 
   initialCashClosure 
 } from '../data/mockData';
+import { BLACK_RIDE_PLANS } from '../types';
 
 const STORAGE_KEYS = {
   BIKES: 'black_ride_bikes_v3',
@@ -16,6 +17,7 @@ const STORAGE_KEYS = {
   PAYMENTS: 'black_ride_payments_v3',
   CLOSURES: 'black_ride_closures_v3',
   CURRENT_USER: 'black_ride_current_user_v3',
+  PLANS: 'black_ride_plans_v3',
 };
 
 // Safe JSON parser
@@ -53,6 +55,39 @@ export const db = {
   saveClasses(classes: ClassSession[]): void {
     setStoredItem(STORAGE_KEYS.CLASSES, classes);
   },
+  addClass(newClass: Omit<ClassSession, 'id'>): ClassSession {
+    const classes = this.getClasses();
+    const created: ClassSession = {
+      ...newClass,
+      id: `class-${Date.now()}`,
+    };
+    const updated = [...classes, created];
+    this.saveClasses(updated);
+    return created;
+  },
+  updateClass(updatedClass: ClassSession): void {
+    const classes = this.getClasses();
+    const updated = classes.map((c) => (c.id === updatedClass.id ? updatedClass : c));
+    this.saveClasses(updated);
+  },
+  deleteClass(classId: string): void {
+    const classes = this.getClasses();
+    const updated = classes.filter((c) => c.id !== classId);
+    this.saveClasses(updated);
+  },
+
+  // Plans & Memberships
+  getPlans(): MembershipPlan[] {
+    return getStoredItem<MembershipPlan[]>(STORAGE_KEYS.PLANS, BLACK_RIDE_PLANS);
+  },
+  savePlans(plans: MembershipPlan[]): void {
+    setStoredItem(STORAGE_KEYS.PLANS, plans);
+  },
+  updatePlan(updatedPlan: MembershipPlan): void {
+    const plans = this.getPlans();
+    const updated = plans.map((p) => (p.id === updatedPlan.id ? updatedPlan : p));
+    this.savePlans(updated);
+  },
 
   // Clients
   getClients(): ClientUser[] {
@@ -79,12 +114,20 @@ export const db = {
   setCurrentUser(user: ClientUser | null): void {
     setStoredItem(STORAGE_KEYS.CURRENT_USER, user);
   },
-  addClient(newClient: Omit<ClientUser, 'id' | 'totalRides' | 'joinedDate'>): ClientUser {
+  addClient(newClient: Partial<ClientUser> & { name: string; phone: string; clientType: ClientType }): ClientUser {
     const clients = this.getClients();
     const created: ClientUser = {
-      ...newClient,
       id: `c-${Date.now()}`,
-      totalRides: 0,
+      name: newClient.name,
+      email: newClient.email || `${newClient.name.toLowerCase().replace(/\s+/g, '')}@gmail.com`,
+      phone: newClient.phone,
+      avatar: newClient.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&auto=format&fit=crop&q=80',
+      status: newClient.status || 'active',
+      clientType: newClient.clientType,
+      membershipStatus: newClient.membershipStatus || (newClient.clientType === 'mensualidad' ? 'active' : 'none'),
+      membershipPlan: newClient.membershipPlan || (newClient.clientType === 'mensualidad' ? 'PREMIUM (12 clases • 20 días)' : 'CLASE INDIVIDUAL ($10.000)'),
+      membershipExpiresAt: newClient.membershipExpiresAt,
+      totalRides: newClient.totalRides || 0,
       joinedDate: 'Noviembre 2026',
     };
     this.saveClients([created, ...clients]);
@@ -289,5 +332,6 @@ export const db = {
     localStorage.removeItem(STORAGE_KEYS.PAYMENTS);
     localStorage.removeItem(STORAGE_KEYS.CLOSURES);
     localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+    localStorage.removeItem(STORAGE_KEYS.PLANS);
   }
 };

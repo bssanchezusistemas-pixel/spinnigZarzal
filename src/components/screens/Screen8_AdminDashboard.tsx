@@ -102,7 +102,7 @@ export const Screen8_AdminDashboard: React.FC<Screen8AdminDashboardProps> = ({
         {/* Top Branding Header */}
         <div className="flex flex-col sm:flex-row items-center justify-between pb-4 sm:pb-6 border-b border-[#222a38] gap-3">
           <div className="flex items-center gap-3">
-            <PantherLogo size="sm" showSubtitle={false} />
+            <PantherLogo size="sm" showSubtitle={false} showText={false} />
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-lg sm:text-xl font-black font-['Montserrat',sans-serif] text-white tracking-tight">

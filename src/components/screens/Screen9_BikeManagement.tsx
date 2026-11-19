@@ -14,7 +14,10 @@ export const Screen9_BikeManagement: React.FC<Screen9BikeManagementProps> = ({
   onUpdateBikeStatus,
   onBack,
 }) => {
-  const [inspectedBikeId, setInspectedBikeId] = useState<number>(7);
+  const [inspectedBikeId, setInspectedBikeId] = useState<number>(() => {
+    const available = bikes.find((b) => b.status === 'available');
+    return available ? available.id : (bikes[0]?.id || 1);
+  });
 
   const inspectedBike = bikes.find((b) => b.id === inspectedBikeId) || bikes[0];
 
@@ -123,8 +126,8 @@ export const Screen9_BikeManagement: React.FC<Screen9BikeManagementProps> = ({
                   <span className="text-rose-400">Reservada (Rojo)</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-zinc-500"></span>
-                  <span className="text-zinc-400">Mantenimiento</span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-orange-500"></span>
+                  <span className="text-orange-400">Mantenimiento (Naranja)</span>
                 </div>
               </div>
             </div>
@@ -157,19 +160,19 @@ export const Screen9_BikeManagement: React.FC<Screen9BikeManagementProps> = ({
                   {inspectedBike.status === 'reserved' && (
                     <span className="px-3 py-1 rounded-full bg-rose-950/60 border border-rose-500/40 text-rose-400 text-xs font-bold flex items-center gap-1.5">
                       <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
-                      Reservada
+                      Reservada (Rojo)
                     </span>
                   )}
                   {inspectedBike.status === 'available' && (
-                    <span className="px-3 py-1 rounded-full bg-[#D4AF37]/10 border border-[#D4AF37]/40 text-[#F3E5AB] text-xs font-bold flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-[#D4AF37]"></span>
-                      Disponible
+                    <span className="px-3 py-1 rounded-full bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 text-xs font-bold flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.7)] animate-pulse"></span>
+                      Disponible (Verde)
                     </span>
                   )}
                   {inspectedBike.status === 'maintenance' && (
-                    <span className="px-3 py-1 rounded-full bg-amber-950/60 border border-amber-500/40 text-amber-400 text-xs font-bold flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-                      Mantenimiento
+                    <span className="px-3 py-1 rounded-full bg-orange-950/60 border border-orange-500/40 text-orange-400 text-xs font-bold flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-orange-500"></span>
+                      Mantenimiento (Naranja)
                     </span>
                   )}
                 </div>
@@ -194,15 +197,15 @@ export const Screen9_BikeManagement: React.FC<Screen9BikeManagementProps> = ({
               )}
 
               {inspectedBike.status === 'available' && (
-                <div className="p-4 rounded-xl bg-[#0E121A] border border-[#222a38] text-xs text-slate-400 text-center">
-                  <BikeIconType className="w-8 h-8 text-[#D4AF37] mx-auto mb-1.5" />
-                  <span>Esta bicicleta está completamente libre y habilitada para reservas en línea.</span>
+                <div className="p-4 rounded-xl bg-emerald-950/20 border border-emerald-500/30 text-xs text-emerald-300 text-center">
+                  <BikeIconType className="w-8 h-8 text-emerald-400 mx-auto mb-1.5" />
+                  <span>Esta bicicleta está completamente libre (verde) y habilitada para reservas en línea.</span>
                 </div>
               )}
 
               {inspectedBike.status === 'maintenance' && (
-                <div className="p-4 rounded-xl bg-amber-950/30 border border-amber-500/30 text-xs text-amber-300 text-center flex items-center justify-center gap-2">
-                  <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0" />
+                <div className="p-4 rounded-xl bg-orange-950/30 border border-orange-500/30 text-xs text-orange-300 text-center flex items-center justify-center gap-2">
+                  <AlertTriangle className="w-5 h-5 text-orange-400 shrink-0" />
                   <span>Bicicleta bloqueada en taller o revisión técnica. No aparece disponible al cliente.</span>
                 </div>
               )}
@@ -218,16 +221,16 @@ export const Screen9_BikeManagement: React.FC<Screen9BikeManagementProps> = ({
                     <button
                       type="button"
                       onClick={() => onUpdateBikeStatus(inspectedBike.id, 'available')}
-                      className="min-h-[44px] py-2.5 px-3 rounded-xl bg-gold-gradient hover:brightness-110 text-black text-xs font-black flex items-center justify-center gap-1.5 active:scale-95 transition-all duration-150 cursor-pointer shadow-md"
+                      className="min-h-[44px] py-2.5 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-black flex items-center justify-center gap-1.5 active:scale-95 transition-all duration-150 cursor-pointer shadow-md"
                     >
                       <CheckCircle className="w-4 h-4" />
-                      <span>Habilitar Bici</span>
+                      <span>Habilitar (Verde)</span>
                     </button>
                   ) : (
                     <button
                       type="button"
                       onClick={() => onUpdateBikeStatus(inspectedBike.id, 'maintenance')}
-                      className="min-h-[44px] py-2.5 px-3 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/40 text-amber-400 text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all duration-150 cursor-pointer"
+                      className="min-h-[44px] py-2.5 px-3 rounded-xl bg-orange-500/10 hover:bg-orange-500/20 border border-orange-500/40 text-orange-400 text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all duration-150 cursor-pointer"
                     >
                       <Wrench className="w-4 h-4" />
                       <span>A Taller</span>
