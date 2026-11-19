@@ -17,14 +17,14 @@ import {
 } from 'lucide-react';
 import { PantherLogo } from '../common/PantherLogo';
 import { db } from '../../services/db';
-import { BLACK_RIDE_PLANS } from '../../types';
-import type { ScreenId } from '../../types';
+import type { ScreenId, MembershipPlan } from '../../types';
 
 interface Screen8AdminDashboardProps {
   onNavigateScreen: (screen: ScreenId) => void;
   onOpenCreateClassModal?: () => void;
   onLogoutAdmin?: () => void;
   onResetData?: () => void;
+  plans?: MembershipPlan[];
 }
 
 export const Screen8_AdminDashboard: React.FC<Screen8AdminDashboardProps> = ({
@@ -32,7 +32,9 @@ export const Screen8_AdminDashboard: React.FC<Screen8AdminDashboardProps> = ({
   onOpenCreateClassModal,
   onLogoutAdmin,
   onResetData,
+  plans: propPlans,
 }) => {
+  const plans = propPlans || db.getPlans();
   const summary = db.getCashSummary('2026-09-25');
   const bikes = db.getBikes();
   const availableBikes = bikes.filter(b => b.status === 'available').length;
@@ -101,19 +103,19 @@ export const Screen8_AdminDashboard: React.FC<Screen8AdminDashboardProps> = ({
       <div className="max-w-5xl mx-auto w-full">
         {/* Top Branding Header */}
         <div className="flex flex-col sm:flex-row items-center justify-between pb-4 sm:pb-6 border-b border-[#222a38] gap-3">
-          <div className="flex items-center gap-3">
-            <PantherLogo size="sm" showSubtitle={false} showText={false} />
-            <div>
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <PantherLogo size="sm" showSubtitle={true} subtitleText="ADMINISTRACIÓN" />
+            <div className="border-l border-[#222a38] pl-3">
               <div className="flex items-center gap-2">
-                <h1 className="text-lg sm:text-xl font-black font-['Montserrat',sans-serif] text-white tracking-tight">
-                  Panel de Administración BLACK RIDE 🐆
+                <h1 className="text-sm sm:text-base font-black font-['Montserrat',sans-serif] text-white tracking-tight">
+                  Panel de Control
                 </h1>
                 <span className="px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-[10px] font-bold text-amber-400">
                   ADMIN ZARZAL
                 </span>
               </div>
-              <p className="text-xs text-slate-400">
-                Control de operaciones, membresías, caja y 14 bicicletas
+              <p className="text-[11px] text-slate-400">
+                14 bicicletas • Horarios • Tarifas • CRM
               </p>
             </div>
           </div>
@@ -252,13 +254,16 @@ export const Screen8_AdminDashboard: React.FC<Screen8AdminDashboardProps> = ({
 
           {/* Quick Pricing Chips Preview */}
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-3">
-            {BLACK_RIDE_PLANS.map((plan) => (
-              <div 
+            {plans.map((plan) => (
+              <button
                 key={plan.id}
-                className="p-2.5 rounded-xl bg-black/50 border border-[#222a38] hover:border-[#D4AF37]/40 transition-colors"
+                type="button"
+                onClick={() => onNavigateScreen('plans')}
+                className="p-2.5 rounded-xl bg-black/50 border border-[#222a38] hover:border-[#D4AF37] hover:bg-[#141B26] transition-all text-left group cursor-pointer active:scale-95"
+                title={`Toca para editar tarifa ${plan.name}`}
               >
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-[10px] font-black uppercase text-slate-300 truncate">
+                  <span className="text-[10px] font-black uppercase text-slate-300 group-hover:text-[#D4AF37] truncate transition-colors">
                     {plan.name}
                   </span>
                   <span className="text-[9px] text-[#D4AF37] font-bold">
@@ -271,7 +276,7 @@ export const Screen8_AdminDashboard: React.FC<Screen8AdminDashboardProps> = ({
                 <span className="text-[9px] text-slate-400 block mt-0.5">
                   {plan.validityText}
                 </span>
-              </div>
+              </button>
             ))}
           </div>
         </div>

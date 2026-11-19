@@ -4,6 +4,7 @@ export interface PantherLogoProps {
   size?: 'sm' | 'md' | 'lg' | 'hero';
   showSubtitle?: boolean;
   showText?: boolean;
+  subtitleText?: string;
   layout?: 'horizontal' | 'vertical';
   className?: string;
 }
@@ -12,6 +13,7 @@ export const PantherLogo: React.FC<PantherLogoProps> = ({
   size = 'md', 
   showSubtitle = true,
   showText = true,
+  subtitleText = 'INDOOR CYCLING',
   layout,
   className = '' 
 }) => {
@@ -53,7 +55,7 @@ export const PantherLogo: React.FC<PantherLogoProps> = ({
           </div>
           {showSubtitle && (
             <span className={`text-slate-400 font-bold tracking-[0.22em] uppercase ${currentSize.sub} mt-0.5`}>
-              INDOOR CYCLING • ZARZAL
+              {subtitleText}
             </span>
           )}
         </div>

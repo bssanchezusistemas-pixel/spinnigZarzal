@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Search, MessageCircle, ShieldCheck, Ticket, X, Award, UserPlus, User, Phone, Mail } from 'lucide-react';
-import type { ClientUser, ClientType } from '../../types';
-import { BLACK_RIDE_PLANS } from '../../types';
+import type { ClientUser, ClientType, MembershipPlan } from '../../types';
+import { db } from '../../services/db';
 
 interface Screen10ClientsListProps {
   clients: ClientUser[];
@@ -15,6 +15,7 @@ interface Screen10ClientsListProps {
     membershipPlan?: string;
     membershipExpiresAt?: string;
   }) => void;
+  plans?: MembershipPlan[];
 }
 
 export const Screen10_ClientsList: React.FC<Screen10ClientsListProps> = ({ 
@@ -22,7 +23,9 @@ export const Screen10_ClientsList: React.FC<Screen10ClientsListProps> = ({
   onBack,
   onUpdateClientMembership,
   onAddClient,
+  plans: propPlans,
 }) => {
+  const plans = propPlans || db.getPlans();
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState<'all' | 'mensualidad' | 'particular'>('all');
   const [selectedClientForPlan, setSelectedClientForPlan] = useState<ClientUser | null>(null);
@@ -51,10 +54,10 @@ export const Screen10_ClientsList: React.FC<Screen10ClientsListProps> = ({
 
   const handleAssignPlan = (planId: string) => {
     if (!selectedClientForPlan || !onUpdateClientMembership) return;
-    const plan = BLACK_RIDE_PLANS.find(p => p.id === planId);
+    const plan = plans.find(p => p.id === planId);
     if (!plan) return;
 
-    if (plan.id === 'individual') {
+    if (plan.id === 'individual' || !plan.isMembership) {
       onUpdateClientMembership(selectedClientForPlan.id, 'particular', 'CLASE INDIVIDUAL ($10.000)');
     } else {
       const expDate = new Date();
@@ -85,7 +88,7 @@ export const Screen10_ClientsList: React.FC<Screen10ClientsListProps> = ({
     let expiresAt: string | undefined = undefined;
 
     if (newClientType === 'mensualidad') {
-      const plan = BLACK_RIDE_PLANS.find(p => p.id === newClientPlanId) || BLACK_RIDE_PLANS[2];
+      const plan = plans.find(p => p.id === newClientPlanId) || plans.find(p => p.isMembership) || plans[0];
       planName = `${plan.name} (${plan.classesCount} clases • ${plan.validityText})`;
       const exp = new Date();
       exp.setDate(exp.getDate() + plan.validityDays);
@@ -440,7 +443,7 @@ export const Screen10_ClientsList: React.FC<Screen10ClientsListProps> = ({
                     Seleccionar Membresía
                   </label>
                   <div className="space-y-2">
-                    {BLACK_RIDE_PLANS.filter(p => p.isMembership).map((p) => {
+                    {plans.filter(p => p.isMembership).map((p) => {
                       const isSel = newClientPlanId === p.id;
                       return (
                         <div
@@ -523,7 +526,7 @@ export const Screen10_ClientsList: React.FC<Screen10ClientsListProps> = ({
             </div>
 
             <div className="space-y-2">
-              {BLACK_RIDE_PLANS.map((p) => (
+              {plans.map((p) => (
                 <button
                   key={p.id}
                   type="button"

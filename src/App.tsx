@@ -262,7 +262,11 @@ export function App() {
   };
 
   const handleUpdateBikeStatus = (bikeId: number, newStatus: BikeStatus) => {
-    const updated = bikes.map((b) => (b.id === bikeId ? { ...b, status: newStatus } : b));
+    const updated = bikes.map((b) => (
+      b.id === bikeId 
+        ? { ...b, status: newStatus, reservedBy: newStatus === 'available' ? undefined : b.reservedBy } 
+        : b
+    ));
     db.saveBikes(updated);
     setBikes(updated);
   };
@@ -298,6 +302,7 @@ export function App() {
   const handleUpdatePlan = (updatedPlan: MembershipPlan) => {
     db.updatePlan(updatedPlan);
     setPlans(db.getPlans());
+    setClients(db.getClients());
   };
 
   const handleCreateClass = (newClassData: Omit<ClassSession, 'id'>) => {
@@ -450,6 +455,7 @@ export function App() {
                 }}
                 onLogoutAdmin={handleAdminLogout}
                 onResetData={handleResetData}
+                plans={plans}
               />
             )}
 
@@ -469,6 +475,7 @@ export function App() {
                 onBack={() => setCurrentScreen('admin-dashboard')}
                 onUpdateClientMembership={handleUpdateClientMembership}
                 onAddClient={handleAddClient}
+                plans={plans}
               />
             )}
 

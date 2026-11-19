@@ -119,13 +119,35 @@ export const Screen_Plans: React.FC<ScreenPlansProps> = ({
     setEditingPlan(null);
   };
 
+  // Helper to normalize accents and casing for robust matching
+  const normalizeText = (str?: string) => {
+    return (str || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
+  };
+
   // Find enrolled students for a specific plan
   const getEnrolledStudents = (plan: MembershipPlan) => {
+    const normPlanName = normalizeText(plan.name);
+    const normPlanId = normalizeText(plan.id);
+
     return clients.filter(c => {
+      const normClientPlan = normalizeText(c.membershipPlan || '');
+
       if (plan.isMembership) {
-        return c.membershipPlan?.toLowerCase().includes(plan.name.toLowerCase());
+        // Matches if client is mensualidad and membershipPlan includes the plan name or ID
+        return (
+          c.clientType === 'mensualidad' &&
+          (normClientPlan.includes(normPlanName) || normClientPlan.includes(normPlanId))
+        );
       } else {
-        return c.clientType === 'particular' || c.membershipPlan?.toLowerCase().includes('individual');
+        return (
+          c.clientType === 'particular' ||
+          normClientPlan.includes('individual') ||
+          normClientPlan.includes('particular')
+        );
       }
     });
   };

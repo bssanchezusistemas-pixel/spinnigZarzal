@@ -160,8 +160,8 @@ export const Screen3_BikeSelection: React.FC<Screen3BikeSelectionProps> = ({
                   <span className="text-rose-400">Reservada (Rojo)</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-zinc-600"></span>
-                  <span className="text-zinc-400">Mantenimiento</span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.4)]"></span>
+                  <span className="text-orange-400">Mantenimiento (Naranja)</span>
                 </div>
               </div>
             </div>

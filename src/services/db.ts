@@ -85,8 +85,28 @@ export const db = {
   },
   updatePlan(updatedPlan: MembershipPlan): void {
     const plans = this.getPlans();
+    const oldPlan = plans.find((p) => p.id === updatedPlan.id);
     const updated = plans.map((p) => (p.id === updatedPlan.id ? updatedPlan : p));
     this.savePlans(updated);
+
+    // If plan name changed, synchronize existing clients who were under that plan name
+    if (oldPlan && oldPlan.name !== updatedPlan.name) {
+      const clients = this.getClients();
+      let changed = false;
+      const updatedClients = clients.map((c) => {
+        if (c.membershipPlan && c.membershipPlan.toLowerCase().includes(oldPlan.name.toLowerCase())) {
+          changed = true;
+          return {
+            ...c,
+            membershipPlan: c.membershipPlan.replace(new RegExp(oldPlan.name, 'i'), updatedPlan.name),
+          };
+        }
+        return c;
+      });
+      if (changed) {
+        this.saveClients(updatedClients);
+      }
+    }
   },
 
   // Clients
