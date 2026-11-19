@@ -1,3 +1,4 @@
+import { message } from '../../services/studio';
 import React, { useState } from 'react';
 import { 
   ArrowLeft, 
@@ -19,13 +20,13 @@ import {
 import { PantherLogo } from '../common/PantherLogo';
 import { BLACK_RIDE_POLICIES } from '../../types';
 import type { MembershipPlan, ClientUser } from '../../types';
-import { db } from '../../services/db';
+
 
 interface ScreenPlansProps {
   onBack: () => void;
   onSelectPlanToBook?: (plan: MembershipPlan) => void;
   isAdmin?: boolean;
-  plans?: MembershipPlan[];
+  plans: MembershipPlan[];
   clients?: ClientUser[];
   onUpdatePlan?: (updated: MembershipPlan) => void;
 }
@@ -38,8 +39,7 @@ export const Screen_Plans: React.FC<ScreenPlansProps> = ({
   clients: propClients,
   onUpdatePlan: propOnUpdatePlan,
 }) => {
-  const [localPlans, setLocalPlans] = useState<MembershipPlan[]>(() => db.getPlans());
-  const plans = propPlans || localPlans;
+  const plans = propPlans;
   const [selectedPlanId, setSelectedPlanId] = useState<string>('premium');
 
   // Modals state
@@ -55,7 +55,7 @@ export const Screen_Plans: React.FC<ScreenPlansProps> = ({
   const [editValidityText, setEditValidityText] = useState('');
   const [editBenefits, setEditBenefits] = useState('');
 
-  const clients = propClients || db.getClients();
+  const clients = propClients || [];
 
   const formatCOP = (val: number) => {
     return new Intl.NumberFormat('es-CO', {
@@ -85,7 +85,7 @@ export const Screen_Plans: React.FC<ScreenPlansProps> = ({
   };
 
   // Save Edit Form
-  const handleSavePlanEdit = (e: React.FormEvent) => {
+  const handleSavePlanEdit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingPlan) return;
 
@@ -105,17 +105,7 @@ export const Screen_Plans: React.FC<ScreenPlansProps> = ({
       benefits: benefitsArray.length > 0 ? benefitsArray : editingPlan.benefits,
     };
 
-    // Update in db
-    db.updatePlan(updated);
-
-    // Update in local state
-    setLocalPlans((prev: MembershipPlan[]) => prev.map((p: MembershipPlan) => p.id === updated.id ? updated : p));
-
-    // Propagate up if parent passed callback
-    if (propOnUpdatePlan) {
-      propOnUpdatePlan(updated);
-    }
-
+    try { await propOnUpdatePlan?.(updated); } catch (cause) { window.alert(message(cause)); return; }
     setEditingPlan(null);
   };
 

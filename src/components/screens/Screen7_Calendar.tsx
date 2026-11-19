@@ -1,8 +1,7 @@
+import { message } from '../../services/studio';
 import React, { useState } from 'react';
 import { 
-  ArrowLeft, 
-  ChevronLeft, 
-  ChevronRight, 
+  ArrowLeft,
   Clock, 
   Bike, 
   ChevronRight as RightIcon, 
@@ -17,6 +16,8 @@ import {
 import type { ClassSession } from '../../types';
 
 interface Screen7CalendarProps {
+  day: string;
+  changeDay: (day:string)=>void;
   scheduledClasses: ClassSession[];
   onSelectClass: (cls: ClassSession) => void;
   onBack: () => void;
@@ -51,7 +52,7 @@ const PRESET_COACHES = [
 ];
 
 export const Screen7_Calendar: React.FC<Screen7CalendarProps> = ({
-  scheduledClasses,
+  day, changeDay, scheduledClasses,
   onSelectClass,
   onBack,
   isAdmin = false,
@@ -60,7 +61,7 @@ export const Screen7_Calendar: React.FC<Screen7CalendarProps> = ({
   onDeleteClass,
   initialOpenCreateModal = false,
 }) => {
-  const [selectedDay, setSelectedDay] = useState<number>(25);
+  const [failure,setFailure]=useState("");
 
   // Modals
   const [showCreateModal, setShowCreateModal] = useState<boolean>(initialOpenCreateModal);
@@ -68,8 +69,8 @@ export const Screen7_Calendar: React.FC<Screen7CalendarProps> = ({
   const [deletingClassId, setDeletingClassId] = useState<string | null>(null);
 
   // Form State for Create & Edit
-  const [formDay, setFormDay] = useState<number>(selectedDay);
-  const [formTime, setFormTime] = useState('6:00 p. m.');
+  const [formDay, setFormDay] = useState(day);
+  const [formTime, setFormTime] = useState('18:00');
   const [formTitle, setFormTitle] = useState('Indoor Cycling');
   const [formCoachName, setFormCoachName] = useState('Andrés Ramírez');
   const [formCoachSpecialty, setFormCoachSpecialty] = useState('Master Coach • Resistencia');
@@ -78,23 +79,12 @@ export const Screen7_Calendar: React.FC<Screen7CalendarProps> = ({
   const [formAvailableSpots, setFormAvailableSpots] = useState(14);
   const [formDescription, setFormDescription] = useState('Energía • Resistencia • Ritmo y Potencia');
 
-  const daysOfWeek = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
-  const calendarDays = Array.from({ length: 30 }, (_, i) => i + 1);
-
-  // Selected day classes
-  const selectedDateStr = `2026-09-${String(selectedDay).padStart(2, '0')}`;
-  const dayClasses = scheduledClasses.filter((c) => {
-    if (c.date === selectedDateStr) return true;
-    if (!c.date && selectedDay === 25) return true;
-    return false;
-  });
-
+  const dayClasses = scheduledClasses;
   // Open Edit Modal for a class
   const handleOpenEdit = (cls: ClassSession, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     setEditingClass(cls);
-    const dayFromDate = cls.date ? parseInt(cls.date.split('-')[2] || `${selectedDay}`, 10) : selectedDay;
-    setFormDay(isNaN(dayFromDate) ? selectedDay : dayFromDate);
+    setFormDay(cls.date);
     setFormTime(cls.time);
     setFormTitle(cls.title);
     setFormCoachName(cls.instructor.name);
@@ -107,8 +97,8 @@ export const Screen7_Calendar: React.FC<Screen7CalendarProps> = ({
 
   // Open Create Modal
   const handleOpenCreate = () => {
-    setFormDay(selectedDay);
-    setFormTime('7:00 a. m.');
+    setFormDay(day);
+    setFormTime('07:00');
     setFormTitle('Indoor Cycling');
     setFormCoachName('Andrés Ramírez');
     setFormCoachSpecialty('Master Coach • Resistencia y Ritmo');
@@ -132,14 +122,14 @@ export const Screen7_Calendar: React.FC<Screen7CalendarProps> = ({
   };
 
   // Save new class
-  const handleSaveCreate = (e: React.FormEvent) => {
+  const handleSaveCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!onCreateClass) return;
 
     const newClass: Omit<ClassSession, 'id'> = {
       title: formTitle.trim() || 'Indoor Cycling',
-      date: `2026-09-${String(formDay).padStart(2, '0')}`,
-      dateFormatted: `${formDay} de Septiembre de 2026`,
+      date: formDay,
+      dateFormatted: formDay,
       time: formTime.trim(),
       instructor: {
         name: formCoachName.trim() || 'Coach BLACK RIDE',
@@ -147,27 +137,27 @@ export const Screen7_Calendar: React.FC<Screen7CalendarProps> = ({
         specialty: formCoachSpecialty.trim() || 'Indoor Cycling Coach',
       },
       totalSpots: Number(formTotalSpots) || 14,
-      availableSpots: Number(formAvailableSpots) || 14,
+      availableSpots: Number(formAvailableSpots),
       priceParticular: 10000,
       type: 'Indoor Cycling',
       description: formDescription.trim() || 'Energía • Resistencia • Ritmo',
       status: 'active',
     };
 
-    onCreateClass(newClass);
-    setSelectedDay(formDay);
+    try { await onCreateClass(newClass); setFailure(""); } catch (cause) { setFailure(message(cause)); return; }
+    changeDay(formDay);
     setShowCreateModal(false);
   };
 
   // Save updated class
-  const handleSaveUpdate = (e: React.FormEvent) => {
+  const handleSaveUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingClass || !onUpdateClass) return;
 
     const updated: ClassSession = {
       ...editingClass,
-      date: `2026-09-${String(formDay).padStart(2, '0')}`,
-      dateFormatted: `${formDay} de Septiembre de 2026`,
+      date: formDay,
+      dateFormatted: formDay,
       title: formTitle.trim() || editingClass.title,
       time: formTime.trim() || editingClass.time,
       instructor: {
@@ -176,26 +166,26 @@ export const Screen7_Calendar: React.FC<Screen7CalendarProps> = ({
         specialty: formCoachSpecialty.trim() || editingClass.instructor.specialty,
       },
       totalSpots: Number(formTotalSpots) || editingClass.totalSpots,
-      availableSpots: Number(formAvailableSpots) || editingClass.availableSpots,
+      availableSpots: Number(formAvailableSpots),
       description: formDescription.trim() || editingClass.description,
     };
 
-    onUpdateClass(updated);
-    setSelectedDay(formDay);
+    try { await onUpdateClass(updated); setFailure(""); } catch (cause) { setFailure(message(cause)); return; }
+    changeDay(formDay);
     setEditingClass(null);
   };
 
   // Delete class
-  const handleConfirmDelete = (classId: string) => {
+  const handleConfirmDelete = async (classId: string) => {
     if (onDeleteClass) {
-      onDeleteClass(classId);
+      try { await onDeleteClass(classId); setFailure(""); } catch (cause) { setFailure(message(cause)); return; }
     }
     setDeletingClassId(null);
   };
 
   return (
     <div className="flex-1 flex flex-col justify-between p-4 sm:p-6 bg-[#090B0E] overflow-y-auto">
-      <div className="max-w-4xl mx-auto w-full">
+      <div className="max-w-4xl mx-auto w-full">{failure && <p role="alert" className="fixed top-4 z-[100] rounded bg-red-900 p-3">{failure}</p>}
         {/* Top Header */}
         <div className="flex items-center justify-between mb-4 sm:mb-6">
           <div className="flex items-center gap-3">
@@ -243,68 +233,7 @@ export const Screen7_Calendar: React.FC<Screen7CalendarProps> = ({
           <div className="md:col-span-6 space-y-4">
             <div className="p-4 sm:p-5 rounded-2xl bg-[#131720] border border-[#222a38] shadow-xl">
               {/* Month Selector */}
-              <div className="flex items-center justify-between px-1 mb-4">
-                <button 
-                  type="button"
-                  className="min-h-[36px] min-w-[36px] p-2 rounded-xl text-slate-400 hover:text-white hover:bg-[#1C222F] active:scale-95 transition-all duration-150 cursor-pointer flex items-center justify-center"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-                <div className="text-center">
-                  <span className="font-extrabold text-sm text-white tracking-wide font-['Montserrat',sans-serif] block">
-                    Septiembre 2026
-                  </span>
-                  <span className="text-[10px] text-slate-400">Studio Zarzal</span>
-                </div>
-                <button 
-                  type="button"
-                  className="min-h-[36px] min-w-[36px] p-2 rounded-xl text-slate-400 hover:text-white hover:bg-[#1C222F] active:scale-95 transition-all duration-150 cursor-pointer flex items-center justify-center"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Days of week header */}
-              <div className="grid grid-cols-7 gap-1 text-center mb-2.5">
-                {daysOfWeek.map((day, idx) => (
-                  <span key={idx} className="text-[11px] font-bold text-slate-400 py-1">
-                    {day}
-                  </span>
-                ))}
-              </div>
-
-              {/* Days grid */}
-              <div className="grid grid-cols-7 gap-1.5 text-center text-xs">
-                <div></div>
-
-                {calendarDays.map((day) => {
-                  const isSelected = day === selectedDay;
-                  const dayDateStr = `2026-09-${String(day).padStart(2, '0')}`;
-                  const hasClasses = scheduledClasses.some((c) => {
-                    return c.date === dayDateStr || (!c.date && day === 25);
-                  });
-
-                  return (
-                    <button
-                      key={day}
-                      type="button"
-                      onClick={() => setSelectedDay(day)}
-                      className={`h-9 w-9 sm:h-10 sm:w-10 mx-auto rounded-xl flex flex-col items-center justify-center font-bold transition-all duration-150 relative cursor-pointer active:scale-95 ${
-                        isSelected
-                          ? 'bg-gold-gradient text-black shadow-md shadow-[#D4AF37]/40 font-black scale-105'
-                          : hasClasses
-                          ? 'text-white hover:bg-[#1C222F] border border-transparent hover:border-[#D4AF37]/30'
-                          : 'text-slate-400 hover:text-slate-200 hover:bg-[#1C222F]/50'
-                      }`}
-                    >
-                      <span>{day}</span>
-                      {!isSelected && hasClasses && (
-                        <span className="w-1 h-1 rounded-full bg-[#D4AF37] mt-0.5"></span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
+              <label>Fecha de la clase<input className="block my-3 p-2 bg-slate-800 rounded" type="date" value={day} onChange={e=>e.target.value && changeDay(e.target.value)} /></label>
             </div>
           </div>
 
@@ -317,7 +246,7 @@ export const Screen7_Calendar: React.FC<Screen7CalendarProps> = ({
                     Horarios programados
                   </span>
                   <span className="text-sm font-black text-white">
-                    {selectedDay} de Septiembre de 2026
+                    {day}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -391,7 +320,7 @@ export const Screen7_Calendar: React.FC<Screen7CalendarProps> = ({
 
                       <div className="flex items-center gap-2">
                         <span className="text-[11px] font-bold text-[#D4AF37] bg-[#D4AF37]/15 px-2 py-0.5 rounded-lg border border-[#D4AF37]/30">
-                          {cls.availableSpots}/{cls.totalSpots} cupos
+                          {cls.free??cls.availableSpots}/{cls.totalSpots} cupos
                         </span>
 
                         {isAdmin ? (
@@ -466,23 +395,21 @@ export const Screen7_Calendar: React.FC<Screen7CalendarProps> = ({
             </div>
 
             <form onSubmit={handleSaveCreate} className="space-y-4">
-              {/* Fecha (Día de Septiembre 2026) */}
+              {/* Fecha (Fecha de la clase) */}
               <div>
                 <label className="text-xs font-bold text-slate-300 block mb-1.5">
-                  Día del Calendario (Septiembre 2026) *
+                  Fecha de la clase *
                 </label>
                 <div className="flex items-center gap-2">
                   <input
-                    type="number"
-                    min="1"
-                    max="30"
+                    type="date"
                     required
                     value={formDay}
-                    onChange={(e) => setFormDay(Math.min(30, Math.max(1, Number(e.target.value))))}
-                    className="w-20 px-3.5 py-2.5 rounded-xl bg-[#0E121A] border border-[#222a38] text-white font-mono text-xs sm:text-sm focus:border-[#D4AF37] focus:outline-none"
+                    onChange={(e) => setFormDay(e.target.value)}
+                    className="w-auto px-3.5 py-2.5 rounded-xl bg-[#0E121A] border border-[#222a38] text-white font-mono text-xs sm:text-sm focus:border-[#D4AF37] focus:outline-none"
                   />
                   <span className="text-xs text-slate-300">
-                    de Septiembre de 2026 (Zarzal Studio)
+                    Hora de Zarzal
                   </span>
                 </div>
               </div>
@@ -494,7 +421,7 @@ export const Screen7_Calendar: React.FC<Screen7CalendarProps> = ({
                     Horario de Clase *
                   </label>
                   <input
-                    type="text"
+                    type="time"
                     required
                     value={formTime}
                     onChange={(e) => setFormTime(e.target.value)}
@@ -659,23 +586,21 @@ export const Screen7_Calendar: React.FC<Screen7CalendarProps> = ({
             </div>
 
             <form onSubmit={handleSaveUpdate} className="space-y-4">
-              {/* Fecha (Día de Septiembre 2026) */}
+              {/* Fecha (Fecha de la clase) */}
               <div>
                 <label className="text-xs font-bold text-slate-300 block mb-1.5">
-                  Día del Calendario (Septiembre 2026) *
+                  Fecha de la clase *
                 </label>
                 <div className="flex items-center gap-2">
                   <input
-                    type="number"
-                    min="1"
-                    max="30"
+                    type="date"
                     required
                     value={formDay}
-                    onChange={(e) => setFormDay(Math.min(30, Math.max(1, Number(e.target.value))))}
-                    className="w-20 px-3.5 py-2.5 rounded-xl bg-[#0E121A] border border-[#222a38] text-white font-mono text-xs sm:text-sm focus:border-[#D4AF37] focus:outline-none"
+                    onChange={(e) => setFormDay(e.target.value)}
+                    className="w-auto px-3.5 py-2.5 rounded-xl bg-[#0E121A] border border-[#222a38] text-white font-mono text-xs sm:text-sm focus:border-[#D4AF37] focus:outline-none"
                   />
                   <span className="text-xs text-slate-300">
-                    de Septiembre de 2026 (Zarzal Studio)
+                    Hora de Zarzal
                   </span>
                 </div>
               </div>
@@ -687,7 +612,7 @@ export const Screen7_Calendar: React.FC<Screen7CalendarProps> = ({
                     Horario de Clase *
                   </label>
                   <input
-                    type="text"
+                    type="time"
                     required
                     value={formTime}
                     onChange={(e) => setFormTime(e.target.value)}

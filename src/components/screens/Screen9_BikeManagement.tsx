@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Bike as BikeIconType, Wrench, CheckCircle, User, Clock, Phone, AlertTriangle, UserPlus } from 'lucide-react';
+import { ArrowLeft, Bike as BikeIconType, Wrench, CheckCircle, User, Clock, Phone, AlertTriangle } from 'lucide-react';
 import type { Bike, BikeStatus } from '../../types';
 import { BikeIcon } from '../common/BikeIcon';
 
@@ -237,24 +237,6 @@ export const Screen9_BikeManagement: React.FC<Screen9BikeManagementProps> = ({
                     </button>
                   )}
 
-                  {inspectedBike.status === 'reserved' ? (
-                    <button
-                      type="button"
-                      onClick={() => onUpdateBikeStatus(inspectedBike.id, 'available')}
-                      className="min-h-[44px] py-2.5 px-3 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/40 text-rose-400 text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all duration-150 cursor-pointer"
-                    >
-                      <span>Liberar Cupo</span>
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => onUpdateBikeStatus(inspectedBike.id, 'reserved')}
-                      className="min-h-[44px] py-2.5 px-3 rounded-xl bg-[#1C222F] hover:bg-[#252d3d] border border-[#222a38] text-slate-200 text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all duration-150 cursor-pointer"
-                    >
-                      <UserPlus className="w-4 h-4 text-[#D4AF37]" />
-                      <span>Asignar Manual</span>
-                    </button>
-                  )}
                 </div>
               </div>
             </div>

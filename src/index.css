@@ -84,3 +84,11 @@ html {
 ::-webkit-scrollbar-thumb:hover {
   background: #d4af37;
 }
+
+.studio-panel { width: min(100%, 32rem); margin: 2rem auto; padding: 1.5rem; background: #131720; border: 1px solid #293041; border-radius: 1.25rem; }
+.studio-panel h1 { font-size: 1.5rem; font-weight: 800; margin: 1rem 0; }
+.studio-panel form, .studio-panel label { display: grid; gap: .6rem; margin-top: 1rem; }
+.studio-panel input, .studio-panel select { padding: .8rem; background: #090b0e; border: 1px solid #475569; border-radius: .6rem; }
+.studio-panel button { padding: .7rem 1rem; color: #f1d47b; border: 1px solid #776636; border-radius: .6rem; }
+.studio-panel button:disabled { opacity: .6; }
+.studio-panel [role=alert] { color: #fecaca; }

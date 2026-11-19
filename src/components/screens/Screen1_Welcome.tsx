@@ -7,7 +7,7 @@ interface Screen1WelcomeProps {
   onStartBooking: () => void;
   onExploreSchedule?: () => void;
   onViewPlans?: () => void;
-  currentUser?: ClientUser | null;
+  currentUser?: Pick<ClientUser,"name"|"clientType"|"membershipStatus"|"membershipPlan"> | null;
   onOpenLoginModal?: () => void;
   onLogout?: () => void;
   onOpenAdminLogin?: () => void;

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Search, MessageCircle, ShieldCheck, Ticket, X, Award, UserPlus, User, Phone, Mail } from 'lucide-react';
 import type { ClientUser, ClientType, MembershipPlan } from '../../types';
-import { db } from '../../services/db';
+import { message } from '../../services/studio';
 
 interface Screen10ClientsListProps {
   clients: ClientUser[];
@@ -15,7 +15,7 @@ interface Screen10ClientsListProps {
     membershipPlan?: string;
     membershipExpiresAt?: string;
   }) => void;
-  plans?: MembershipPlan[];
+  plans: MembershipPlan[];
 }
 
 export const Screen10_ClientsList: React.FC<Screen10ClientsListProps> = ({ 
@@ -25,7 +25,7 @@ export const Screen10_ClientsList: React.FC<Screen10ClientsListProps> = ({
   onAddClient,
   plans: propPlans,
 }) => {
-  const plans = propPlans || db.getPlans();
+  const plans = propPlans;
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState<'all' | 'mensualidad' | 'particular'>('all');
   const [selectedClientForPlan, setSelectedClientForPlan] = useState<ClientUser | null>(null);
@@ -52,28 +52,17 @@ export const Screen10_ClientsList: React.FC<Screen10ClientsListProps> = ({
   const mensualidadCount = clients.filter(c => c.clientType === 'mensualidad').length;
   const particularCount = clients.filter(c => c.clientType === 'particular').length;
 
-  const handleAssignPlan = (planId: string) => {
+  const handleAssignPlan = async (planId: string) => {
     if (!selectedClientForPlan || !onUpdateClientMembership) return;
     const plan = plans.find(p => p.id === planId);
     if (!plan) return;
 
-    if (plan.id === 'individual' || !plan.isMembership) {
-      onUpdateClientMembership(selectedClientForPlan.id, 'particular', 'CLASE INDIVIDUAL ($10.000)');
-    } else {
-      const expDate = new Date();
-      expDate.setDate(expDate.getDate() + plan.validityDays);
-      const formattedExp = expDate.toISOString().split('T')[0];
-      onUpdateClientMembership(
-        selectedClientForPlan.id, 
-        'mensualidad', 
-        `${plan.name} (${plan.classesCount} clases • ${plan.validityText})`,
-        formattedExp
-      );
-    }
+    try { await onUpdateClientMembership(selectedClientForPlan.id, plan.isMembership?'mensualidad':'particular',plan.id); }
+    catch(cause){window.alert(message(cause));return}
     setSelectedClientForPlan(null);
   };
 
-  const handleCreateNewClient = (e: React.FormEvent) => {
+  const handleCreateNewClient = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newClientName.trim()) {
       setFormError('Por favor ingresa el nombre del cliente');
@@ -84,28 +73,8 @@ export const Screen10_ClientsList: React.FC<Screen10ClientsListProps> = ({
       return;
     }
 
-    let planName = 'CLASE INDIVIDUAL ($10.000)';
-    let expiresAt: string | undefined = undefined;
-
-    if (newClientType === 'mensualidad') {
-      const plan = plans.find(p => p.id === newClientPlanId) || plans.find(p => p.isMembership) || plans[0];
-      planName = `${plan.name} (${plan.classesCount} clases • ${plan.validityText})`;
-      const exp = new Date();
-      exp.setDate(exp.getDate() + plan.validityDays);
-      expiresAt = exp.toISOString().split('T')[0];
-    }
-
-    if (onAddClient) {
-      onAddClient({
-        name: newClientName.trim(),
-        phone: newClientPhone.trim().startsWith('+') ? newClientPhone.trim() : `+57 ${newClientPhone.trim()}`,
-        email: newClientEmail.trim() || `${newClientName.trim().toLowerCase().replace(/\s+/g, '')}@gmail.com`,
-        clientType: newClientType,
-        membershipPlan: planName,
-        membershipExpiresAt: expiresAt,
-      });
-    }
-
+    try { await onAddClient?.({name:newClientName.trim(),phone:newClientPhone.trim(),email:newClientEmail.trim(),clientType:newClientType,membershipPlan:newClientType==='mensualidad'?newClientPlanId:'individual'}); }
+    catch(cause){setFormError(message(cause));return}
     // Reset and close
     setNewClientName('');
     setNewClientPhone('');

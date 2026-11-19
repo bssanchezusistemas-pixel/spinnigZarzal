@@ -12,7 +12,7 @@ import {
   MessageCircle, 
   Calendar
 } from 'lucide-react';
-import { db } from '../../services/db';
+import { cashDay,cashAction,today,useResource,message } from '../../services/studio';
 import type { PaymentMethod, Reservation } from '../../types';
 
 interface Screen11CierreCajaProps {
@@ -21,7 +21,22 @@ interface Screen11CierreCajaProps {
 }
 
 export const Screen11_CierreCaja: React.FC<Screen11CierreCajaProps> = ({ onBack, onRefreshData }) => {
-  const [selectedDate, setSelectedDate] = useState<string>('2026-09-25');
+  const [selectedDate,setSelectedDate]=useState(today);
+  const [version,refresh]=useState(0);
+  React.useEffect(()=>{ const id=setInterval(()=>refresh(v=>v+1),30000);return ()=>clearInterval(id)},[]);
+  const state=useResource(selectedDate,()=>cashDay(selectedDate),version);
+  const summary=state.value;
+  return <>{state.error && <p role="alert">{state.error} <button onClick={()=>refresh(v=>v+1)}>Reintentar</button></p>}{summary?<CashForm key={selectedDate} summary={summary} selectedDate={selectedDate} setSelectedDate={setSelectedDate} onBack={onBack} onRefreshData={()=>{refresh(v=>v+1);onRefreshData?.()}}/>:<p>Cargando caja…</p>}</>;
+};
+function CashForm({summary,selectedDate,setSelectedDate,onBack,onRefreshData}:{summary:Awaited<ReturnType<typeof cashDay>>,selectedDate:string,setSelectedDate:(s:string)=>void,onBack:()=>void,onRefreshData:()=>void}){
+  const [saleId,setSaleId]=useState(()=>crypto.randomUUID());
+  const [busy,setBusy]=useState(false);
+  async function save(action:string,data:object){
+    if(busy)return false;
+    setBusy(true);
+    try{await cashAction(selectedDate,action,data);onRefreshData();return true}
+    catch(cause){window.alert(message(cause));return false}finally{setBusy(false)}
+  }
   const [showCollectModal, setShowCollectModal] = useState<boolean>(false);
   const [selectedBookingToCollect, setSelectedBookingToCollect] = useState<Reservation | null>(null);
   const [collectMethod, setCollectMethod] = useState<PaymentMethod>('efectivo');
@@ -38,11 +53,7 @@ export const Screen11_CierreCaja: React.FC<Screen11CierreCajaProps> = ({ onBack,
   // Closure modal
   const [showClosureModal, setShowClosureModal] = useState<boolean>(false);
   const [closureNotes, setClosureNotes] = useState('');
-  const [isBoxClosed, setIsBoxClosed] = useState<boolean>(false);
-
-  // Compute live summary
-  const summary = db.getCashSummary(selectedDate);
-
+  const isBoxClosed=Boolean(summary.closure);
   const formatCOP = (val: number) => {
     return new Intl.NumberFormat('es-CO', {
       style: 'currency',
@@ -57,15 +68,15 @@ export const Screen11_CierreCaja: React.FC<Screen11CierreCajaProps> = ({ onBack,
     setShowCollectModal(true);
   };
 
-  const handleConfirmCollect = () => {
+  const handleConfirmCollect = async () => {
     if (!selectedBookingToCollect) return;
-    db.markBookingAsPaid(selectedBookingToCollect.id, collectMethod, 15000);
+    if(!await save('collect',{id:selectedBookingToCollect.id,method:collectMethod}))return;
     setShowCollectModal(false);
     setSelectedBookingToCollect(null);
-    if (onRefreshData) onRefreshData();
+
   };
 
-  const handleAddManualPayment = (e: React.FormEvent) => {
+  const handleAddManualPayment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newClientName.trim() || newAmount <= 0) return;
 
@@ -82,44 +93,17 @@ export const Screen11_CierreCaja: React.FC<Screen11CierreCajaProps> = ({ onBack,
       conceptLabel = 'Bebidas e Hidratación';
     }
 
-    db.addDailyPayment({
-      date: selectedDate,
-      time: new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }),
-      clientName: newClientName,
-      clientPhone: newClientPhone || '+57 300 000 0000',
-      concept: newConcept,
-      conceptLabel,
-      amount: newAmount,
-      method: newMethod,
-      notes: newNotes,
-    });
-
+    if(!await save('sale',{id:saleId,name:newClientName,phone:newClientPhone,concept:newConcept,label:conceptLabel,amount:newAmount,method:newMethod,notes:newNotes}))return;
+    setSaleId(crypto.randomUUID());
     setShowAddPaymentModal(false);
     setNewClientName('');
     setNewClientPhone('');
     setNewNotes('');
-    if (onRefreshData) onRefreshData();
+
   };
 
-  const handleCloseCashRegister = () => {
-    db.saveCashClosure({
-      id: `close-${selectedDate}`,
-      date: selectedDate,
-      closedAt: new Date().toISOString(),
-      closedBy: 'Administración Panther Ride',
-      totalIncome: summary.totalIncome,
-      totalCash: summary.totalCash,
-      totalNequi: summary.totalNequi,
-      totalBancolombia: summary.totalBancolombia,
-      totalCards: summary.totalCards,
-      totalPending: summary.totalPending,
-      totalRiders: summary.totalRiders,
-      ridersWithMembership: summary.ridersWithMembership,
-      ridersParticular: summary.ridersParticular,
-      notes: closureNotes || 'Cierre de caja completado sin novedades.',
-      status: 'closed',
-    });
-    setIsBoxClosed(true);
+  const handleCloseCashRegister = async () => {
+    if(!await save('close',{notes:closureNotes}))return;
     setShowClosureModal(false);
   };
 
@@ -127,7 +111,7 @@ export const Screen11_CierreCaja: React.FC<Screen11CierreCajaProps> = ({ onBack,
     const text = `🐆 *BLACK RIDE - CIERRE DE CAJA OFICIAL*
 📍 *Studio Zarzal, Valle*
 📅 *Fecha:* ${selectedDate}
-⏰ *Hora de Cierre:* ${new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}
+⏰ *Hora de Cierre:* ${new Date(summary.closure?.closed_at??Date.now()).toLocaleTimeString('es-CO', { timeZone:'America/Bogota', hour: '2-digit', minute: '2-digit' })}
 
 💵 *RESUMEN FINANCIERO:*
 • *Total Recaudado:* ${formatCOP(summary.totalIncome)}
@@ -146,7 +130,7 @@ export const Screen11_CierreCaja: React.FC<Screen11CierreCajaProps> = ({ onBack,
 🚴 *LISTA DE ASISTENCIA:*
 ${summary.reservations.map(r => `• Bici #${r.bikeNumber} - ${r.clientName} (${r.clientType.toUpperCase()} - ${r.paymentStatus === 'paid' ? 'PAGADO' : r.paymentStatus === 'included_in_membership' ? 'MEMBRESÍA' : 'PENDIENTE'})`).join('\n')}
 
-🔒 *Estado:* Caja Cuadrada y Archivada en BLACK RIDE Zarzal.`;
+🔒 *Estado:* ${isBoxClosed?'Caja cerrada':'Caja abierta · reporte provisional'}.`;
 
     const encoded = encodeURIComponent(text);
     window.open(`https://wa.me/?text=${encoded}`, '_blank');
@@ -179,20 +163,12 @@ ${summary.reservations.map(r => `• Bici #${r.bikeNumber} - ${r.clientName} (${
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1.5 bg-[#131720] border border-[#222a38] px-3 py-1.5 rounded-xl">
               <Calendar className="w-3.5 h-3.5 text-[#D4AF37]" />
-              <select
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="bg-transparent text-xs font-bold text-white focus:outline-none cursor-pointer"
-              >
-                <option value="2026-09-25" className="bg-[#131720]">25 Sep 2026 (Hoy)</option>
-                <option value="2026-09-24" className="bg-[#131720]">24 Sep 2026</option>
-                <option value="2026-09-23" className="bg-[#131720]">23 Sep 2026</option>
-              </select>
+              <input aria-label="Jornada de caja" type="date" value={selectedDate} onChange={e=>e.target.value && setSelectedDate(e.target.value)} className="bg-transparent text-xs text-white"/>
             </div>
 
             <button
               type="button"
-              onClick={() => setShowAddPaymentModal(true)}
+              disabled={isBoxClosed || busy} onClick={() => setShowAddPaymentModal(true)}
               className="min-h-[38px] flex items-center gap-1.5 text-xs font-black text-black bg-gold-gradient hover:brightness-110 px-3 py-1.5 rounded-xl active:scale-95 transition-all duration-150 cursor-pointer shadow-md"
             >
               <PlusCircle className="w-4 h-4 stroke-[2.5]" />
@@ -231,7 +207,7 @@ ${summary.reservations.map(r => `• Bici #${r.bikeNumber} - ${r.clientName} (${
               className="min-h-[36px] px-3 py-1.5 rounded-xl bg-[#1C222F] hover:bg-[#252d3d] border border-[#222a38] text-white font-bold text-xs flex items-center gap-1.5 active:scale-95 transition-all duration-150 cursor-pointer"
             >
               <Lock className="w-3.5 h-3.5 text-amber-400" />
-              <span>{isBoxClosed ? 'Ver Cierre' : 'Cerrar Caja'}</span>
+              <span>{isBoxClosed ? 'Ver cierre' : 'Cerrar Caja'}</span>
             </button>
           </div>
         </div>
@@ -245,7 +221,7 @@ ${summary.reservations.map(r => `• Bici #${r.bikeNumber} - ${r.clientName} (${
               <div className="absolute top-0 right-0 w-36 h-36 bg-[#D4AF37]/10 rounded-full blur-2xl pointer-events-none"></div>
               
               <div className="flex items-center justify-between text-slate-400 text-xs mb-1">
-                <span className="font-semibold uppercase tracking-wider text-[10px]">Total Recaudado Hoy</span>
+                <span className="font-semibold uppercase tracking-wider text-[10px]">Total recaudado en la jornada</span>
                 <span className="text-[#D4AF37] font-mono text-[10px] bg-black/50 px-2 py-0.5 rounded-md border border-[#D4AF37]/30 font-bold">
                   EN VIVO
                 </span>
@@ -328,7 +304,7 @@ ${summary.reservations.map(r => `• Bici #${r.bikeNumber} - ${r.clientName} (${
               <div className="flex items-center justify-between mb-3 pb-2 border-b border-[#222a38]">
                 <h2 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
                   <Users className="w-4 h-4 text-[#D4AF37]" />
-                  <span>¿Quién Reservó Hoy? ({summary.reservations.length} alumnos)</span>
+                  <span>Reservas de la jornada ({summary.reservations.length} alumnos)</span>
                 </h2>
                 <span className="text-[10px] text-slate-400 font-medium">14 Cupos en Sala</span>
               </div>
@@ -393,10 +369,10 @@ ${summary.reservations.map(r => `• Bici #${r.bikeNumber} - ${r.clientName} (${
                         {res.paymentStatus === 'pending' && (
                           <button
                             type="button"
-                            onClick={() => handleOpenCollect(res)}
+                            disabled={isBoxClosed || busy} onClick={() => handleOpenCollect(res)}
                             className="min-h-[30px] text-[10px] font-black text-black bg-gold-gradient hover:brightness-110 px-2.5 py-1 rounded-lg active:scale-95 transition-all duration-150 cursor-pointer shadow-sm animate-pulse"
                           >
-                            Cobrar $10.000
+                            Cobrar {formatCOP(res.amountPaid)}
                           </button>
                         )}
                       </div>
@@ -467,7 +443,7 @@ ${summary.reservations.map(r => `• Bici #${r.bikeNumber} - ${r.clientName} (${
               <p className="text-slate-300">Cliente: <strong className="text-white">{selectedBookingToCollect.clientName}</strong></p>
               <p className="text-slate-300">Bicicleta: <strong className="text-[#D4AF37]">#{selectedBookingToCollect.bikeNumber}</strong></p>
               <p className="text-slate-300">Horario: <strong className="text-white">{selectedBookingToCollect.time}</strong></p>
-              <p className="text-slate-300">Tarifa Clase Individual: <strong className="text-[#D4AF37] text-sm">$10.000 COP</strong></p>
+              <p className="text-slate-300">Tarifa Clase Individual: <strong className="text-[#D4AF37] text-sm">{formatCOP(selectedBookingToCollect?.amountPaid??0)}</strong></p>
             </div>
 
             <div>
@@ -666,7 +642,7 @@ ${summary.reservations.map(r => `• Bici #${r.bikeNumber} - ${r.clientName} (${
             <div>
               <label className="text-[10px] text-slate-400 block mb-1">Observaciones del Turno:</label>
               <textarea
-                value={closureNotes}
+                readOnly={isBoxClosed} value={isBoxClosed?summary.closure?.notes??'':closureNotes}
                 onChange={(e) => setClosureNotes(e.target.value)}
                 placeholder="Ej. Caja cuadrada 100%, se entregan $150.000 en sobre al administrador."
                 rows={2}
@@ -684,10 +660,10 @@ ${summary.reservations.map(r => `• Bici #${r.bikeNumber} - ${r.clientName} (${
               </button>
               <button
                 type="button"
-                onClick={handleCloseCashRegister}
+                disabled={isBoxClosed || busy} onClick={handleCloseCashRegister}
                 className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-black shadow-lg"
               >
-                Confirmar y Cerrar
+                {isBoxClosed?'Caja cerrada':'Confirmar y cerrar'}
               </button>
             </div>
           </div>

@@ -189,6 +189,7 @@ export interface ClassSession {
   };
   totalSpots: number;
   availableSpots: number;
+  free?: number;
   priceParticular: number; // 10.000 COP
   type: string;
   description: string;
