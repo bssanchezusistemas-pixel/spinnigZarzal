@@ -113,18 +113,18 @@ export const Screen9_BikeManagement: React.FC<Screen9BikeManagementProps> = ({
               </div>
 
               {/* Status Indicators Legend */}
-              <div className="pt-3 border-t border-[#222a38] flex flex-wrap items-center justify-around gap-2 text-[11px] text-slate-400 select-none">
+              <div className="pt-3 border-t border-[#222a38] flex flex-wrap items-center justify-around gap-2 text-xs text-slate-400 select-none">
                 <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#D4AF37]"></span>
-                  <span>Disponible</span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
+                  <span className="text-emerald-300 font-medium">Disponible (Verde)</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-                  <span>Reservada</span>
+                  <span className="text-rose-400">Reservada (Rojo)</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-                  <span>Mantenimiento</span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-zinc-500"></span>
+                  <span className="text-zinc-400">Mantenimiento</span>
                 </div>
               </div>
             </div>

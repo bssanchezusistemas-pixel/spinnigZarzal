@@ -17,25 +17,27 @@ export const BikeIcon: React.FC<BikeIconProps> = ({
   onClick,
   size = 'md',
 }) => {
-  // Color configuration - Gold palette matching logo
-  let ringColor = 'border-[#D4AF37]/60 text-[#F3E5AB]';
-  let bgColor = 'bg-[#D4AF37]/10 hover:bg-[#D4AF37]/20';
-  let glowClass = '';
-  let bikeStroke = '#D4AF37';
+  // Color configuration - Available: Verde vibrante, Selected: Dorado/Amarillo, Reserved: Rojo
+  let ringColor = 'border-emerald-500/70 text-emerald-300';
+  let bgColor = 'bg-emerald-950/30 hover:bg-emerald-900/40';
+  let glowClass = 'hover:shadow-[0_0_14px_rgba(16,185,129,0.35)]';
+  let bikeStroke = '#10b981';
 
   if (isSelected || status === 'selected') {
     ringColor = 'border-[#F3C766] text-[#F3C766]';
     bgColor = 'bg-[#D4AF37]/25';
-    glowClass = 'shadow-[0_0_22px_rgba(212,175,55,0.65)] scale-105 ring-2 ring-[#D4AF37]';
+    glowClass = 'shadow-[0_0_22px_rgba(212,175,55,0.7)] scale-105 ring-2 ring-[#D4AF37]';
     bikeStroke = '#F3C766';
   } else if (status === 'reserved') {
     ringColor = 'border-rose-500/70 text-rose-400';
-    bgColor = 'bg-rose-950/20';
+    bgColor = 'bg-rose-950/25';
+    glowClass = '';
     bikeStroke = '#f87171';
   } else if (status === 'maintenance') {
-    ringColor = 'border-amber-500/70 text-amber-400';
-    bgColor = 'bg-amber-950/20';
-    bikeStroke = '#fbbf24';
+    ringColor = 'border-zinc-600 text-zinc-400';
+    bgColor = 'bg-zinc-900/50';
+    glowClass = '';
+    bikeStroke = '#71717a';
   }
 
   const dimension = 

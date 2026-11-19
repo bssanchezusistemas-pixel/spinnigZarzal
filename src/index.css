@@ -1,5 +1,16 @@
 @import "tailwindcss";
 
+html {
+  font-size: 18px; /* Crecer letra 2 puntos base (12pt -> 14pt / 18px) */
+  -webkit-text-size-adjust: 100%;
+}
+
+@media (max-width: 640px) {
+  html {
+    font-size: 17px; /* Calibración para pantallas móviles */
+  }
+}
+
 @theme {
   --color-panther-bg: #090b0e;
   --color-panther-card: #131720;
@@ -9,7 +20,7 @@
   --color-panther-neon-hover: #e5c158;
   --color-panther-neon-dim: rgba(212, 175, 55, 0.15);
   --color-panther-red: #ef4444;
-  --color-panther-green: #d4af37;
+  --color-panther-green: #10b981;
   --color-panther-amber: #f59e0b;
   --color-gold-light: #f3e5ab;
   --color-gold-primary: #d4af37;

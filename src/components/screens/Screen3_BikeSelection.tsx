@@ -146,22 +146,22 @@ export const Screen3_BikeSelection: React.FC<Screen3BikeSelectionProps> = ({
               </div>
 
               {/* Status Legends */}
-              <div className="pt-3 border-t border-[#222938] flex flex-wrap items-center justify-around gap-2 text-[11px] text-slate-400 select-none">
+              <div className="pt-3 border-t border-[#222938] flex flex-wrap items-center justify-around gap-2 text-xs text-slate-400 select-none">
                 <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#D4AF37]/80"></span>
-                  <span>Disponible</span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
+                  <span className="text-emerald-300 font-semibold">Disponible (Verde)</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-[#F3C766] shadow-[0_0_8px_#D4AF37]"></span>
-                  <span className="text-white font-bold">Seleccionada</span>
+                  <span className="text-[#F3C766] font-bold">Seleccionada</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-                  <span>Reservada</span>
+                  <span className="text-rose-400">Reservada (Rojo)</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-zinc-600"></span>
-                  <span>Mantenimiento</span>
+                  <span className="text-zinc-400">Mantenimiento</span>
                 </div>
               </div>
             </div>
