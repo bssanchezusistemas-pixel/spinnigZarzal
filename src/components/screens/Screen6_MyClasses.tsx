@@ -15,6 +15,10 @@ export const Screen6_MyClasses: React.FC<Screen6MyClassesProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'upcoming' | 'history'>('upcoming');
 
+  const [now,setNow]=useState(Date.now);
+  React.useEffect(()=>{const timer=setInterval(()=>setNow(Date.now()),60000);return ()=>clearInterval(timer)},[]);
+  const upcoming=reservations.filter(r=>r.status==='confirmed' && Date.parse(r.date+'T'+r.time.slice(0,5)+':00-05:00')>=now);
+  const visible=activeTab==='upcoming'?upcoming:reservations.filter(r=>!upcoming.includes(r)).reverse();
   return (
     <div className="flex-1 flex flex-col justify-between p-4 sm:p-6 bg-[#090B0E] overflow-y-auto">
       <div className="max-w-5xl mx-auto w-full">
@@ -50,7 +54,7 @@ export const Screen6_MyClasses: React.FC<Screen6MyClassesProps> = ({
                 : 'text-slate-400 hover:text-white'
             }`}
           >
-            Próximas ({reservations.length})
+            Próximas ({upcoming.length})
           </button>
           <button
             type="button"
@@ -66,11 +70,11 @@ export const Screen6_MyClasses: React.FC<Screen6MyClassesProps> = ({
         </div>
 
         {/* Class Cards Grid */}
-        {activeTab === 'upcoming' ? (
+        {(activeTab === 'upcoming' || visible.length>0) ? (
           <div>
-            {reservations.length > 0 ? (
+            {visible.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {reservations.map((res) => (
+                {visible.map((res) => (
                   <div
                     key={res.id}
                     className="rounded-3xl bg-[#131720] border border-[#222a38] overflow-hidden shadow-xl relative group transition-all duration-150 hover:border-[#D4AF37]/40 flex flex-col justify-between"
@@ -87,7 +91,7 @@ export const Screen6_MyClasses: React.FC<Screen6MyClassesProps> = ({
                       {/* Badge Confirmada */}
                       <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-gold-gradient text-black text-[10px] font-black tracking-wide flex items-center gap-1 shadow-md">
                         <CheckCircle2 className="w-3 h-3 stroke-[3]" />
-                        <span>Confirmada</span>
+                        <span>{res.status==='attended'?'Asistió':'Confirmada'}</span>
                       </div>
 
                       <div className="absolute bottom-2 left-4">

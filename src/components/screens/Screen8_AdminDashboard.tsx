@@ -16,7 +16,8 @@ import {
   RotateCcw
 } from 'lucide-react';
 import { PantherLogo } from '../common/PantherLogo';
-import { db } from '../../services/db';
+import type {cashDay} from '../../services/studio';
+import type { Bike as StudioBike } from '../../types';
 import type { ScreenId, MembershipPlan } from '../../types';
 
 interface Screen8AdminDashboardProps {
@@ -24,7 +25,9 @@ interface Screen8AdminDashboardProps {
   onOpenCreateClassModal?: () => void;
   onLogoutAdmin?: () => void;
   onResetData?: () => void;
-  plans?: MembershipPlan[];
+  plans: MembershipPlan[];
+  summary: Awaited<ReturnType<typeof cashDay>>;
+  bikes: StudioBike[];
 }
 
 export const Screen8_AdminDashboard: React.FC<Screen8AdminDashboardProps> = ({
@@ -32,11 +35,8 @@ export const Screen8_AdminDashboard: React.FC<Screen8AdminDashboardProps> = ({
   onOpenCreateClassModal,
   onLogoutAdmin,
   onResetData,
-  plans: propPlans,
+  plans,summary,bikes,
 }) => {
-  const plans = propPlans || db.getPlans();
-  const summary = db.getCashSummary('2026-09-25');
-  const bikes = db.getBikes();
   const availableBikes = bikes.filter(b => b.status === 'available').length;
 
   const formatCOP = (val: number) => {
@@ -54,7 +54,7 @@ export const Screen8_AdminDashboard: React.FC<Screen8AdminDashboardProps> = ({
       icon: Award,
       action: () => onNavigateScreen('plans'),
       highlight: true,
-      badge: 'Tarifas 2026',
+      badge: 'Tarifas vigentes',
     },
     {
       title: 'Crear nueva clase',
@@ -66,7 +66,7 @@ export const Screen8_AdminDashboard: React.FC<Screen8AdminDashboardProps> = ({
     },
     {
       title: 'Gestión de Bicicletas',
-      desc: '14 bicis en sala: Disponibles, reservadas o taller',
+      desc: 'Bicicletas disponibles y en mantenimiento',
       icon: Bike,
       action: () => onNavigateScreen('bike-management'),
       highlight: false,
@@ -167,7 +167,7 @@ export const Screen8_AdminDashboard: React.FC<Screen8AdminDashboardProps> = ({
               {summary.occupancyPercent}%
             </span>
             <span className="text-[10px] text-slate-400 mt-1 block">
-              {summary.totalRiders} de 14 bicicletas
+              {summary.totalRiders} reservas del día
             </span>
           </div>
 
@@ -196,7 +196,7 @@ export const Screen8_AdminDashboard: React.FC<Screen8AdminDashboardProps> = ({
               <Bike className="w-4 h-4 text-sky-400" />
             </div>
             <span className="text-xl sm:text-2xl font-black text-white font-mono block">
-              {availableBikes} / 14
+              {availableBikes} / {bikes.length}
             </span>
             <span className="text-[10px] text-[#D4AF37] mt-1 block font-medium">
               Listas para reservar

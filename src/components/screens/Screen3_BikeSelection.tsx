@@ -89,7 +89,7 @@ export const Screen3_BikeSelection: React.FC<Screen3BikeSelectionProps> = ({
                     number={bike.number}
                     status={bike.id === selectedBikeId ? 'selected' : bike.status}
                     isSelected={bike.id === selectedBikeId}
-                    onClick={() => onSelectBike(bike.id)}
+                    onClick={bike.status==='available'?()=>onSelectBike(bike.id):undefined}
                   />
                 ))}
               </div>
@@ -106,7 +106,7 @@ export const Screen3_BikeSelection: React.FC<Screen3BikeSelectionProps> = ({
                     number={bike.number}
                     status={bike.id === selectedBikeId ? 'selected' : bike.status}
                     isSelected={bike.id === selectedBikeId}
-                    onClick={() => onSelectBike(bike.id)}
+                    onClick={bike.status==='available'?()=>onSelectBike(bike.id):undefined}
                   />
                 ))}
               </div>
@@ -123,7 +123,7 @@ export const Screen3_BikeSelection: React.FC<Screen3BikeSelectionProps> = ({
                     number={bike.number}
                     status={bike.id === selectedBikeId ? 'selected' : bike.status}
                     isSelected={bike.id === selectedBikeId}
-                    onClick={() => onSelectBike(bike.id)}
+                    onClick={bike.status==='available'?()=>onSelectBike(bike.id):undefined}
                   />
                 ))}
               </div>
@@ -140,7 +140,7 @@ export const Screen3_BikeSelection: React.FC<Screen3BikeSelectionProps> = ({
                     number={bike.number}
                     status={bike.id === selectedBikeId ? 'selected' : bike.status}
                     isSelected={bike.id === selectedBikeId}
-                    onClick={() => onSelectBike(bike.id)}
+                    onClick={bike.status==='available'?()=>onSelectBike(bike.id):undefined}
                   />
                 ))}
               </div>

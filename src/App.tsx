@@ -1,526 +1,571 @@
-import { useState, lazy, Suspense, useEffect } from 'react';
-import type { ScreenId, UserRole, Bike, ClassSession, Reservation, ClientUser, BikeStatus, ClientType, MembershipPlan } from './types';
-import { db } from './services/db';
-import { supabase } from './services/supabaseClient';
+import { lazy, Suspense, useEffect, useState } from 'react';
+import type { User } from '@supabase/supabase-js';
 import { MobileFrame } from './components/common/MobileFrame';
 import { BottomNav } from './components/common/BottomNav';
-import { LoginModal } from './components/common/LoginModal';
-import { AdminLoginModal } from './components/common/AdminLoginModal';
-
-// Eager load Screen 1 for instantaneous First Contentful Paint (FCP)
+import { AccountForm } from './components/common/AdminLoginModal';
 import { Screen1_Welcome } from './components/screens/Screen1_Welcome';
+import { supabase } from './services/supabaseClient';
+import * as studio from './services/studio';
+import type { Bike, ClassSession, Reservation, ScreenId } from './types';
 
-// Lazy load remaining screens to eliminate bundle bloat & defer heavy libs (qrcode, confetti, charts)
-const Screen_Plans = lazy(() => import('./components/screens/Screen_Plans').then(m => ({ default: m.Screen_Plans })));
-const Screen2_ClassSelection = lazy(() => import('./components/screens/Screen2_ClassSelection').then(m => ({ default: m.Screen2_ClassSelection })));
-const Screen3_BikeSelection = lazy(() => import('./components/screens/Screen3_BikeSelection').then(m => ({ default: m.Screen3_BikeSelection })));
-const Screen4_Confirmation = lazy(() => import('./components/screens/Screen4_Confirmation').then(m => ({ default: m.Screen4_Confirmation })));
-const Screen5_TicketQR = lazy(() => import('./components/screens/Screen5_TicketQR').then(m => ({ default: m.Screen5_TicketQR })));
-const Screen6_MyClasses = lazy(() => import('./components/screens/Screen6_MyClasses').then(m => ({ default: m.Screen6_MyClasses })));
-const Screen7_Calendar = lazy(() => import('./components/screens/Screen7_Calendar').then(m => ({ default: m.Screen7_Calendar })));
-const Screen8_AdminDashboard = lazy(() => import('./components/screens/Screen8_AdminDashboard').then(m => ({ default: m.Screen8_AdminDashboard })));
-const Screen9_BikeManagement = lazy(() => import('./components/screens/Screen9_BikeManagement').then(m => ({ default: m.Screen9_BikeManagement })));
-const Screen10_ClientsList = lazy(() => import('./components/screens/Screen10_ClientsList').then(m => ({ default: m.Screen10_ClientsList })));
-const Screen11_CierreCaja = lazy(() => import('./components/screens/Screen11_CierreCaja').then(m => ({ default: m.Screen11_CierreCaja })));
-
-function ScreenFallback() {
-  return (
-    <div className="flex-1 flex flex-col items-center justify-center p-6 bg-[#090B0E] text-slate-400">
-      <div className="w-9 h-9 rounded-full border-2 border-[#D4AF37]/30 border-t-[#D4AF37] animate-spin mb-3"></div>
-      <span className="text-xs font-mono tracking-wider text-slate-400">Cargando pantalla...</span>
-    </div>
-  );
-}
+const Calendar = lazy(() =>
+  import('./components/screens/Screen7_Calendar').then((m) => ({
+    default: m.Screen7_Calendar,
+  })),
+);
+const BikeMap = lazy(() =>
+  import('./components/screens/Screen3_BikeSelection').then((m) => ({
+    default: m.Screen3_BikeSelection,
+  })),
+);
+const Confirm = lazy(() =>
+  import('./components/screens/Screen4_Confirmation').then((m) => ({
+    default: m.Screen4_Confirmation,
+  })),
+);
+const Ticket = lazy(() =>
+  import('./components/screens/Screen5_TicketQR').then((m) => ({
+    default: m.Screen5_TicketQR,
+  })),
+);
+const MyClasses = lazy(() =>
+  import('./components/screens/Screen6_MyClasses').then((m) => ({
+    default: m.Screen6_MyClasses,
+  })),
+);
+const Cash = lazy(() =>
+  import('./components/screens/Screen11_CierreCaja').then((m) => ({
+    default: m.Screen11_CierreCaja,
+  })),
+);
+const Dashboard = lazy(() =>
+  import('./components/screens/Screen8_AdminDashboard').then((m) => ({
+    default: m.Screen8_AdminDashboard,
+  })),
+);
+const Fleet = lazy(() =>
+  import('./components/screens/Screen9_BikeManagement').then((m) => ({
+    default: m.Screen9_BikeManagement,
+  })),
+);
+const Customers = lazy(() =>
+  import('./components/screens/Screen10_ClientsList').then((m) => ({
+    default: m.Screen10_ClientsList,
+  })),
+);
+const Plans = lazy(() =>
+  import('./components/screens/Screen_Plans').then((m) => ({
+    default: m.Screen_Plans,
+  })),
+);
 
 export function App() {
-  // Navigation & Role states
-  const [currentScreen, setCurrentScreen] = useState<ScreenId>('welcome');
-  const [role, setRole] = useState<UserRole>(() => {
-    return sessionStorage.getItem('black_ride_admin_auth') === 'true' ? 'admin' : 'client';
-  });
-  const [isSimulator] = useState<boolean>(false);
-
-  // Admin exclusive authentication state (separate from clients)
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(() => {
-    return sessionStorage.getItem('black_ride_admin_auth') === 'true';
-  });
-  const [showAdminLoginModal, setShowAdminLoginModal] = useState<boolean>(false);
-
-  // Rider authentication / verification state
-  const [currentUser, setCurrentUser] = useState<ClientUser | null>(() => db.getCurrentUser());
-  const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
-
-  // Persistent Application Data states (Loaded from DB)
-  const [bikes, setBikes] = useState<Bike[]>(() => db.getBikes());
-  const [classes, setClasses] = useState<ClassSession[]>(() => db.getClasses());
-  const [currentClass, setCurrentClass] = useState<ClassSession>(() => db.getClasses()[2] || db.getClasses()[0]);
-  const [reservations, setReservations] = useState<Reservation[]>(() => db.getReservations());
-  const [clients, setClients] = useState<ClientUser[]>(() => db.getClients());
-  const [plans, setPlans] = useState<MembershipPlan[]>(() => db.getPlans());
-  const [selectedBikeId, setSelectedBikeId] = useState<number | null>(7);
-  const [openCreateClassModal, setOpenCreateClassModal] = useState<boolean>(false);
-
-  // Booking Flow User State
-  const [bookingClientType, setBookingClientType] = useState<ClientType>(() => {
-    const u = db.getCurrentUser();
-    return u ? u.clientType : 'mensualidad';
-  });
-  const [bookingClientName, setBookingClientName] = useState<string>(() => {
-    const u = db.getCurrentUser();
-    return u ? u.name : 'Laura Gómez';
-  });
-  const [bookingClientPhone, setBookingClientPhone] = useState<string>(() => {
-    const u = db.getCurrentUser();
-    return u ? u.phone : '+57 300 123 4567';
-  });
-
-  // Active reservation being viewed on Ticket QR screen
-  const [activeReservation, setActiveReservation] = useState<Reservation>(() => 
-    db.getReservations()[0] || {
-      id: 'res-default',
-      bookingCode: 'BR-20260925-007',
-      classId: 'class-evening-1',
-      className: 'Indoor Cycling',
-      date: '2026-09-25',
-      dateFormatted: 'Viernes, 25 de septiembre de 2026',
-      time: '6:00 p. m.',
-      bikeNumber: '07',
-      instructorName: 'Andrés Ramírez',
-      clientName: 'Laura Gómez',
-      clientPhone: '+57 300 123 4567',
-      clientType: 'mensualidad',
-      paymentStatus: 'included_in_membership',
-      paymentMethod: 'mensualidad',
-      amountPaid: 0,
-      status: 'confirmed',
-      qrValue: 'BLACK-RIDE:BR-20260925-007:BIKE-07',
-      createdAt: new Date().toISOString(),
-    }
-  );
-
-  // Refresh data from db
-  const refreshAllData = () => {
-    setBikes(db.getBikes());
-    setClasses(db.getClasses());
-    setReservations(db.getReservations());
-    setClients(db.getClients());
-    setPlans(db.getPlans());
-  };
-
-  // URL / Route Guard: Check for ?admin, ?staff, or #admin
+  const [user, setUser] = useState<User | null | undefined>(undefined);
+  const [login, setLogin] = useState<'staff' | 'client' | null>(null);
+  const [draft, setDraft] = useState<{
+    session: ClassSession;
+    bike: Bike;
+  } | null>(null);
+  const [destination, setDestination] = useState<ScreenId>('welcome');
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const hash = window.location.hash;
-    if (params.has('admin') || params.has('staff') || hash === '#admin') {
-      if (isAdminAuthenticated) {
-        setRole('admin');
-        setCurrentScreen('admin-dashboard');
-      } else {
-        setShowAdminLoginModal(true);
-      }
-    }
-  }, [isAdminAuthenticated]);
-
-  // Route Guard: Protect Admin Screens from regular clients
-  useEffect(() => {
-    const adminScreens: ScreenId[] = ['admin-dashboard', 'bike-management', 'clients-list', 'cierre-caja'];
-    if (adminScreens.includes(currentScreen) && !isAdminAuthenticated) {
-      setCurrentScreen('welcome');
-      setRole('client');
-      setShowAdminLoginModal(true);
-    }
-  }, [currentScreen, isAdminAuthenticated]);
-
-  // Admin Login & Logout handlers
-  const handleAdminLoginSuccess = () => {
-    setIsAdminAuthenticated(true);
-    setRole('admin');
-    setCurrentScreen('admin-dashboard');
-    setShowAdminLoginModal(false);
-  };
-
-  const handleAdminLogout = () => {
-    sessionStorage.removeItem('black_ride_admin_auth');
-    setIsAdminAuthenticated(false);
-    setRole('client');
-    setCurrentScreen('welcome');
-  };
-
-  const handleResetData = () => {
-    db.resetDatabase();
-    refreshAllData();
-    setCurrentUser(null);
-    setSelectedBikeId(7);
-    alert('Base de datos restaurada al estado oficial de BLACK RIDE Zarzal.');
-  };
-
-  const handleLoginSuccess = (user: ClientUser) => {
-    setCurrentUser(user);
-    setBookingClientName(user.name);
-    setBookingClientPhone(user.phone);
-    setBookingClientType(user.clientType);
-    setShowLoginModal(false);
-  };
-
-  const handleLogout = () => {
-    db.setCurrentUser(null);
-    setCurrentUser(null);
-  };
-
-  const handleLoginAndContinueBooking = (user: ClientUser) => {
-    handleLoginSuccess(user);
-    setCurrentScreen('class-selection');
-  };
-
-  const handleStartBooking = () => {
-    setCurrentScreen('class-selection');
-  };
-
-  const handleContinueClassSelection = (updated?: Partial<ClassSession>) => {
-    if (updated) {
-      const newClass = { ...currentClass, ...updated };
-      setCurrentClass(newClass);
-    }
-    setCurrentScreen('bike-selection');
-  };
-
-  const handleSelectBike = (bikeId: number) => {
-    const targetBike = bikes.find((b) => b.id === bikeId);
-    if (targetBike && targetBike.status !== 'reserved' && targetBike.status !== 'maintenance') {
-      setSelectedBikeId(bikeId);
-    }
-  };
-
-  const handleConfirmBikeSelection = () => {
-    if (selectedBikeId) {
-      setCurrentScreen('confirmation');
-    }
-  };
-
-  const handleConfirmBooking = (customCode?: string) => {
-    const selectedBike = bikes.find((b) => b.id === selectedBikeId);
-    const bikeNumber = selectedBike ? selectedBike.number : '07';
-
-    // Código unificado que viaja en el texto, WhatsApp y exactamente dentro del QR
-    const newBookingCode = customCode || `BR-${Math.floor(1000 + Math.random() * 9000)}`;
-    const isMembership = bookingClientType === 'mensualidad';
-
-    const newReservation: Reservation = {
-      id: `res-${Date.now()}`,
-      bookingCode: newBookingCode,
-      classId: currentClass.id,
-      className: currentClass.type,
-      date: currentClass.date,
-      dateFormatted: currentClass.dateFormatted,
-      time: currentClass.time,
-      bikeNumber: bikeNumber,
-      instructorName: currentClass.instructor.name,
-      clientName: bookingClientName,
-      clientPhone: bookingClientPhone,
-      clientType: bookingClientType,
-      paymentStatus: isMembership ? 'included_in_membership' : 'pending',
-      paymentMethod: isMembership ? 'mensualidad' : 'efectivo',
-      amountPaid: isMembership ? 0 : 10000, // Tarifa clase individual $10.000 COP
-      status: 'confirmed',
-      qrValue: newBookingCode, // ¡Exactamente el mismo código que lee el QR!
-      createdAt: new Date().toISOString(),
-    };
-
-    // Guardar en base de datos local
-    db.createReservation(newReservation);
-    refreshAllData();
-
-    // Sincronizar en Supabase en segundo plano
-    Promise.resolve(
-      supabase.rpc('confirm_booking_fast', {
-        p_booking_code: newBookingCode,
-        p_class_date: currentClass.date,
-        p_class_time: currentClass.time.includes('p') ? '18:00:00' : '06:30:00',
-        p_bike_number: bikeNumber,
-        p_client_name: bookingClientName,
-        p_client_phone: bookingClientPhone,
-        p_client_type: bookingClientType,
-        p_payment_method: isMembership ? 'mensualidad' : 'efectivo',
-      })
-    ).then(({ data, error }) => {
-      if (error) console.warn('Supabase booking sync warning:', error);
-      else console.log('Supabase booking confirmed:', data);
-    }).catch(console.error);
-
-    setActiveReservation(newReservation);
-    setCurrentScreen('ticket-qr');
-  };
-
-  const handleViewTicketDetail = (res: Reservation) => {
-    setActiveReservation(res);
-    setCurrentScreen('ticket-qr');
-  };
-
-  const handleSelectClassFromCalendar = (cls: ClassSession) => {
-    setCurrentClass(cls);
-    setCurrentScreen('bike-selection');
-  };
-
-  const handleUpdateBikeStatus = (bikeId: number, newStatus: BikeStatus) => {
-    const updated = bikes.map((b) => (
-      b.id === bikeId 
-        ? { ...b, status: newStatus, reservedBy: newStatus === 'available' ? undefined : b.reservedBy } 
-        : b
-    ));
-    db.saveBikes(updated);
-    setBikes(updated);
-  };
-
-  const handleUpdateClientMembership = (clientId: string, type: ClientType, planName?: string, expiresAt?: string) => {
-    const updated = clients.map((c) => 
-      c.id === clientId
-        ? {
-            ...c,
-            clientType: type,
-            membershipStatus: type === 'mensualidad' ? ('active' as const) : ('none' as const),
-            membershipPlan: planName || (type === 'mensualidad' ? 'PREMIUM (12 clases • 20 días)' : 'CLASE INDIVIDUAL ($10.000)'),
-            membershipExpiresAt: expiresAt || (type === 'mensualidad' ? '2026-10-25' : undefined),
-          }
-        : c
+    const { data } = supabase.auth.onAuthStateChange((_event, session) =>
+      setUser(session?.user ?? null),
     );
-    db.saveClients(updated);
-    setClients(updated);
-  };
-
-  const handleAddClient = (newClientData: {
-    name: string;
-    phone: string;
-    email: string;
-    clientType: ClientType;
-    membershipPlan?: string;
-    membershipExpiresAt?: string;
-  }) => {
-    db.addClient(newClientData);
-    setClients(db.getClients());
-  };
-
-  const handleUpdatePlan = (updatedPlan: MembershipPlan) => {
-    db.updatePlan(updatedPlan);
-    setPlans(db.getPlans());
-    setClients(db.getClients());
-  };
-
-  const handleCreateClass = (newClassData: Omit<ClassSession, 'id'>) => {
-    const created = db.addClass(newClassData);
-    const updated = db.getClasses();
-    setClasses(updated);
-    return created;
-  };
-
-  const handleUpdateClass = (updatedClass: ClassSession) => {
-    db.updateClass(updatedClass);
-    const updated = db.getClasses();
-    setClasses(updated);
-    if (currentClass.id === updatedClass.id) {
-      setCurrentClass(updatedClass);
-    }
-  };
-
-  const handleDeleteClass = (classId: string) => {
-    db.deleteClass(classId);
-    const updated = db.getClasses();
-    setClasses(updated);
-    if (currentClass.id === classId && updated.length > 0) {
-      setCurrentClass(updated[0]);
-    }
-  };
-
-  const handleSelectPlanToBook = (plan: MembershipPlan) => {
-    if (plan.isMembership) {
-      setBookingClientType('mensualidad');
-    } else {
-      setBookingClientType('particular');
-    }
-    setCurrentScreen('class-selection');
-  };
-
-  const selectedBikeObj = bikes.find((b) => b.id === selectedBikeId);
-
+    return () => data.subscription.unsubscribe();
+  }, []);
+  function authenticate(staff: boolean, to: ScreenId) {
+    setDestination(to);
+    setLogin(staff ? 'staff' : 'client');
+  }
   return (
-    <div className="h-[100dvh] max-h-[100dvh] w-full bg-[#06080B] text-slate-100 flex flex-col overflow-hidden font-['Plus_Jakarta_Sans',sans-serif]">
-      {/* Main Content inside Phone Frame or Full Width */}
-      <MobileFrame isSimulator={isSimulator}>
-        <div className="flex-1 min-h-0 flex flex-col overflow-hidden relative">
-          <Suspense fallback={<ScreenFallback />}>
-            {/* SCREEN 1: Inicio / Bienvenida (Eager Loaded) */}
-            {currentScreen === 'welcome' && (
-              <Screen1_Welcome
-                onStartBooking={handleStartBooking}
-                onExploreSchedule={() => setCurrentScreen('calendar')}
-                onViewPlans={() => setCurrentScreen('plans')}
-                currentUser={currentUser}
-                onOpenLoginModal={() => setShowLoginModal(true)}
-                onLogout={handleLogout}
-                onOpenAdminLogin={() => setShowAdminLoginModal(true)}
-              />
-            )}
-
-            {/* SCREEN: Planes y Membresías BLACK RIDE */}
-            {currentScreen === 'plans' && (
-              <Screen_Plans
-                onBack={() => setCurrentScreen(role === 'admin' ? 'admin-dashboard' : 'welcome')}
-                onSelectPlanToBook={handleSelectPlanToBook}
-                isAdmin={role === 'admin'}
-                plans={plans}
-                clients={clients}
-                onUpdatePlan={handleUpdatePlan}
-              />
-            )}
-
-            {/* SCREEN 2: Selección de Clase */}
-            {currentScreen === 'class-selection' && (
-              <Screen2_ClassSelection
-                currentClass={currentClass}
-                onContinue={handleContinueClassSelection}
-                onOpenMenu={() => setCurrentScreen('welcome')}
-              />
-            )}
-
-            {/* SCREEN 3: Elección de Bicicleta */}
-            {currentScreen === 'bike-selection' && (
-              <Screen3_BikeSelection
-                bikes={bikes}
-                selectedBikeId={selectedBikeId}
-                onSelectBike={handleSelectBike}
-                onConfirm={handleConfirmBikeSelection}
-                onBack={() => setCurrentScreen('class-selection')}
-              />
-            )}
-
-            {/* SCREEN 4: Confirmación de Reserva (Lógica Membresía vs Individual) */}
-            {currentScreen === 'confirmation' && (
-              <Screen4_Confirmation
-                currentClass={currentClass}
-                bikeNumber={selectedBikeObj ? selectedBikeObj.number : '07'}
-                clientType={bookingClientType}
-                onSelectClientType={setBookingClientType}
-                clientName={bookingClientName}
-                clientPhone={bookingClientPhone}
-                onChangeClientInfo={(name, phone) => {
-                  setBookingClientName(name);
-                  setBookingClientPhone(phone);
-                }}
-                onConfirmBooking={handleConfirmBooking}
-                onBack={() => setCurrentScreen('bike-selection')}
-              />
-            )}
-
-            {/* SCREEN 5: Ticket / QR de Ingreso */}
-            {currentScreen === 'ticket-qr' && (
-              <Screen5_TicketQR
-                reservation={activeReservation}
-                onBack={() => setCurrentScreen('confirmation')}
-                onGoToMyClasses={() => setCurrentScreen('my-classes')}
-              />
-            )}
-
-            {/* SCREEN 6: Mis Clases */}
-            {currentScreen === 'my-classes' && (
-              <Screen6_MyClasses
-                reservations={reservations}
-                onViewDetail={handleViewTicketDetail}
-                onBookNewClass={() => setCurrentScreen('class-selection')}
-              />
-            )}
-
-            {/* SCREEN 7: Calendario de Clases */}
-            {currentScreen === 'calendar' && (
-              <Screen7_Calendar
-                scheduledClasses={classes}
-                onSelectClass={handleSelectClassFromCalendar}
-                onBack={() => {
-                  setOpenCreateClassModal(false);
-                  setCurrentScreen(role === 'admin' ? 'admin-dashboard' : 'welcome');
-                }}
-                isAdmin={role === 'admin'}
-                onCreateClass={handleCreateClass}
-                onUpdateClass={handleUpdateClass}
-                onDeleteClass={handleDeleteClass}
-                initialOpenCreateModal={openCreateClassModal}
-              />
-            )}
-
-            {/* SCREEN 8: Panel de Administrador (Protegido) */}
-            {currentScreen === 'admin-dashboard' && (
-              <Screen8_AdminDashboard
-                onNavigateScreen={setCurrentScreen}
-                onOpenCreateClassModal={() => {
-                  setOpenCreateClassModal(true);
-                  setCurrentScreen('calendar');
-                }}
-                onLogoutAdmin={handleAdminLogout}
-                onResetData={handleResetData}
-                plans={plans}
-              />
-            )}
-
-            {/* SCREEN 9: Gestión de Bicicletas (Protegido) */}
-            {currentScreen === 'bike-management' && (
-              <Screen9_BikeManagement
-                bikes={bikes}
-                onUpdateBikeStatus={handleUpdateBikeStatus}
-                onBack={() => setCurrentScreen('admin-dashboard')}
-              />
-            )}
-
-            {/* SCREEN 10: Clientes y Membresías (Protegido) */}
-            {currentScreen === 'clients-list' && (
-              <Screen10_ClientsList
-                clients={clients}
-                onBack={() => setCurrentScreen('admin-dashboard')}
-                onUpdateClientMembership={handleUpdateClientMembership}
-                onAddClient={handleAddClient}
-                plans={plans}
-              />
-            )}
-
-            {/* SCREEN 11: Cierre de Caja y Finanzas (Protegido) */}
-            {currentScreen === 'cierre-caja' && (
-              <Screen11_CierreCaja
-                onBack={() => setCurrentScreen('admin-dashboard')}
-                onRefreshData={refreshAllData}
-              />
-            )}
-          </Suspense>
-        </div>
-
-        {/* Bottom Navigation Bar */}
-        {currentScreen !== 'welcome' && (
-          <BottomNav
-            currentScreen={currentScreen}
-            onNavigate={setCurrentScreen}
-            role={role}
+    <div className="h-[100dvh] flex flex-col bg-[#06080B] text-slate-100 overflow-hidden">
+      <MobileFrame isSimulator={false}>
+        {login ? (
+          <AccountForm
+            key={login}
+            staff={login === 'staff'}
+            onBack={() => {
+              setDraft(null);
+              setDestination('welcome');
+              setLogin(null);
+            }}
+            onSuccess={() => setLogin(null)}
+          />
+        ) : user === undefined ? (
+          <p>Cargando sesión…</p>
+        ) : (
+          <Studio
+            key={user?.id ?? 'guest'}
+            user={user}
+            initial={user ? destination : 'welcome'}
+            draft={draft}
+            authenticate={(staff, to, selection) => {
+              setDraft(selection ?? null);
+              authenticate(staff, to);
+            }}
+            onExit={() => {
+              setDraft(null);
+              setDestination('welcome');
+            }}
           />
         )}
-
-        {/* Modal de Inicio de Sesión y Verificación de Membresía para Clientes */}
-        <LoginModal
-          isOpen={showLoginModal}
-          onClose={() => setShowLoginModal(false)}
-          currentUser={currentUser}
-          onLoginSuccess={handleLoginSuccess}
-          onLogout={handleLogout}
-          onViewPlans={() => {
-            setShowLoginModal(false);
-            setCurrentScreen('plans');
-          }}
-          onContinueBooking={handleLoginAndContinueBooking}
-        />
-
-        {/* Modal de Acceso Administrativo Separado para el Dueño/Staff */}
-        <AdminLoginModal
-          isOpen={showAdminLoginModal}
-          onClose={() => setShowAdminLoginModal(false)}
-          onLoginSuccess={handleAdminLoginSuccess}
-        />
       </MobileFrame>
     </div>
   );
 }
 
+function Studio({
+  user,
+  initial,
+  draft,
+  authenticate,
+  onExit,
+}: {
+  user: User | null;
+  initial: ScreenId;
+  draft: { session: ClassSession; bike: Bike } | null;
+  authenticate: (
+    staff: boolean,
+    to: ScreenId,
+    selection?: { session: ClassSession; bike: Bike },
+  ) => void;
+  onExit: () => void;
+}) {
+  const [screen, go] = useState<ScreenId>(initial);
+  const [day, setDay] = useState(studio.today);
+  const [version, update] = useState(0);
+  const refresh = () => update((n) => n + 1);
+  const [session, setSession] = useState<ClassSession | null>(
+    draft?.session ?? null,
+  );
+  const [bike, setBike] = useState<Bike | null>(draft?.bike ?? null);
+  const [ticket, setTicket] = useState<Reservation | null>(null);
+  const [create, setCreate] = useState(false);
+  const [error, setError] = useState('');
+  const staff = studio.useResource(
+    'role',
+    async () =>
+      user
+        ? Boolean(
+            await studio.result(
+              supabase
+                .from('studio_staff')
+                .select('user_id')
+                .eq('user_id', user.id)
+                .maybeSingle(),
+            ),
+          )
+        : false,
+    version,
+  );
+  const profile = studio.useResource(
+    'profile',
+    () =>
+      user?.phone_confirmed_at
+        ? studio.result<{ name: string; plan: string | null }[]>(
+            supabase.rpc('studio_my_profile'),
+          )
+        : Promise.resolve([]),
+    version,
+  );
+  const identity = profile.value?.[0];
+  const admin = staff.value === true;
+  const schedule = screen === 'calendar' || screen === 'class-selection';
+  const sessions = studio.useResource(
+    day + schedule,
+    () => (schedule ? studio.classesFor(day) : Promise.resolve([])),
+    version,
+  );
+  const seats = studio.useResource(
+    (session?.id ?? '') + screen,
+    () =>
+      session && screen === 'bike-selection'
+        ? studio.seats(session.id)
+        : Promise.resolve([]),
+    version,
+  );
+  const history = studio.useResource(
+    screen,
+    () =>
+      screen === 'my-classes' && user
+        ? studio.tickets({ owner: user.id })
+        : Promise.resolve([]),
+    version,
+  );
+  const catalog = studio.useResource('plans', studio.plans, version);
+  const staffCustomers = studio.useResource(
+    screen + admin,
+    () =>
+      admin && ['clients-list', 'plans'].includes(screen)
+        ? studio.clients()
+        : Promise.resolve([]),
+    version,
+  );
+  const fleet = studio.useResource(
+    screen + admin,
+    () =>
+      admin && ['admin-dashboard', 'bike-management'].includes(screen)
+        ? studio.physicalBikes()
+        : Promise.resolve([]),
+    version,
+  );
+  const summary = studio.useResource(
+    screen + admin,
+    () =>
+      admin && screen === 'admin-dashboard'
+        ? studio.cashDay(studio.today())
+        : Promise.resolve(null),
+    version,
+  );
+  useEffect(() => {
+    function focus() {
+      refresh();
+    }
+    window.addEventListener('focus', focus);
+    return () => window.removeEventListener('focus', focus);
+  }, []);
+  function navigate(to: ScreenId) {
+    setError('');
+    setCreate(false);
+    if (to === 'my-classes' && !user) {
+      authenticate(false, to);
+      return;
+    }
+    go(to);
+  }
+  async function logout() {
+    const { error } = await supabase.auth.signOut({ scope: 'local' });
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    onExit();
+    go('welcome');
+  }
+  function selectClass(c: ClassSession) {
+    setSession(c);
+    setBike(null);
+    go('bike-selection');
+  }
+  async function editCustomer(
+    id: string | null,
+    planId: string,
+    name = '',
+    phone = '',
+    email = '',
+  ) {
+    const plan = catalog.value?.find((p) => p.id === planId);
+    if (!plan) throw new Error('Plan no disponible.');
+    await studio.result(
+      supabase.rpc('studio_client_plan', {
+        p_id: id,
+        p_plan: plan.id,
+        p_label: plan.name,
+        p_count: plan.classesCount,
+        p_days: plan.validityDays,
+        p_name: name,
+        p_phone: phone,
+        p_email: email,
+      }),
+    );
+    refresh();
+  }
+  const failed =
+    error ||
+    profile.error ||
+    staff.error ||
+    sessions.error ||
+    seats.error ||
+    history.error ||
+    catalog.error ||
+    staffCustomers.error ||
+    fleet.error ||
+    summary.error;
+  const adminOnly = [
+    'admin-dashboard',
+    'clients-list',
+    'bike-management',
+    'cierre-caja',
+  ].includes(screen);
+  const loading = (
+    <p className="p-4" role="status">
+      Cargando…
+    </p>
+  );
+  return (
+    <>
+      <div className="flex flex-col flex-1 min-h-0 overflow-y-auto">
+        {failed && (
+          <div role="alert" className="p-3 bg-red-950">
+            {failed}{' '}
+            <button
+              className="underline"
+              onClick={() => {
+                setError('');
+                refresh();
+              }}
+            >
+              Reintentar
+            </button>
+          </div>
+        )}
+        <Suspense fallback={loading}>
+          {adminOnly && !admin ? (
+            staff.value === undefined ? (
+              loading
+            ) : (
+              <div className="studio-panel">
+                <p>Se necesita una cuenta de personal autorizada.</p>
+                <button onClick={() => authenticate(true, 'admin-dashboard')}>
+                  Ingresar
+                </button>
+              </div>
+            )
+          ) : (
+            <>
+              {screen === 'welcome' && (
+                <Screen1_Welcome
+                  currentUser={
+                    user
+                      ? {
+                          name:
+                            identity?.name ||
+                            user.phone ||
+                            user.email ||
+                            'Rider',
+                          clientType: identity?.plan
+                            ? 'mensualidad'
+                            : 'particular',
+                          membershipStatus: identity?.plan ? 'active' : 'none',
+                          membershipPlan: identity?.plan ?? undefined,
+                        }
+                      : null
+                  }
+                  onStartBooking={() => navigate('class-selection')}
+                  onExploreSchedule={() => navigate('calendar')}
+                  onViewPlans={() => navigate('plans')}
+                  onOpenLoginModal={() =>
+                    user
+                      ? navigate('my-classes')
+                      : authenticate(false, 'my-classes')
+                  }
+                  onOpenAdminLogin={() =>
+                    admin
+                      ? navigate('admin-dashboard')
+                      : authenticate(true, 'admin-dashboard')
+                  }
+                />
+              )}
+              {schedule &&
+                (sessions.value ? (
+                  <Calendar
+                    day={day}
+                    changeDay={setDay}
+                    scheduledClasses={sessions.value}
+                    isAdmin={admin}
+                    initialOpenCreateModal={create}
+                    onSelectClass={selectClass}
+                    onBack={() =>
+                      navigate(admin ? 'admin-dashboard' : 'welcome')
+                    }
+                    onCreateClass={async (c) => {
+                      await studio.saveClass(c);
+                      refresh();
+                    }}
+                    onUpdateClass={async (c) => {
+                      await studio.saveClass(c, c.id);
+                      refresh();
+                    }}
+                    onDeleteClass={async (id) => {
+                      await studio.result(
+                        supabase
+                          .from('classes')
+                          .update({ status: 'cancelled' })
+                          .eq('id', id)
+                          .select('id')
+                          .single(),
+                      );
+                      refresh();
+                    }}
+                  />
+                ) : (
+                  loading
+                ))}
+              {screen === 'bike-selection' &&
+                session &&
+                (seats.value ? (
+                  <BikeMap
+                    bikes={seats.value}
+                    selectedBikeId={
+                      seats.value?.find(
+                        (s) => s.id === bike?.id && s.status === 'available',
+                      )?.id ?? null
+                    }
+                    onSelectBike={(id) =>
+                      setBike(
+                        seats.value?.find(
+                          (b) => b.id === id && b.status === 'available',
+                        ) ?? null,
+                      )
+                    }
+                    onBack={() => navigate('calendar')}
+                    onConfirm={() => {
+                      if (!user?.phone_confirmed_at) {
+                        if (bike)
+                          authenticate(false, 'confirmation', {
+                            session,
+                            bike,
+                          });
+                        return;
+                      }
+                      go('confirmation');
+                    }}
+                  />
+                ) : (
+                  loading
+                ))}
+              {screen === 'confirmation' &&
+                session &&
+                bike &&
+                user &&
+                (profile.value || profile.error) && (
+                  <Confirm
+                    session={session}
+                    bike={bike}
+                    phone={user.phone ?? ''}
+                    defaultName={identity?.name}
+                    hasPlan={Boolean(identity?.plan)}
+                    onBack={() => {
+                      setBike(null);
+                      navigate('bike-selection');
+                    }}
+                    onConfirmed={(r) => {
+                      setTicket(r);
+                      go('ticket-qr');
+                    }}
+                  />
+                )}
+              {screen === 'ticket-qr' && ticket && user && (
+                <Ticket
+                  reservation={ticket}
+                  onBack={() => navigate('my-classes')}
+                  onGoToMyClasses={() => navigate('my-classes')}
+                />
+              )}
+              {screen === 'my-classes' &&
+                user &&
+                (history.value ? (
+                  <MyClasses
+                    reservations={history.value}
+                    onViewDetail={(r) => {
+                      setTicket(r);
+                      go('ticket-qr');
+                    }}
+                    onBookNewClass={() => navigate('class-selection')}
+                  />
+                ) : (
+                  loading
+                ))}
+              {screen === 'plans' && catalog.value && (
+                <Plans
+                  plans={catalog.value}
+                  clients={staffCustomers.value ?? []}
+                  isAdmin={admin}
+                  onBack={() => navigate(admin ? 'admin-dashboard' : 'welcome')}
+                  onSelectPlanToBook={() => navigate('class-selection')}
+                  onUpdatePlan={async (p) => {
+                    await studio.result(
+                      supabase
+                        .from('studio_plans')
+                        .upsert({ id: p.id, details: p })
+                        .select('id')
+                        .single(),
+                    );
+                    refresh();
+                  }}
+                />
+              )}
+              {screen === 'admin-dashboard' &&
+                (summary.value && fleet.value && catalog.value ? (
+                  <Dashboard
+                    summary={summary.value}
+                    bikes={fleet.value}
+                    plans={catalog.value}
+                    onNavigateScreen={navigate}
+                    onLogoutAdmin={logout}
+                    onOpenCreateClassModal={() => {
+                      setCreate(true);
+                      go('calendar');
+                    }}
+                  />
+                ) : (
+                  loading
+                ))}
+              {screen === 'bike-management' && fleet.value && (
+                <Fleet
+                  bikes={fleet.value}
+                  onBack={() => navigate('admin-dashboard')}
+                  onUpdateBikeStatus={async (id, status) => {
+                    try {
+                      await studio.result(
+                        supabase
+                          .from('bikes')
+                          .update({ status })
+                          .eq('id', id)
+                          .select('id')
+                          .single(),
+                      );
+                      refresh();
+                    } catch (cause) {
+                      setError(studio.message(cause));
+                    }
+                  }}
+                />
+              )}
+              {screen === 'clients-list' &&
+                staffCustomers.value &&
+                catalog.value && (
+                  <Customers
+                    plans={catalog.value}
+                    clients={staffCustomers.value}
+                    onBack={() => navigate('admin-dashboard')}
+                    onUpdateClientMembership={(id, _type, plan) =>
+                      editCustomer(id, plan ?? 'individual')
+                    }
+                    onAddClient={(c) =>
+                      editCustomer(
+                        null,
+                        c.membershipPlan ?? 'individual',
+                        c.name,
+                        c.phone,
+                        c.email,
+                      )
+                    }
+                  />
+                )}
+              {screen === 'cierre-caja' && (
+                <Cash onBack={() => navigate('admin-dashboard')} />
+              )}
+            </>
+          )}
+        </Suspense>
+      </div>
+      {user && (
+        <button
+          className="self-end text-xs underline px-4 py-2"
+          onClick={logout}
+        >
+          Cerrar sesión · {user.phone || user.email}
+        </button>
+      )}
+      {screen !== 'welcome' && (
+        <BottomNav
+          currentScreen={screen}
+          role={admin ? 'admin' : 'client'}
+          onNavigate={navigate}
+        />
+      )}
+    </>
+  );
+}
 export default App;

@@ -99,7 +99,8 @@ export const Screen5_TicketQR: React.FC<Screen5TicketQRProps> = ({
 
           {/* QR Code Container */}
           <div className="flex flex-col items-center justify-center py-2">
-            <div className="p-3 bg-white rounded-2xl shadow-xl">
+            <a className="text-sm underline text-amber-300" target="_blank" rel="noopener noreferrer" href={'https://wa.me/573154829102?text='+encodeURIComponent('Reserva '+reservation.bookingCode+' · '+reservation.clientName+' · '+reservation.dateFormatted+' '+reservation.time+' · Bici '+reservation.bikeNumber)}>Compartir reserva por WhatsApp</a>
+              <div className="p-3 bg-white rounded-2xl shadow-xl">
               <QRCodePass code={reservation.bookingCode} size={170} />
             </div>
 
